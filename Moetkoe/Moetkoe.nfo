@@ -1,0 +1,29 @@
+Moetkoe
+=======
+
+Author: qma
+
+(aka "The Old Dude", or paavo.j.nieminen@jyu.fi)
+
+Entry in Assembly Summer 2019 1k Intro compo.
+
+Thanks to Pungary for the idea of the theme of "Yhen kilon siika" (one
+kilo whitefish) in a 1k intro compo. It took 5 years to think about it,
+but here it is now. Jumalauta, mikä moetkoe.
+
+Technical
+=========
+
+I can run the compo version in my "Firefox Quantum 68.0 (64-bit),
+Mozilla Firefox for fedora-1.0". No idea about other browsers. Many
+will not accept it, for sure.
+
+Made with Javascript, Closure Compiler, and PNGinator. HTML5 Canvas
+element, ellipse, and painter's algorithm :).
+
+Plead to Compo Crew
+===================
+
+Please, run with fullscreen, and move the mouse away.. The entry is
+more fun when the bytes are spent in c.fillText('Yhen kilon siika')
+instead of style.cursor='none' ...
