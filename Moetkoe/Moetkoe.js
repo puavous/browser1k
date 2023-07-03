@@ -225,6 +225,8 @@ function animation_driver(curTimeInMillis) {
 
 initAssets();
 
+a.onclick = () => {
+
 // Mind the deprecation note...
 // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
 audioctx = new AudioContext;
@@ -234,7 +236,7 @@ sp.onaudioprocess = audioHandler;
 
 // First call to animation will set up requestframe:
 animation_driver();
-
+}
 
 //-------------- some debug code copy-pasted from the old 4k stuff
 // Debug version seek to time                    //DEBUG
