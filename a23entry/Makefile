@@ -45,7 +45,7 @@ $(PROD_NAME).compo.html: tmp.closured.js
 tmp.closured.js: tmp.bulk.compo.js
 	cat tmp.bulk.compo.js \
 		| sed -f $(LMAD1)/tools/prep.sed \
-		| $(CLOS) --assume_function_wrapper > tmp.closured.js
+		| $(CLOS) --assume_function_wrapper --strict_mode_input=false > tmp.closured.js
 
 	 # Some compression profiling for fun - if you wanna you canna..
 	 # results are approximate, not same as Pnginator output.
@@ -53,9 +53,9 @@ tmp.closured.js: tmp.bulk.compo.js
 	$(DEFDB) $@.gz
 	$(GZTHERM) -n $@.gz
 
-# Debug target: just catenate stuff to an HTML file:
+# Debug target: just catenate stuff to an HTML file that has a Canvas called c:
 $(PROD_NAME).debug.html: prod.js
-	echo "<html><head /><body><h1>Click to start show<script>" > $@
+	echo "<html><head /><body>Click to start show.<canvas id="c" /><script>" > $@
 	echo "(function (){" >> $@
 	cat $^ >> $@
 	echo "})();" >> $@

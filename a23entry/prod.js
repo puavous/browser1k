@@ -41,15 +41,24 @@ c.fillText("click to start",60,60);
 
 
 
+/*
 // Looks cleaner this way:
 var a,c;
 document.body.innerHTML = "Click!";
 document.body.appendChild(a = document.createElement("canvas"));
 c = a.style; c.position = "fixed"; c.left = c.top = 0;
 c = a.getContext('2d');
+*/
+
+// We're done with the tricks, so can replace garbled content with this:
+document.body.firstChild.data = "Click!";
 
 
-// TODO: See how the top people did it last year 
+//c = a.style; c.position = "fixed"; c.left = c.top = 0;
+//with(a.style){position = "fixed"; left = top = 0;}
+
+
+// TODO: See how the top people did it last year by serving packed content
 
 
 
@@ -179,10 +188,17 @@ var animation_frame = (t) => {
 //    if (w != Cw || h != Ch) {Cw=a.width=w; Ch=a.height=h;}
 // Nah, let's just reset the canvas on each redraw - if my old laptop can
 // do it, so can a newer compo machine at Assembly:
-    var w = a.width = window.innerWidth;
-    var h = a.height = window.innerHeight;
-    c.fillStyle="#045";
-    c.fillRect(0, 0, w, h);
+    s = c.style; s.position = "fixed"; s.left = s.top = 0;
+    var w = c.width = innerWidth;
+    var h = c.height = innerHeight;
+
+
+//    var w = a.width = innerWidth;
+//    var h = a.height = innerHeight;
+    var C = c.getContext('2d');
+
+    C.fillStyle="#045";
+    C.fillRect(0, 0, w, h);
 
     drawing_array = [];
 
@@ -204,31 +220,31 @@ var animation_frame = (t) => {
 
     for(var i=0;i<drawing_array.length;i++){
 	var tp = doPerspectiveFhc(drawing_array[i], 3);
-	c.fillStyle = toRGB(drawing_array[i][3], 1-tp[2]/17);
+	C.fillStyle = toRGB(drawing_array[i][3], 1-tp[2]/17);
 
         /* Text.. */
 	if (drawing_array[i][4] /*contains text?*/){
-	    c.fillStyle = toRGB(drawing_array[i][3], t/17-2.4);
-	    c.font = h/2/tp[2]+`px arial`;
-	    c.fillText("Yhen kilon siika",
+	    C.fillStyle = toRGB(drawing_array[i][3], t/17-2.4);
+	    C.font = h/2/tp[2]+`px arial`;
+	    C.fillText("Yhen kilon siika",
 		       w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
 		       h/2 + tp[1]*h/2  /*Screen y*/);
 	} else {
-	    c.beginPath();
-	    c.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
+	    C.beginPath();
+	    C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
 		      h/2 + tp[1]*h/2, /*Screen y*/
 		      h/2/tp[2]/5,     /*Radius x*/
 		      h/2/tp[2]/5,     /*Radius y*/
 		      0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
-	    c["fill"]();   // Closure compiler goes all polyglotsy if there's c.fill() here!
+	    C["fill"]();   // Closure compiler goes all polyglotsy if there's c.fill() here!
 	}
     }
 
     framesDrawn++;                      //DEBUG
-    c.font = `${20}px Monospace`;       //DEBUG
-    c.clearRect(0,h-20,w/2,20);         //DEBUG
-    c.fillStyle="#000";                 //DEBUG
-    c.fillText('t = ' + (t|0)           //DEBUG
+    C.font = `${20}px Monospace`;       //DEBUG
+    C.clearRect(0,h-20,w/2,20);         //DEBUG
+    C.fillStyle="#000";                 //DEBUG
+    C.fillText('t = ' + (t|0)           //DEBUG
 	       + 's FPS (avg): '+((framesDrawn/t)|0)  // DEBUG
 	       +' ar: ' + w/h, 0, h);   //DEBUG
 };
@@ -242,8 +258,8 @@ var animation_driver = (curTimeInMillis) => {
 initAssets();
 
 // Use window click handler..
-window.onclick = () => {
-  window.onclick = null; //DEBUG
+onclick = () => {
+  onclick = null; //DEBUG
   // Mind the deprecation note...
   // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
   audioctx = new AudioContext;
@@ -257,9 +273,9 @@ window.onclick = () => {
 
 //-------------- some debug code copy-pasted from the old 4k stuff
 // Debug version seek to time                    //DEBUG
-a.addEventListener("click", function(e){         //DEBUG
+c.addEventListener("click", function(e){         //DEBUG
     audio_time =                                 //DEBUG
-        e.pageX/a.width*1.1*LENGTH_SECONDS;      //DEBUG
+        e.pageX/innerWidth*1.1*LENGTH_SECONDS;      //DEBUG
 //    animation_driver();                          //DEBUG
 });                                              //DEBUG
 
