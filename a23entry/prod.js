@@ -25,9 +25,13 @@
 //
 // Author: qma (aka "The Old Dude", or paavo.j.nieminen@jyu.fi )
 var LENGTH_SECONDS=62;
+var AUDIO_BUFSIZE=4096;
 
 // AudioContext and ScriptProcessor
 var audioctx,sp;
+
+// Start time of show (user click)
+var startTimeInMillis = null;
 
 /*
 // Hmm, assume this much provided on surrounding HTML, as is by pnginator:
@@ -79,22 +83,41 @@ var toRGB = (intensity, alpha) => {
 // ---------------------------
 // Some debug code, excluded from compo version //DEBUG
 var framesDrawn = 0; //DEBUG
-var debug_sought = 0; //DEBUG
+
+var dbg_ms_at_last_seek = null; //DEBUG
+var dbg_ms_offset = 0;          //DEBUG
+var dbg_paused = false;         //DEBUG
+
+var dbg_upd_time = function(curTimeInMillis) {
+    // In debug mode, time is a bit more elaborate, because we want to
+    // be able to seek back and forth.
+    if (!dbg_ms_at_last_seek) dbg_ms_at_last_seek = startTimeInMillis;
+    var dbg_ms_since_last_seek = curTimeInMillis - dbg_ms_at_last_seek;
+    if (dbg_paused) dbg_ms_since_last_seek = 0;
+    var t = (dbg_ms_offset + dbg_ms_since_last_seek) / 1000;
+    return t;
+}
+
 
 //-------------- some debug code copy-pasted from the old 4k stuff
 // Debug version seek to time                    //DEBUG
-c.addEventListener("click", function(e){         //DEBUG
-    audio_time =                                 //DEBUG
-        e.pageX/innerWidth*1.1*LENGTH_SECONDS;   //DEBUG
-    framesDrawn = 0;                             //DEBUG
-    debug_sought = audio_time;                   //DEBUG
-//    animation_driver();                        //DEBUG
-});                                              //DEBUG
 
+var debug_seek = function(e) {
+    framesDrawn = 0;
+    // Handle seek and pausing in debug mode:
+    target_s = e.pageX/innerWidth*1.1*LENGTH_SECONDS;
+    dbg_ms_at_last_seek = performance.now();
+    startTimeInMillis = dbg_ms_at_last_seek - target_s * 1000
+    audio_time = target_s;
+    if (e.pageY<(c.height/2)) dbg_paused = true;
+    else dbg_paused = false;
+}
+
+c.addEventListener("click", debug_seek); //DEBUG
 // Debug information per frame, drawn on 2d context C.
 // 
 var debug_information = (ctx, t, w, h) => {
-    var since_seek = audio_time - debug_sought;
+    var since_seek = ( performance.now() - dbg_ms_at_last_seek ) / 1000;
     framesDrawn++;
     ctx.font = `${20}px Monospace`;
     ctx.clearRect(0,h-20,w/2,20);
@@ -133,7 +156,7 @@ var audio_sample = (t) => {
 /** The onaudioprocess handler. This gets called, technically, for audio output. */
 var audioHandler = (event) => {
     var outbuf = event.outputBuffer.getChannelData(0);
-    for (var isample = 0; isample < 1024;){
+    for (var isample = 0; isample < AUDIO_BUFSIZE;){
 	outbuf[isample++] = audio_sample(audio_time += 1 / audioctx.sampleRate);
     }
 };
@@ -214,7 +237,6 @@ var initAssets = () => {
 }
 
 var animation_frame = (t) => {
-    t = t-2
 //    var w = innerWidth, h = innerHeight;
 //    if (w != Cw || h != Ch) {Cw=a.width=w; Ch=a.height=h;}
 // Nah, let's just reset the canvas on each redraw - if my old laptop can
@@ -276,8 +298,10 @@ var animation_frame = (t) => {
 
 // This function wraps our own one for requestAnimationFrame()
 var animation_driver = (curTimeInMillis) => {
-    animation_frame(audio_time);
-    if (audio_time<LENGTH_SECONDS) requestAnimationFrame(animation_driver);
+    if (!startTimeInMillis) startTimeInMillis = curTimeInMillis;
+    var t = (curTimeInMillis - startTimeInMillis)/1000;
+    animation_frame(t);
+    if (t<LENGTH_SECONDS) requestAnimationFrame(animation_driver);
 };
 
 initAssets();
@@ -288,10 +312,10 @@ onclick = () => {
   // Mind the deprecation note...
   // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
   audioctx = new AudioContext;
-  sp = audioctx.createScriptProcessor(1024, 0, 1);
+  sp = audioctx.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
   sp.connect(audioctx.destination);
   sp.onaudioprocess = audioHandler;
 
   // First call to animation will set up requestframe:
-  animation_driver();
+  animation_driver(0);
 }
