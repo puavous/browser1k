@@ -76,7 +76,37 @@ var toRGB = (intensity, alpha) => {
     return `rgb(${intensity},${intensity},${intensity},${alpha})`;
 }
 
+// ---------------------------
+// Some debug code, excluded from compo version //DEBUG
 var framesDrawn = 0; //DEBUG
+var debug_sought = 0; //DEBUG
+
+//-------------- some debug code copy-pasted from the old 4k stuff
+// Debug version seek to time                    //DEBUG
+c.addEventListener("click", function(e){         //DEBUG
+    audio_time =                                 //DEBUG
+        e.pageX/innerWidth*1.1*LENGTH_SECONDS;   //DEBUG
+    framesDrawn = 0;                             //DEBUG
+    debug_sought = audio_time;                   //DEBUG
+//    animation_driver();                        //DEBUG
+});                                              //DEBUG
+
+// Debug information per frame, drawn on 2d context C.
+// 
+var debug_information = (ctx, t, w, h) => {
+    var since_seek = audio_time - debug_sought;
+    framesDrawn++;
+    ctx.font = `${20}px Monospace`;
+    ctx.clearRect(0,h-20,w/2,20);
+    ctx.fillStyle="#000";
+    ctx.fillText('t = ' + (t|0)
+   	       + 's FPS (avg): '+((framesDrawn/since_seek)|0)
+	       +' ar: ' + w/h, 0, h);
+}
+
+
+// ---------------------- 
+// Utility functions.. unused ones automatically discarded from compo version.
 
 /*
 // I'd like to know what rands I get.. seems to cost about 20-30 bytes..
@@ -86,6 +116,7 @@ function rnd(){
     return random_state / 4200000; // almost get 1.0 but not quite..
 }
 */
+
 
 // If 20 bytes costs too much, take the implementation-defined Math.random():
 var rnd=()=>Math.random();
@@ -240,13 +271,7 @@ var animation_frame = (t) => {
 	}
     }
 
-    framesDrawn++;                      //DEBUG
-    C.font = `${20}px Monospace`;       //DEBUG
-    C.clearRect(0,h-20,w/2,20);         //DEBUG
-    C.fillStyle="#000";                 //DEBUG
-    C.fillText('t = ' + (t|0)           //DEBUG
-	       + 's FPS (avg): '+((framesDrawn/t)|0)  // DEBUG
-	       +' ar: ' + w/h, 0, h);   //DEBUG
+    debug_information(C, t, w, h) //DEBUG
 };
 
 // This function wraps our own one for requestAnimationFrame()
@@ -270,12 +295,3 @@ onclick = () => {
   // First call to animation will set up requestframe:
   animation_driver();
 }
-
-//-------------- some debug code copy-pasted from the old 4k stuff
-// Debug version seek to time                    //DEBUG
-c.addEventListener("click", function(e){         //DEBUG
-    audio_time =                                 //DEBUG
-        e.pageX/innerWidth*1.1*LENGTH_SECONDS;      //DEBUG
-//    animation_driver();                          //DEBUG
-});                                              //DEBUG
-
