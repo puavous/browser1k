@@ -308,7 +308,14 @@ initAssets();
 
 // Use window click handler..
 onclick = () => {
-  onclick = null; //DEBUG
+    onclick = null; //DEBUG
+    /* In debug mode I want to control the fullscreen myself, so iffalse..*/
+    if (false)                                     //DEBUG
+        c.style.cursor='none';
+    if (false)                                     //DEBUG
+        c.requestFullscreen();
+
+
   // Mind the deprecation note...
   // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
   audioctx = new AudioContext;
