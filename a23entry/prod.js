@@ -81,51 +81,52 @@ var toRGB = (intensity, alpha) => {
 }
 
 // ---------------------------
-// Some debug code, excluded from compo version //DEBUG
-var framesDrawn = 0; //DEBUG
+// Some debug code, pretty much copy-pasted from my recent-ish 4k stuff.
+// These should get swallowed automatically from the tiny compo version.
 
+var framesDrawn = 0;            //DEBUG
 var dbg_ms_at_last_seek = null; //DEBUG
-var dbg_ms_offset = 0;          //DEBUG
+var dbg_t_at_seek = 0;          //DEBUG
 var dbg_paused = false;         //DEBUG
 
-var dbg_upd_time = function(curTimeInMillis) {
-    // In debug mode, time is a bit more elaborate, because we want to
-    // be able to seek back and forth.
+// Return time in seconds when using the debug seek.
+var debug_upd_time = function(curTimeInMillis) {
     if (!dbg_ms_at_last_seek) dbg_ms_at_last_seek = startTimeInMillis;
-    var dbg_ms_since_last_seek = curTimeInMillis - dbg_ms_at_last_seek;
-    if (dbg_paused) dbg_ms_since_last_seek = 0;
-    var t = (dbg_ms_offset + dbg_ms_since_last_seek) / 1000;
+    var ms_since_seek = dbg_paused ? 0:(curTimeInMillis - dbg_ms_at_last_seek);
+    var t = dbg_t_at_seek + (ms_since_seek / 1000);
     return t;
 }
-
-
-//-------------- some debug code copy-pasted from the old 4k stuff
-// Debug version seek to time                    //DEBUG
 
 var debug_seek = function(e) {
     framesDrawn = 0;
     // Handle seek and pausing in debug mode:
-    target_s = e.pageX/innerWidth*1.1*LENGTH_SECONDS;
+    target_s = e.pageX / innerWidth * 1.1 * LENGTH_SECONDS;
     dbg_ms_at_last_seek = performance.now();
     startTimeInMillis = dbg_ms_at_last_seek - target_s * 1000
+    dbg_t_at_seek = target_s;
     audio_time = target_s;
     if (e.pageY<(c.height/2)) dbg_paused = true;
     else dbg_paused = false;
 }
 
-c.addEventListener("click", debug_seek); //DEBUG
-// Debug information per frame, drawn on 2d context C.
-// 
+// Debug information per frame, drawn on 2d context ctx at time t.
 var debug_information = (ctx, t, w, h) => {
-    var since_seek = ( performance.now() - dbg_ms_at_last_seek ) / 1000;
+    /* Omit info if the URL ends in '#'. Use for tidy screenshots...  */
+    if (location.href.slice(-1) == '#') return;
+
     framesDrawn++;
+    var since_seek = ( performance.now() - dbg_ms_at_last_seek ) / 1000;
+    var infotext = 't = ' + (t|0)
+   	+ 's FPS (avg): '+((framesDrawn / since_seek) | 0)
+	+' ar: ' + w/h;
     ctx.font = `${20}px Monospace`;
-    ctx.clearRect(0,h-20,w/2,20);
+    ctx.clearRect(0, h-20, ctx.measureText(infotext).width, 20);
     ctx.fillStyle="#000";
-    ctx.fillText('t = ' + (t|0)
-   	       + 's FPS (avg): '+((framesDrawn/since_seek)|0)
-	       +' ar: ' + w/h, 0, h);
+    ctx.fillText(infotext, 0, h);
 }
+
+c.addEventListener("click", debug_seek); //DEBUG
+
 
 
 // ---------------------- 
@@ -157,6 +158,7 @@ var audio_sample = (t) => {
 var audioHandler = (event) => {
     var outbuf = event.outputBuffer.getChannelData(0);
     for (var isample = 0; isample < AUDIO_BUFSIZE;){
+	if (dbg_paused) {outbuf[isample++] = 0; continue;} // DEBUG
 	outbuf[isample++] = audio_sample(audio_time += 1 / audioctx.sampleRate);
     }
 };
@@ -299,7 +301,8 @@ var animation_frame = (t) => {
 // This function wraps our own one for requestAnimationFrame()
 var animation_driver = (curTimeInMillis) => {
     if (!startTimeInMillis) startTimeInMillis = curTimeInMillis;
-    var t = (curTimeInMillis - startTimeInMillis)/1000;
+    var t = (curTimeInMillis - startTimeInMillis) / 1000;
+    t = debug_upd_time(curTimeInMillis); // DEBUG
     animation_frame(t);
     if (t<LENGTH_SECONDS) requestAnimationFrame(animation_driver);
 };
@@ -314,7 +317,6 @@ onclick = () => {
         c.style.cursor='none';
     if (false)                                     //DEBUG
         c.requestFullscreen();
-
 
   // Mind the deprecation note...
   // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
