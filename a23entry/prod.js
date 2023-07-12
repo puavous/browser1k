@@ -231,11 +231,9 @@ var initAssets = () => {
     //for(i=0; i<333; bubblepoints[i++] = [20*rnd()-9, 50*rnd(), 9*rnd(), 1, 0]){};
 }
 
-var animation_frame = (t, w, h, s = c.style, C = c.getContext('2d')) => {
+var animation_frame = (t, w = c.width = innerWidth, h  = c.height = innerHeight, s = c.style, C = c.getContext('2d')) => {
     // Reset the canvas size on each redraw - extra work but less code.
     s.position = "fixed"; s.left = s.top = 0;
-    w = c.width = innerWidth
-    h = c.height = innerHeight;
 
     C.fillStyle="#301";
     C.fillRect(0, 0, w, h);
