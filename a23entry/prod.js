@@ -188,17 +188,10 @@ var zsort = (a, b) => {
 }
 
 /**
- * Return true if point p==[x,y,z] is on the surface of a fishy model (fish along z-axis)
- *
- * How do you make such a model? Pen and paper, children... pen and
- * paper. And Octave/MATLAB a=0:.01:3; figure; plot(a,sin(a)); % you go from there...
- * remember to do an image search on "siika" and compare if you can sell your equation
- * as a whitefish and keep it in 1k limits :). I know there should be fins but I just
- * couldn't make 'em fit.
+ * A shape..
  **/
 var whitefish_profile = (p) => {
-    var l = Math.sin(3*(Math.sin(3*p[2])*Math.sin(8+3*p[2])+p[2])/2)/5;
-    var d = (9*p[0]*p[0]+p[1]*p[1]) - (l*l);
+    var d = (p[0]*p[0] + p[1]*p[1] + p[2]*p[2]) - .5;
     return d*d<.00001;
 }
 
@@ -238,21 +231,13 @@ var initAssets = () => {
     //for(i=0; i<333; bubblepoints[i++] = [20*rnd()-9, 50*rnd(), 9*rnd(), 1, 0]){};
 }
 
-var animation_frame = (t) => {
-//    var w = innerWidth, h = innerHeight;
-//    if (w != Cw || h != Ch) {Cw=a.width=w; Ch=a.height=h;}
-// Nah, let's just reset the canvas on each redraw - if my old laptop can
-// do it, so can a newer compo machine at Assembly:
-    s = c.style; s.position = "fixed"; s.left = s.top = 0;
-    var w = c.width = innerWidth;
-    var h = c.height = innerHeight;
+var animation_frame = (t, w, h, s = c.style, C = c.getContext('2d')) => {
+    // Reset the canvas size on each redraw - extra work but less code.
+    s.position = "fixed"; s.left = s.top = 0;
+    w = c.width = innerWidth
+    h = c.height = innerHeight;
 
-
-//    var w = a.width = innerWidth;
-//    var h = a.height = innerHeight;
-    var C = c.getContext('2d');
-
-    C.fillStyle="#045";
+    C.fillStyle="#301";
     C.fillRect(0, 0, w, h);
 
     drawing_array = [];
@@ -277,22 +262,13 @@ var animation_frame = (t) => {
 	var tp = doPerspectiveFhc(drawing_array[i], 3);
 	C.fillStyle = toRGB(drawing_array[i][3], 1-tp[2]/17);
 
-        /* Text.. */
-	if (drawing_array[i][4] /*contains text?*/){
-	    C.fillStyle = toRGB(drawing_array[i][3], t/17-2.4);
-	    C.font = h/2/tp[2]+`px arial`;
-	    C.fillText("Yhen kilon siika",
-		       w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
-		       h/2 + tp[1]*h/2  /*Screen y*/);
-	} else {
-	    C.beginPath();
-	    C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
-		      h/2 + tp[1]*h/2, /*Screen y*/
-		      h/2/tp[2]/5,     /*Radius x*/
-		      h/2/tp[2]/5,     /*Radius y*/
-		      0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
-	    C["fill"]();   // Closure compiler goes all polyglotsy if there's c.fill() here!
-	}
+	C.beginPath();
+        C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
+                  h/2 + tp[1]*h/2, /*Screen y*/
+                  h/2/tp[2]/5,     /*Radius x*/
+                  h/2/tp[2]/5,     /*Radius y*/
+                  0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
+        C["fill"]();   // Closure compiler goes all polyglotsy if there's c.fill() here!
     }
 
     debug_information(C, t, w, h) //DEBUG
