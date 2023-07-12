@@ -24,8 +24,8 @@
 // warranty of any kind.
 //
 // Author: qma (aka "The Old Dude", or paavo.j.nieminen@jyu.fi )
-var LENGTH_SECONDS=62;
-var AUDIO_BUFSIZE=4096;
+var DURATION_SECONDS = 62;
+var AUDIO_BUFSIZE = 4096;
 
 // AudioContext and ScriptProcessor
 var audioctx,sp;
@@ -33,44 +33,19 @@ var audioctx,sp;
 // Start time of show (user click)
 var startTimeInMillis = null;
 
-/*
 // Hmm, assume this much provided on surrounding HTML, as is by pnginator:
 // we have '<html><body><canvas id="c" /><script>' in the html..
-var a = document.getElementById("c");
 
-c.fillRect(0,0,600,60);
-c.fillStyle="blue";
-c.fillText("click to start",60,60);
-*/
-
-
-
-/*
-// Looks cleaner this way:
-var a,c;
-document.body.innerHTML = "Click!";
-document.body.appendChild(a = document.createElement("canvas"));
-c = a.style; c.position = "fixed"; c.left = c.top = 0;
-c = a.getContext('2d');
-*/
-
-// We're done with the tricks, so can replace garbled content with this:
+// We're done with PNG unpack tricks, so can replace garbled content with this:
 document.body.firstChild.data = "Click!";
 
-
-//c = a.style; c.position = "fixed"; c.left = c.top = 0;
-//with(a.style){position = "fixed"; left = top = 0;}
-
-
 // TODO: See how the top people did it last year by serving packed content
-
-
 
 // Global time in seconds, matching audio exactly (updated in audio callback)
 var audio_time = 0;
 
 // "Graphics assets" :)
-var fishpoint = [], fishpoint2 = [], bubblepoints = [];
+var fishpoint = [], bubblepoints = [];
 
 var drawing_array = [];
 
@@ -100,7 +75,7 @@ var debug_upd_time = function(curTimeInMillis) {
 var debug_seek = function(e) {
     framesDrawn = 0;
     // Handle seek and pausing in debug mode:
-    target_s = e.pageX / innerWidth * 1.1 * LENGTH_SECONDS;
+    target_s = e.pageX / innerWidth * 1.1 * DURATION_SECONDS;
     dbg_ms_at_last_seek = performance.now();
     startTimeInMillis = dbg_ms_at_last_seek - target_s * 1000
     dbg_t_at_seek = target_s;
@@ -151,7 +126,7 @@ var aat = (t) => {
 
 var audio_sample = (t) => {
     // Go from beep again..
-    return (t>LENGTH_SECONDS)?0 : ( aat(t)/2 + aat(t-1)/4 + aat(t-2)/8 );
+    return (t > DURATION_SECONDS)?0 : ( aat(t)/2 + aat(t-1)/4 + aat(t-2)/8 );
 };
 
 /** The onaudioprocess handler. This gets called, technically, for audio output. */
@@ -221,18 +196,20 @@ var initAssets = () => {
 	    p[3] = 1-p[2]; // "color" as p[3]
 	    p[4]=0; // No text.
 	    bubblepoints[i] = [20*rnd()-9, 50*rnd(), 9*rnd(), 1, 0]
-	    fishpoint2[i] = p;
 	    fishpoint[i++] = p;
 	}
     }
-    fishpoint2[i]=[.3,0,.3,1,1];
-    //fishpoint[i++]=[.3,0,0,1,1];  /* Text annotations (100bytes) */
     // I ended up putting this in the previous loop:
     //for(i=0; i<333; bubblepoints[i++] = [20*rnd()-9, 50*rnd(), 9*rnd(), 1, 0]){};
 }
 
-var animation_frame = (t, w = c.width = innerWidth, h  = c.height = innerHeight, s = c.style, C = c.getContext('2d')) => {
-    // Reset the canvas size on each redraw - extra work but less code.
+// Reset the canvas size on each redraw - extra work but less code.
+var animation_frame = (t,
+		       w = c.width = innerWidth,
+		       h  = c.height = innerHeight,
+		       s = c.style,
+		       C = c.getContext('2d')) =>
+    {
     s.position = "fixed"; s.left = s.top = 0;
 
     C.fillStyle="#301";
@@ -246,7 +223,7 @@ var animation_frame = (t, w = c.width = innerWidth, h  = c.height = innerHeight,
 	drawing_array_push_wiggly(3*Math.sin(8*i+25),
 				  2*Math.sin(i*3),
 				  18 - (2*t*batch/3 % 20),
-				  i?fishpoint:fishpoint2,
+				  fishpoint,
 				  t*(2+batch)/6+i);
     }
 
@@ -256,7 +233,7 @@ var animation_frame = (t, w = c.width = innerWidth, h  = c.height = innerHeight,
     // for painter's algorithm:
     drawing_array.sort(zsort);
 
-    for(var i=0;i<drawing_array.length;i++){
+    for(var i = 0; i < drawing_array.length; i++){
 	var tp = doPerspectiveFhc(drawing_array[i], 3);
 	C.fillStyle = toRGB(drawing_array[i][3], 1-tp[2]/17);
 
@@ -266,7 +243,7 @@ var animation_frame = (t, w = c.width = innerWidth, h  = c.height = innerHeight,
                   h/2/tp[2]/5,     /*Radius x*/
                   h/2/tp[2]/5,     /*Radius y*/
                   0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
-        C["fill"]();   // Closure compiler goes all polyglotsy if there's c.fill() here!
+	C.fill();
     }
 
     debug_information(C, t, w, h) //DEBUG
@@ -278,7 +255,7 @@ var animation_driver = (curTimeInMillis) => {
     var t = (curTimeInMillis - startTimeInMillis) / 1000;
     t = debug_upd_time(curTimeInMillis); // DEBUG
     animation_frame(t);
-    if (t<LENGTH_SECONDS) requestAnimationFrame(animation_driver);
+    if (t < DURATION_SECONDS) requestAnimationFrame(animation_driver);
 };
 
 initAssets();
