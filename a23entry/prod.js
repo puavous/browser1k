@@ -2,8 +2,8 @@
 //
 // Warming up old codes from 2019.
 //
-// TODO: remove 'window.' if not necessary for anything
 // TODO: trick vars into pars; use with(Math)
+// (Currently, these tricks can be done manually; wins no more than 20 bytes..)
 //
 // User interface in debug version: You can click top / bottom of canvas to
 // go back and forth in graphics. (it is a bit buggy, you'll find out, but
