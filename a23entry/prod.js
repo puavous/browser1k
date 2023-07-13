@@ -79,6 +79,10 @@ var debug_seek = function(e) {
     dbg_ms_at_last_seek = performance.now();
     startTimeInMillis = dbg_ms_at_last_seek - target_s * 1000
     dbg_t_at_seek = target_s;
+
+    // If the show had already stopped, re-enter animation driver:
+    if (audio_time >= DURATION_SECONDS) requestAnimationFrame(animation_driver);
+
     audio_time = target_s;
     if (e.pageY<(c.height/2)) dbg_paused = true;
     else dbg_paused = false;
@@ -216,9 +220,24 @@ var animation_frame = (t,
     C.fillStyle="#301";
     C.fillRect(0, 0, w, h);
 */
-    var gradient = C.createRadialGradient(75, 50, 5, 90, 60, 100);
-    gradient.addColorStop(0, "red");
-    gradient.addColorStop(1, "white");
+    // Ok, I thing gradients are a keeper for this prod..
+    // Something I haven't played with much. Can do nice compositions it seems.
+    var gradient;
+
+    gradient = C.createRadialGradient(w/2, h/2, h/10, w/2, h/2, h);
+    gradient.addColorStop(0, "#f20");
+    gradient.addColorStop(.5, "#810");
+    gradient.addColorStop(.6, "#000");
+    C.fillStyle=gradient;
+    C.fillRect(0, 0, w, h);
+
+    var d = (t/DURATION_SECONDS);
+
+    gradient = C.createLinearGradient(w/2,0,w/2+h*d,h);
+    gradient.addColorStop(0, "#00f0");
+    gradient.addColorStop(.5, "#3ffc");
+    gradient.addColorStop(.55, "#4fe");
+    gradient.addColorStop(.6, "#118");
     C.fillStyle=gradient;
     C.fillRect(0, 0, w, h);
 
@@ -235,7 +254,7 @@ var animation_frame = (t,
 			      t*(2+batch)/6+i);
     }
 
-    drawing_array_push_at(0, 4-t, 9, bubblepoints, t);
+    drawing_array_push_at(0, 4, 9-t, bubblepoints, t);
 
     // Now that we have "modelview" points in array, we can sort them
     // for painter's algorithm:
