@@ -170,15 +170,14 @@ var whitefish_profile = (p) => {
     return d*d<.00001;
 }
 
-var drawing_array_push_wiggly = (x,y,z,pts,wiggle) => {
-    for(var i=0; i<pts.length;i++){
-	var p=pts[i];
-	if (p[2]+z > 0)  // Clip so we can get close swim-bys without crashing
-	    drawing_array.push([p[0] + x + Math.sin(3*wiggle-3*p[2])/8,
-				p[1] + y,
-				p[2] + z,
-				p[3],
-				p[4]
+var drawing_array_push_at = (x,y,z,pts,t) => {
+    for(var p of pts){
+       if (p[2]+z > 0)  // Clip here
+	   drawing_array.push([p[0] + x,
+			       p[1] + y,
+			       p[2] + z,
+			       p[3],
+			       p[4]
 			       ]);
     }
 }
@@ -195,12 +194,11 @@ var initAssets = () => {
 	if (whitefish_profile(p)){
 	    p[3] = 1-p[2]; // "color" as p[3]
 	    p[4]=0; // No text.
-	    bubblepoints[i] = [20*rnd()-9, 50*rnd(), 9*rnd(), 1, 0]
 	    fishpoint[i++] = p;
 	}
     }
     // I ended up putting this in the previous loop:
-    //for(i=0; i<333; bubblepoints[i++] = [20*rnd()-9, 50*rnd(), 9*rnd(), 1, 0]){};
+    for(i=0; i<333; bubblepoints[i++] = [(i%20)-9, 50*rnd(), 9*rnd(), 1, 0]){};
 }
 
 // Reset the canvas size on each redraw - extra work but less code.
@@ -217,17 +215,17 @@ var animation_frame = (t,
 
     drawing_array = [];
 
-    /* Place some whitefish in the lake. Lake is 20 units long. */
-    for (var i=0;i<8;i++){
+    /* Draw some stuff somewhere... */
+    for (var i=0; i<8; i++){
 	var batch = 1+(i%3);  // Divide into batches 1,2,3, ...
-	drawing_array_push_wiggly(3*Math.sin(8*i+25),
-				  2*Math.sin(i*3),
-				  18 - (2*t*batch/3 % 20),
-				  fishpoint,
-				  t*(2+batch)/6+i);
+	drawing_array_push_at(3*Math.sin(8*i+25),
+			      2*Math.sin(i*3),
+			      18 - (2*t*batch/3 % 20),
+			      fishpoint,
+			      t*(2+batch)/6+i);
     }
 
-    drawing_array_push_wiggly(0, 4-t, 9, bubblepoints, t);
+    drawing_array_push_at(0, 4-t, 9, bubblepoints, t);
 
     // Now that we have "modelview" points in array, we can sort them
     // for painter's algorithm:
