@@ -111,7 +111,7 @@ c.addEventListener("click", debug_seek); //DEBUG
 // I'd like to know what rands I get.. seems to cost about 20-30 bytes..
 var random_state = 0;
 function rnd(){
-    random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
+random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
     return random_state / 4200000; // almost get 1.0 but not quite..
 }
 */
@@ -173,12 +173,12 @@ var whitefish_profile = (p) => {
 
 var drawing_array_push_at = (x,y,z,pts,t) => {
     for(var p of pts){
-       if (p[2]+z > 0)  // Clip here
-	   drawing_array.push([p[0] + x,
-			       p[1] + y,
-			       p[2] + z,
-			       p[3],
-			       p[4]
+	if (p[2]+z > 0)  // Clip here
+	    drawing_array.push([p[0] + x,
+				p[1] + y,
+				p[2] + z,
+				p[3],
+				p[4]
 			       ]);
     }
 }
@@ -189,9 +189,9 @@ var initAssets = () => {
     // Sample points randomly from surface
     for(i=0;i<333;){
 	var p = [rnd()-.5,
-	     rnd()-.5,
-	     rnd()
-	    ];
+		 rnd()-.5,
+		 rnd()
+		];
 	if (whitefish_profile(p)){
 	    p[3] = 1-p[2]; // "color" as p[3]
 	    p[4]=0; // No text.
@@ -207,8 +207,9 @@ var animation_frame = (t,
 		       w = c.width = innerWidth,
 		       h  = c.height = innerHeight,
 		       s = c.style,
-		       C = c.getContext('2d')) =>
-    {
+		       C = c.getContext('2d')
+		      ) =>
+{
     s.position = "fixed"; s.left = s.top = 0;
 
 /*
