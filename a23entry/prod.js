@@ -211,8 +211,11 @@ var animation_frame = (t,
     {
     s.position = "fixed"; s.left = s.top = 0;
 
+/*
     C.fillStyle="#301";
     C.fillRect(0, 0, w, h);
+*/
+
 
     drawing_array = [];
 
