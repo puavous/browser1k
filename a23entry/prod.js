@@ -216,6 +216,11 @@ var animation_frame = (t,
     C.fillStyle="#301";
     C.fillRect(0, 0, w, h);
 */
+    var gradient = C.createRadialGradient(75, 50, 5, 90, 60, 100);
+    gradient.addColorStop(0, "red");
+    gradient.addColorStop(1, "white");
+    C.fillStyle=gradient;
+    C.fillRect(0, 0, w, h);
 
 
     drawing_array = [];
