@@ -143,9 +143,9 @@ var audioHandler = (event) => {
 /**
  * Perspective effect without aspect ratio.
  *
- * In: p==[x,y,z], f==1/Math.tan(fovY/2).
+ * In: p==[x,y,z,w], f==1/Math.tan(fovY/2).
  *
- * Out: [f*x/z, f*y/z, z].
+ * Out: [f*x/z, f*y/z, z, w].
  *
  * Doesn't handle aspect ratio nor clipping planes.
  *
@@ -154,7 +154,8 @@ var doPerspectiveFhc = (p, f) => {
     return [
 	f*p[0]/p[2],
 	f*p[1]/p[2],
-	p[2]
+	p[2],
+	p[3]
     ];
 };
 
@@ -231,10 +232,9 @@ var animation_frame = (t,
     // for painter's algorithm:
     drawing_array.sort(zsort);
 
-    for(var i = 0; i < drawing_array.length; i++){
-	var tp = doPerspectiveFhc(drawing_array[i], 3);
-	C.fillStyle = toRGB(drawing_array[i][3], 1-tp[2]/17);
-
+    for(var tp of drawing_array){
+	tp = doPerspectiveFhc(tp, 3);
+	C.fillStyle = toRGB(tp[3]*(Math.min(1,.1*(20-tp[2]))), 1);
 	C.beginPath();
         C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
                   h/2 + tp[1]*h/2, /*Screen y*/
