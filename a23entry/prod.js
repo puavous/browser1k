@@ -224,23 +224,40 @@ var animation_frame = (t,
     // Something I haven't played with much. Can do nice compositions it seems.
     var gradient;
 
-    gradient = C.createRadialGradient(w/2, h/2, h/10, w/2, h/2, h);
-    gradient.addColorStop(0, "#f20");
-    gradient.addColorStop(.5, "#810");
-    gradient.addColorStop(.6, "#000");
-    C.fillStyle=gradient;
-    C.fillRect(0, 0, w, h);
-
     var d = (t/DURATION_SECONDS);
 
-    gradient = C.createLinearGradient(w/2,0,w/2+h*d,h);
-    gradient.addColorStop(0, "#00f0");
-    gradient.addColorStop(.5, "#3ffc");
-    gradient.addColorStop(.55, "#4fe");
-    gradient.addColorStop(.6, "#118");
+    // Sky
+    gradient = C.createLinearGradient(w/2,0,w/2,h/2);
+    gradient.addColorStop(0, "#225");
+    gradient.addColorStop(.2, "#547");
+    gradient.addColorStop(.4, "#c37");
+    gradient.addColorStop(.6, "#e74");
+    C.fillStyle=gradient;
+    C.fillRect(0, 0, w, h/2);
+
+    // Setting sun
+    gradient = C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h);
+    gradient.addColorStop(0, "#fff");
+    gradient.addColorStop(.05, "#fff");
+    gradient.addColorStop(.11, "#ff1");
+    gradient.addColorStop(.2, "#ff4");
+    gradient.addColorStop(1, "#fff0");
     C.fillStyle=gradient;
     C.fillRect(0, 0, w, h);
 
+
+    // Flat ground
+    gradient = C.createLinearGradient(w/2,h/2,w/2,h);
+    gradient.addColorStop(0, "#126");
+    gradient.addColorStop(.6, "#241");
+    C.fillStyle=gradient;
+    C.fillRect(0, h/2, w, h);
+
+    C.beginPath();
+    //    C.ellipse(w/2-h, 2*h, h, h, /*mandatory:*/ 0,0,7);
+    C.ellipse(w/2-h+d*h, h, h*2, .6*h, /*mandatory:*/ 0,0,7);
+    C.ellipse(w/2+h+d*2*h, h, h*3, .6*h, /*mandatory:*/ 0,0,7);
+    C.fill();
 
     drawing_array = [];
 
