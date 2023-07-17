@@ -6,8 +6,7 @@
 // (Currently, these tricks can be done manually; wins no more than 20 bytes..)
 //
 // User interface in debug version: You can click top / bottom of canvas to
-// go back and forth in graphics. (it is a bit buggy, you'll find out, but
-// still it helps to see different parts of the show)
+// seek/pause the show. Add "#" to end of URL for screenshots with info hidden.
 //
 // Note to self: RegPack is great, but still Pnginator wins by tens
 // or even hundreds of bytes.. Should look into the way p01 and folk are packing
@@ -35,9 +34,6 @@ var startTimeInMillis = null;
 
 // Hmm, assume this much provided on surrounding HTML, as is by pnginator:
 // we have '<html><body><canvas id="c" /><script>' in the html..
-
-// We're done with PNG unpack tricks, so can replace garbled content with this:
-document.body.firstChild.data = "Click!";
 
 // TODO: See how the top people did it last year by serving packed content
 
@@ -193,17 +189,15 @@ var drawing_array_push_at = (x,y,z,pts,t) => {
 // GFX init -----------------------------------------------------------------
 var initAssets = () => {
     var i;
-    // Sample points randomly from surface
-    for(i=0;i<333;){
-	var p = [rnd()-.5,
-		 rnd()-.5,
-		 rnd()
-		];
-	if (some_profile(p)){
-	    p[3] = 1-p[2]; // "color" as p[3]
-	    p[4]=0; // No text.
-	    stuffpoints[i++] = p;
-	}
+
+    // No sampling this time.. explicit, deterministic..
+    for(i=0;i<333;i++){
+	var p = [Math.sin(6.3*i/333),
+		 Math.cos(19*i/333),
+		 Math.cos(31*i/333),
+		 0,
+		 0];
+	stuffpoints[i] = p;
     }
 }
 
@@ -348,3 +342,7 @@ onclick = () => {
   // First call to animation will set up requestframe:
   animation_driver(0);
 }
+
+// Assume we execute this from the PNG unpack trick,
+// so we can replace garbled content with a nicer prompt to user:
+document.body.firstChild.data = "Click!";
