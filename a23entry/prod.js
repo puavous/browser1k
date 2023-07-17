@@ -134,12 +134,15 @@ var audio_sample = (t) => {
 };
 
 /** The onaudioprocess handler. This gets called, technically, for audio output. */
-var audioHandler = (event) => {
-    var outbuf = event.outputBuffer.getChannelData(0);
-    for (var isample = 0; isample < AUDIO_BUFSIZE;){
-	if (dbg_paused) {outbuf[isample++] = 0; continue;} // DEBUG
-	outbuf[isample++] = audio_sample(audio_time += 1 / audioctx.sampleRate);
-    }
+var audioHandler = (event,
+		    isample = 0,
+ 		    outbuf = event.outputBuffer.getChannelData(0)) =>
+{
+    var outbuf = event.outputBuffer.getChannelData(0); // DEBUG
+    if (dbg_paused) {for(;isample<AUDIO_BUFSIZE;isample++) outbuf[isample] = 0; return;} // DEBUG
+
+    for (; isample < AUDIO_BUFSIZE;
+	 outbuf[isample++] = audio_sample(audio_time += 1 / audioctx.sampleRate)) ; 
 };
 
 // GFX helper functions -----------------------------------------------------------------
@@ -206,6 +209,12 @@ var initAssets = () => {
     for(i=0; i<333; bubblepoints[i++] = [(i%20)-9, 50*rnd(), 9*rnd(), 1, 0]){};
 }
 
+var gradstops = (g, stops) =>
+{
+    for (var stop of stops) g.addColorStop(stop[0],stop[1]);
+    return g;
+}
+
 // Reset the canvas size on each redraw - extra work but less code.
 var animation_frame = (t,
 		       w = c.width = innerWidth,
@@ -227,6 +236,11 @@ var animation_frame = (t,
     var d = (t/DURATION_SECONDS);
 
     // Sky
+/*
+    C.fillStyle = gradstops(C.createLinearGradient(w/2,0,w/2,h/2), [[0,"#225"],[.2,"#547"],[.4,"#c37"],[.6,"#e74"]])
+    gradient;
+    C.fillRect(0, 0, w, h/2);
+*/
     gradient = C.createLinearGradient(w/2,0,w/2,h/2);
     gradient.addColorStop(0, "#225");
     gradient.addColorStop(.2, "#547");
@@ -236,6 +250,14 @@ var animation_frame = (t,
     C.fillRect(0, 0, w, h/2);
 
     // Setting sun
+/*
+    C.fillStyle = gradstops(C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h),
+			 [[0,"#fff"],
+			  [.05,"#fff"],
+			  [.11,"#ff1"],
+			  [.2,"#ff4"],
+			  [1,"#fff0"]]);
+*/
     gradient = C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h);
     gradient.addColorStop(0, "#fff");
     gradient.addColorStop(.05, "#fff");
@@ -243,14 +265,22 @@ var animation_frame = (t,
     gradient.addColorStop(.2, "#ff4");
     gradient.addColorStop(1, "#fff0");
     C.fillStyle=gradient;
+
     C.fillRect(0, 0, w, h);
 
 
     // Flat ground
+/*
+    C.fillStyle = gradstops(C.createLinearGradient(w/2,h/2,w/2,h),
+			 [[0,"#126"],
+			  [.6, "#241"]]);
+*/
+    
     gradient = C.createLinearGradient(w/2,h/2,w/2,h);
     gradient.addColorStop(0, "#126");
     gradient.addColorStop(.6, "#241");
     C.fillStyle=gradient;
+
     C.fillRect(0, h/2, w, h);
 
     C.beginPath();
