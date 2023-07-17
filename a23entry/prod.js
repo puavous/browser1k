@@ -45,7 +45,7 @@ document.body.firstChild.data = "Click!";
 var audio_time = 0;
 
 // "Graphics assets" :)
-var fishpoint = [], bubblepoints = [];
+var stuffpoints = [];
 
 var drawing_array = [];
 
@@ -173,7 +173,7 @@ var zsort = (a, b) => {
 /**
  * A shape..
  **/
-var whitefish_profile = (p) => {
+var some_profile = (p) => {
     var d = (p[0]*p[0] + p[1]*p[1] + p[2]*p[2]) - .5;
     return d*d<.00001;
 }
@@ -199,14 +199,12 @@ var initAssets = () => {
 		 rnd()-.5,
 		 rnd()
 		];
-	if (whitefish_profile(p)){
+	if (some_profile(p)){
 	    p[3] = 1-p[2]; // "color" as p[3]
 	    p[4]=0; // No text.
-	    fishpoint[i++] = p;
+	    stuffpoints[i++] = p;
 	}
     }
-    // I ended up putting this in the previous loop:
-    for(i=0; i<333; bubblepoints[i++] = [(i%20)-9, 50*rnd(), 9*rnd(), 1, 0]){};
 }
 
 var gradstops = (g, stops) =>
@@ -297,11 +295,9 @@ var animation_frame = (t,
 	drawing_array_push_at(3*Math.sin(8*i+25),
 			      2*Math.sin(i*3),
 			      18 - (2*t*batch/3 % 20),
-			      fishpoint,
+			      stuffpoints,
 			      t*(2+batch)/6+i);
     }
-
-    drawing_array_push_at(0, 4, 9-t, bubblepoints, t);
 
     // Now that we have "modelview" points in array, we can sort them
     // for painter's algorithm:
