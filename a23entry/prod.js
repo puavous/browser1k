@@ -26,6 +26,8 @@
 var DURATION_SECONDS = 62;
 var AUDIO_BUFSIZE = 4096;
 
+var PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
+
 // Start time of show (user click)
 var startTimeInMillis = null;
 
@@ -198,15 +200,43 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
 var initAssets = () => {
     var i=0;
 
-    for(var z=100; z>0; z-=10){
-	for (var x=-20; x<=20; x+=4){
-	    var p = [x,-3,z,
-		 1,
-		 0];
+/*
+    for(var z=280; z>0; z-=20){
+	for (var x=-100; x<=100; x+=z/3){
+	    var p = [x,
+		     -10-z*.9 - Math.sin(x/100+z)*z/20,
+		     z + Math.random()*5,
+		     z + Math.random()*5,
+		     0];
 	stuffpoints[i++] = p;
 	}
     }
+*/
 
+/*
+    for(var z=280; z>0; z-=20){
+	for (var x=-100; x<=100; x+=z/3){
+	    var p = [x,
+		     -10,
+		     z,
+		     10,
+		     0];
+	stuffpoints[i++] = p;
+	}
+    }
+*/
+
+    for(; i<200;){
+	var t = Math.sqrt(i/200);
+	var p = [100*t*Math.cos(12.6*t), // + Math.random(),
+		 0,
+		 100*t*Math.sin(12.6*t), // + Math.random(),
+		 4, //3+40/(10+Math.sqrt(i)),
+		 0];
+	stuffpoints[i++] = p;
+    }
+
+    
 }
 
 var gradstops = (g, stops) =>
@@ -286,34 +316,59 @@ var animation_frame = (t,
 
     C.fillRect(0, h/2, w, h);
 
+
+/*
+    // Some distant hills.
     C.beginPath();
-    //    C.ellipse(w/2-h, 2*h, h, h, /*mandatory:*/ 0,0,7);
-    C.ellipse(w/2-h+d*h, h, h*2, .6*h, /*mandatory:*/ 0,0,7);
-    C.ellipse(w/2+h+d*2*h, h, h*3, .6*h, /*mandatory:*/ 0,0,7);
+    //    C.ellipse(w/2-h, 2*h, h, h, 0,0,7);
+    C.ellipse(w/2-h+d*h, h, h*2, .6*h, 0,0,7);
+    C.ellipse(w/2+h+d*2*h, h, h*3, .6*h, 0,0,7);
     C.fill();
+*/
 
     /* Prepare some stuff to be drawn... */
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
 			   0,
-			   0,
-			   30,
-			   t/2);
+			   -4,
+			   100-t,
+			   t/10);
 
     // Now that we have "modelview" points in array, we can sort them
     // for painter's algorithm:
     drawing_array.sort(zsort);
 
+    C.globalCompositeOperation = "screen";
     for(var tp of drawing_array){
-	tp = doPerspectiveFhc(tp, 3);
+	tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
 	//C.fillStyle = toRGB(tp[3]*(Math.min(1,.1*(20-tp[2]))), .2);
-	C.fillStyle = toRGB(1, .2);
+	//C.fillStyle = toRGB(1-tp[2]/380, 1);
 	//C.fillStyle = "#732";
+
+	gradient = C.createRadialGradient(w/2 + tp[0]*h/2,
+					  h/2 - tp[1]*h/2,
+					  0,
+					  w/2 + tp[0]*h/2,
+					  h/2 - tp[1]*h/2,
+					  PERSPECTIVE_F*h/2/tp[2]*tp[3]);
+	gradient.addColorStop(0, "#ffff");
+	gradient.addColorStop(1, "#00f0");
+
+/*
+	gradient.addColorStop(0, "#fff5");
+	gradient.addColorStop(.5, "#fff3");
+	gradient.addColorStop(1, "#fff0");
+*/
+	C.fillStyle = gradient;
+
 	C.beginPath();
+
+
+
         C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
                   h/2 - tp[1]*h/2, /*Screen y - model y points 'up', screen 'down' */
-                  h/2/tp[2]*tp[3],     /*Radius x*/
-                  h/2/tp[2]*tp[3],     /*Radius y*/
+                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius x*/
+                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius y*/
                   0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
 	C.fill();
     }
