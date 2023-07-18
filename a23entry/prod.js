@@ -226,12 +226,12 @@ var initAssets = () => {
     }
 */
 
-    for(; i<200;){
-	var t = Math.sqrt(i/200);
+    for(; i<300;){
+	var t = Math.sqrt(i/300);
 	var p = [100*t*Math.cos(12.6*t), // + Math.random(),
-		 0,
+		 t*t,
 		 100*t*Math.sin(12.6*t), // + Math.random(),
-		 4, //3+40/(10+Math.sqrt(i)),
+		 3+t, //3+40/(10+Math.sqrt(i)),
 		 0];
 	stuffpoints[i++] = p;
     }
@@ -334,6 +334,13 @@ var animation_frame = (t,
 			   100-t,
 			   t/10);
 
+    drawing_array_push_mod(stuffpoints,
+			   0,
+			   4,
+			   100-t,
+			   t/10);
+
+
     // Now that we have "modelview" points in array, we can sort them
     // for painter's algorithm:
     drawing_array.sort(zsort);
@@ -361,16 +368,29 @@ var animation_frame = (t,
 */
 	C.fillStyle = gradient;
 
-	C.beginPath();
+
+//  	C.beginPath();
+//        C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
+//                  h/2 - tp[1]*h/2, /*Screen y - model y points 'up', screen 'down' */
+//                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius x*/
+//                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius y*/
+//                  0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
+//	C.fill();
+
+//  	C.beginPath();
+//        C.arc(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
+//              h/2 - tp[1]*h/2, /*Screen y - model y points 'up', screen 'down' */
+//              PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius x*/
+//              0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
+//	C.fill();
+
+	/* When using alpha "blobs", could fill rectangle containing the gradient: */
+	var radius = PERSPECTIVE_F*h/2/tp[2]*tp[3];
+        C.fillRect(w/2 + tp[0]*h/2 - radius,
+		   h/2 - tp[1]*h/2 - radius,
+		   2*radius, 2*radius);
 
 
-
-        C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
-                  h/2 - tp[1]*h/2, /*Screen y - model y points 'up', screen 'down' */
-                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius x*/
-                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius y*/
-                  0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
-	C.fill();
     }
 
     debug_information(C, t, w, h) //DEBUG
