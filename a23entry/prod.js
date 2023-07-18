@@ -218,14 +218,13 @@ var gradstops = (g, stops) =>
     return g;
 }
 
-C = c.getContext('2d');
-
 // Reset the canvas size on each redraw - extra work but less code.
 // Are these 
 var animation_frame = (t,
 		       s = c.style,
 		       w = c.width = innerWidth,
-		       h  = c.height = innerHeight
+		       h  = c.height = innerHeight,
+		       C = c.getContext('2d')
 		      ) =>
 {
 //    if ((w != innerWidth) || (h != innerHeight)){ .. }
