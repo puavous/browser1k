@@ -26,9 +26,6 @@
 var DURATION_SECONDS = 62;
 var AUDIO_BUFSIZE = 4096;
 
-// AudioContext and ScriptProcessor
-var audioctx,sp;
-
 // Start time of show (user click)
 var startTimeInMillis = null;
 
@@ -138,7 +135,7 @@ var audioHandler = (event,
     if (dbg_paused) {for(;isample<AUDIO_BUFSIZE;isample++) outbuf[isample] = 0; return;} // DEBUG
 
     for (; isample < AUDIO_BUFSIZE;
-	 outbuf[isample++] = audio_sample(audio_time += 1 / audioctx.sampleRate)) ; 
+	 outbuf[isample++] = audio_sample(audio_time += 1 / A.sampleRate)) ; 
 };
 
 // GFX helper functions -----------------------------------------------------------------
@@ -344,15 +341,15 @@ onclick = () => {
     if (false)                                     //DEBUG
         c.requestFullscreen();
 
-  // Mind the deprecation note...
-  // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
-  audioctx = new AudioContext;
-  sp = audioctx.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
-  sp.connect(audioctx.destination);
-  sp.onaudioprocess = audioHandler;
+    A = new AudioContext; // This only possible after gesture, so here in onclick
+    // Mind the deprecation note...
+    // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
+    var sp = A.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
+    sp.connect(A.destination);
+    sp.onaudioprocess = audioHandler;
 
-  // First call to animation will set up requestframe:
-  animation_driver(0);
+    // First call to animation will set up requestframe:
+    animation_driver(0);
 }
 
 // Assume we execute this from the PNG unpack trick,
