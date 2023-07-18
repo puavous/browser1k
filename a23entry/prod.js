@@ -162,16 +162,9 @@ var doPerspectiveFhc = (p, f) => {
     ];
 };
 
+/** Compare the z coordinate of two points */
 var zsort = (a, b) => {
     return b[2]-a[2];
-}
-
-/**
- * A shape..
- **/
-var some_profile = (p) => {
-    var d = (p[0]*p[0] + p[1]*p[1] + p[2]*p[2]) - .5;
-    return d*d<.00001;
 }
 
 var drawing_array_push_at = (pts,x,y,z,t) => {
@@ -186,15 +179,17 @@ var drawing_array_push_at = (pts,x,y,z,t) => {
     }
 }
 
-/** Apply some transformations to pts and push to global drawing array */
+/** Apply some transformations to pts and push to global drawing array
+ * unless result is behind clipping plane at z=0.
+ */
 var drawing_array_push_mod = (pts,x,y,z,rY) => {
     for(var p of pts){
-	var pp = [Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + x,
+	var pp = [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
 		  p[1] + y,
-		  Math.cos(rY)*p[0] - Math.sin(rY)*p[2] + z,
+		  - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
 		  p[3],
 		  p[4]];
-	if (pp[2]+z > 0) drawing_array.push(pp);
+	if (pp[2] > 0) drawing_array.push(pp);
     }
 }
 
@@ -204,17 +199,17 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
 
 // GFX init -----------------------------------------------------------------
 var initAssets = () => {
-    var i;
+    var i=0;
 
-    // Some explicit, deterministic points....
-    for(i=0;i<222;i++){
-	var p = [Math.sin(6.3*i/222),
-		 Math.cos(19*i/222),
-		 Math.cos(31*i/222),
-		 1 - 1*i/222,
+    for(var z=100; z>0; z-=10){
+	for (var x=-20; x<=20; x+=4){
+	    var p = [x,-3,z,
+		 1,
 		 0];
-	stuffpoints[i] = p;
+	stuffpoints[i++] = p;
+	}
     }
+
 }
 
 var gradstops = (g, stops) =>
@@ -223,14 +218,18 @@ var gradstops = (g, stops) =>
     return g;
 }
 
+C = c.getContext('2d');
+
 // Reset the canvas size on each redraw - extra work but less code.
+// Are these 
 var animation_frame = (t,
-		       w = c.width = innerWidth,
-		       h  = c.height = innerHeight,
 		       s = c.style,
-		       C = c.getContext('2d')
+		       w = c.width = innerWidth,
+		       h  = c.height = innerHeight
 		      ) =>
 {
+//    if ((w != innerWidth) || (h != innerHeight)){ .. }
+
     s.position = "fixed"; s.left = s.top = 0;
 
 /*
@@ -299,14 +298,11 @@ var animation_frame = (t,
 
     /* Prepare some stuff to be drawn... */
     drawing_array = [];
-    for (var i=0; i<8; i++){
-	var batch = 1+(i%3);  // Divide into batches 1,2,3, ...
-	drawing_array_push_mod(stuffpoints,
-			      4*Math.sin(8*i+25),
-			      3*Math.sin(i*3),
-			      10-i,
-			      t/i);
-    }
+    drawing_array_push_mod(stuffpoints,
+			   0,
+			   0,
+			   30,
+			   t/2);
 
     // Now that we have "modelview" points in array, we can sort them
     // for painter's algorithm:
@@ -319,7 +315,7 @@ var animation_frame = (t,
 	//C.fillStyle = "#732";
 	C.beginPath();
         C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
-                  h/2 + tp[1]*h/2, /*Screen y*/
+                  h/2 - tp[1]*h/2, /*Screen y - model y points 'up', screen 'down' */
                   h/2/tp[2]*tp[3],     /*Radius x*/
                   h/2/tp[2]*tp[3],     /*Radius y*/
                   0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
