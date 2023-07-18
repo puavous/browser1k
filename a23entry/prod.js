@@ -6,7 +6,7 @@
 // (Currently, these tricks can be done manually; wins no more than 20 bytes..)
 //
 // User interface in debug version: You can click top / bottom of canvas to
-// seek/pause the show. Add "#" to end of URL for screenshots with info hidden.
+// pause/seek the show. Add "#" to end of URL for screenshots with info hidden.
 //
 // Note to self: RegPack is great, but still Pnginator wins by tens
 // or even hundreds of bytes.. Should look into the way p01 and folk are packing
@@ -174,7 +174,7 @@ var some_profile = (p) => {
     return d*d<.00001;
 }
 
-var drawing_array_push_at = (x,y,z,pts,t) => {
+var drawing_array_push_at = (pts,x,y,z,t) => {
     for(var p of pts){
 	if (p[2]+z > 0)  // Clip here
 	    drawing_array.push([p[0] + x,
@@ -186,16 +186,32 @@ var drawing_array_push_at = (x,y,z,pts,t) => {
     }
 }
 
+/** Apply some transformations to pts and push to global drawing array */
+var drawing_array_push_mod = (pts,x,y,z,rY) => {
+    for(var p of pts){
+	var pp = [Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + x,
+		  p[1] + y,
+		  Math.cos(rY)*p[0] - Math.sin(rY)*p[2] + z,
+		  p[3],
+		  p[4]];
+	if (pp[2]+z > 0) drawing_array.push(pp);
+    }
+}
+
+
+
+
+
 // GFX init -----------------------------------------------------------------
 var initAssets = () => {
     var i;
 
-    // No sampling this time.. explicit, deterministic..
-    for(i=0;i<333;i++){
-	var p = [Math.sin(6.3*i/333),
-		 Math.cos(19*i/333),
-		 Math.cos(31*i/333),
-		 0,
+    // Some explicit, deterministic points....
+    for(i=0;i<222;i++){
+	var p = [Math.sin(6.3*i/222),
+		 Math.cos(19*i/222),
+		 Math.cos(31*i/222),
+		 1 - 1*i/222,
 		 0];
 	stuffpoints[i] = p;
     }
@@ -281,16 +297,15 @@ var animation_frame = (t,
     C.ellipse(w/2+h+d*2*h, h, h*3, .6*h, /*mandatory:*/ 0,0,7);
     C.fill();
 
+    /* Prepare some stuff to be drawn... */
     drawing_array = [];
-
-    /* Draw some stuff somewhere... */
     for (var i=0; i<8; i++){
 	var batch = 1+(i%3);  // Divide into batches 1,2,3, ...
-	drawing_array_push_at(3*Math.sin(8*i+25),
-			      2*Math.sin(i*3),
-			      18 - (2*t*batch/3 % 20),
-			      stuffpoints,
-			      t*(2+batch)/6+i);
+	drawing_array_push_mod(stuffpoints,
+			      4*Math.sin(8*i+25),
+			      3*Math.sin(i*3),
+			      10-i,
+			      t/i);
     }
 
     // Now that we have "modelview" points in array, we can sort them
@@ -299,12 +314,14 @@ var animation_frame = (t,
 
     for(var tp of drawing_array){
 	tp = doPerspectiveFhc(tp, 3);
-	C.fillStyle = toRGB(tp[3]*(Math.min(1,.1*(20-tp[2]))), 1);
+	//C.fillStyle = toRGB(tp[3]*(Math.min(1,.1*(20-tp[2]))), .2);
+	C.fillStyle = toRGB(1, .2);
+	//C.fillStyle = "#732";
 	C.beginPath();
         C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
                   h/2 + tp[1]*h/2, /*Screen y*/
-                  h/2/tp[2]/5,     /*Radius x*/
-                  h/2/tp[2]/5,     /*Radius y*/
+                  h/2/tp[2]*tp[3],     /*Radius x*/
+                  h/2/tp[2]*tp[3],     /*Radius y*/
                   0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
 	C.fill();
     }
