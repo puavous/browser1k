@@ -214,7 +214,7 @@ var gradstops = (g, stops) =>
 
 /** A height map function */
 var hmap = (x,z) => {
-    return x*z;
+    return Math.sin(x/3) + Math.sin(z);
 }
 
 
@@ -297,7 +297,7 @@ var animation_frame = (t,
     drawing_array_push_mod(stuffpoints,
 			   0,
 			   0,
-			   10,
+			   100-t*2,
 			   t/10);
 
 
@@ -319,14 +319,17 @@ var animation_frame = (t,
 					  w/2 + tp[0]*h/2,
 					  h/2 - tp[1]*h/2,
 					  PERSPECTIVE_F*h/2/tp[2]*tp[3]);
+/*
+  // Like a bluish dot of light in fog
 	gradient.addColorStop(0, "#ffff");
 	gradient.addColorStop(1, "#00f0");
+*/
 
-/*
+	// Building block of wispy water clouds
 	gradient.addColorStop(0, "#fff5");
 	gradient.addColorStop(.5, "#fff3");
 	gradient.addColorStop(1, "#fff0");
-*/
+
 	C.fillStyle = gradient;
 
 
