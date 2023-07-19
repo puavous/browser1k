@@ -193,14 +193,6 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
 }
 
 
-
-
-
-// GFX init -----------------------------------------------------------------
-// (Used to have a separate init function, but probably isn't worth it unless
-// heavy pre-computation will be necessary..)
-
-
 /** A helper to make gradient creation a one-liner; didn't reduce packed size.
 * Idea was like C.fillStyle = gradstops(C.createLinearGradient(w/2,0,w/2,h/2),
 * [[0,"#225"],[.2,"#547"],[.4,"#c37"],[.6,"#e74"]]);
@@ -210,6 +202,22 @@ var gradstops = (g, stops) =>
     for (var stop of stops) g.addColorStop(stop[0],stop[1]);
     return g;
 }
+
+
+
+// GFX init -----------------------------------------------------------------
+// (Used to have a separate init function, but probably isn't worth it unless
+// heavy pre-computation will be necessary..)
+
+
+// GFX content --------------------------------------------------------------
+
+/** A height map function */
+var hmap = (x,z) => {
+    return x*z;
+}
+
+
 
 // Reset the canvas size on each redraw - extra work but less code.
 // Are these 
@@ -276,28 +284,22 @@ var animation_frame = (t,
     /* Prepare some stuff to be drawn... */
 
     stuffpoints = [];
-    for(var i=0; i<300;){
-	var tt = Math.sqrt(i/300);
-	var p = [100*tt*Math.cos(t+12.6*tt), // + Math.random(),
-		 Math.sin(tt)*t*tt*tt,
-		 100*tt*Math.sin(t+12.6*tt), // + Math.random(),
-		 3+tt, //3+40/(10+Math.sqrt(i)),
-		 0];
-	stuffpoints[i++] = p;
+
+    for(var ix=-9; ix<10; ix++){
+	for(var iz=-9; iz<10; iz++){
+	    var hh = hmap(ix,iz);
+	    var p = [ix,hh,iz,1,0];
+	    stuffpoints.push(p);
+	}
     }
 
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
 			   0,
-			   -4,
-			   100-t,
+			   0,
+			   10,
 			   t/10);
 
-    drawing_array_push_mod(stuffpoints,
-			   0,
-			   4,
-			   100-t,
-			   t/10);
 
 
     // Now that we have "modelview" points in array, we can sort them
