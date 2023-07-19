@@ -197,48 +197,14 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
 
 
 // GFX init -----------------------------------------------------------------
-var initAssets = () => {
-    var i=0;
+// (Used to have a separate init function, but probably isn't worth it unless
+// heavy pre-computation will be necessary..)
 
-/*
-    for(var z=280; z>0; z-=20){
-	for (var x=-100; x<=100; x+=z/3){
-	    var p = [x,
-		     -10-z*.9 - Math.sin(x/100+z)*z/20,
-		     z + Math.random()*5,
-		     z + Math.random()*5,
-		     0];
-	stuffpoints[i++] = p;
-	}
-    }
+
+/** A helper to make gradient creation a one-liner; didn't reduce packed size.
+* Idea was like C.fillStyle = gradstops(C.createLinearGradient(w/2,0,w/2,h/2),
+* [[0,"#225"],[.2,"#547"],[.4,"#c37"],[.6,"#e74"]]);
 */
-
-/*
-    for(var z=280; z>0; z-=20){
-	for (var x=-100; x<=100; x+=z/3){
-	    var p = [x,
-		     -10,
-		     z,
-		     10,
-		     0];
-	stuffpoints[i++] = p;
-	}
-    }
-*/
-
-    for(; i<300;){
-	var t = Math.sqrt(i/300);
-	var p = [100*t*Math.cos(12.6*t), // + Math.random(),
-		 t*t,
-		 100*t*Math.sin(12.6*t), // + Math.random(),
-		 3+t, //3+40/(10+Math.sqrt(i)),
-		 0];
-	stuffpoints[i++] = p;
-    }
-
-    
-}
-
 var gradstops = (g, stops) =>
 {
     for (var stop of stops) g.addColorStop(stop[0],stop[1]);
@@ -262,18 +228,13 @@ var animation_frame = (t,
     C.fillStyle="#301";
     C.fillRect(0, 0, w, h);
 */
-    // Ok, I thing gradients are a keeper for this prod..
+    // Ok, I think gradients are a keeper for this prod..
     // Something I haven't played with much. Can do nice compositions it seems.
     var gradient;
 
     var d = (t/DURATION_SECONDS);
 
     // Sky
-/*
-    C.fillStyle = gradstops(C.createLinearGradient(w/2,0,w/2,h/2), [[0,"#225"],[.2,"#547"],[.4,"#c37"],[.6,"#e74"]])
-    gradient;
-    C.fillRect(0, 0, w, h/2);
-*/
     gradient = C.createLinearGradient(w/2,0,w/2,h/2);
     gradient.addColorStop(0, "#225");
     gradient.addColorStop(.2, "#547");
@@ -283,14 +244,6 @@ var animation_frame = (t,
     C.fillRect(0, 0, w, h/2);
 
     // Setting sun
-/*
-    C.fillStyle = gradstops(C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h),
-			 [[0,"#fff"],
-			  [.05,"#fff"],
-			  [.11,"#ff1"],
-			  [.2,"#ff4"],
-			  [1,"#fff0"]]);
-*/
     gradient = C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h);
     gradient.addColorStop(0, "#fff");
     gradient.addColorStop(.05, "#fff");
@@ -303,12 +256,6 @@ var animation_frame = (t,
 
 
     // Flat ground
-/*
-    C.fillStyle = gradstops(C.createLinearGradient(w/2,h/2,w/2,h),
-			 [[0,"#126"],
-			  [.6, "#241"]]);
-*/
-    
     gradient = C.createLinearGradient(w/2,h/2,w/2,h);
     gradient.addColorStop(0, "#126");
     gradient.addColorStop(.6, "#241");
@@ -327,6 +274,18 @@ var animation_frame = (t,
 */
 
     /* Prepare some stuff to be drawn... */
+
+    stuffpoints = [];
+    for(var i=0; i<300;){
+	var tt = Math.sqrt(i/300);
+	var p = [100*tt*Math.cos(t+12.6*tt), // + Math.random(),
+		 Math.sin(tt)*t*tt*tt,
+		 100*tt*Math.sin(t+12.6*tt), // + Math.random(),
+		 3+tt, //3+40/(10+Math.sqrt(i)),
+		 0];
+	stuffpoints[i++] = p;
+    }
+
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
 			   0,
@@ -404,8 +363,6 @@ var animation_driver = (curTimeInMillis) => {
     animation_frame(t);
     if (t < DURATION_SECONDS) requestAnimationFrame(animation_driver);
 };
-
-initAssets();
 
 // Use window click handler..
 onclick = () => {
