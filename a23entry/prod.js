@@ -214,7 +214,7 @@ var gradstops = (g, stops) =>
 
 /** A height map function */
 var hmap = (x,z) => {
-    return Math.sin(x/3) + Math.sin(z);
+    return 3*Math.sin(x/6) + 2*Math.sin((x+z)/3) + Math.sin(z);
 }
 
 
@@ -269,7 +269,7 @@ var animation_frame = (t,
     gradient.addColorStop(.6, "#241");
     C.fillStyle=gradient;
 
-    C.fillRect(0, h/2, w, h);
+//    C.fillRect(0, h/2, w, h);
 
 
 /*
@@ -281,14 +281,40 @@ var animation_frame = (t,
     C.fill();
 */
 
+    // Hills, hills, hills, maybe with fir kinda forest
+    for(var iz = 10; iz > 0; iz--){
+
+	gradient = C.createLinearGradient(0,0,0,h);
+	gradient.addColorStop(0, ["#121","#122","#123","#124","#125","#126","#127","#128","#129","#12a","#12b","#12c"][iz]);
+	gradient.addColorStop(.6, "#241");
+	C.fillStyle=gradient;
+
+	C.beginPath();
+	C.moveTo(w,h);
+	C.lineTo(0,h);
+	var bm = 0, seed=iz, bd = h/50/iz;
+	for(var ix = 0; ix < w + h/400; ix += h/400){
+	    bm += (seed = (seed*16807 + 1) & 0xffff)<0x8000?bd:-bd
+	    C.lineTo(ix, h/2 - bm - iz*h/40);
+	}
+	C.fill();
+
+    }
+
     /* Prepare some stuff to be drawn... */
 
     stuffpoints = [];
 
-    for(var ix=-9; ix<10; ix++){
-	for(var iz=-9; iz<10; iz++){
-	    var hh = hmap(ix,iz);
-	    var p = [ix,hh,iz,1,0];
+    for(var ix=-99; ix<100; ix+=15){
+	for(var iz=-99; iz<100; iz+=15){
+//	    var hh = hmap(ix,iz);
+	    //	    var p = [ix,hh,iz,.4,0];
+	    var p = [
+		ix,
+		Math.sin(ix+t) + Math.sin(iz+t*2),
+		iz,
+		    1,0
+	    ]
 	    stuffpoints.push(p);
 	}
     }
@@ -296,9 +322,9 @@ var animation_frame = (t,
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
 			   0,
-			   0,
-			   100-t*2,
-			   t/10);
+			   -4,
+			   0-t/10,
+			   0);
 
 
 
@@ -319,16 +345,18 @@ var animation_frame = (t,
 					  w/2 + tp[0]*h/2,
 					  h/2 - tp[1]*h/2,
 					  PERSPECTIVE_F*h/2/tp[2]*tp[3]);
-/*
+
   // Like a bluish dot of light in fog
 	gradient.addColorStop(0, "#ffff");
 	gradient.addColorStop(1, "#00f0");
-*/
 
+
+/*
 	// Building block of wispy water clouds
 	gradient.addColorStop(0, "#fff5");
 	gradient.addColorStop(.5, "#fff3");
 	gradient.addColorStop(1, "#fff0");
+*/
 
 	C.fillStyle = gradient;
 
