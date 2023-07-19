@@ -128,16 +128,10 @@ var audio_sample = (t) => {
     return (t > DURATION_SECONDS)?0 : ( aat(t)/2 + aat(t-1)/4 + aat(t-2)/8 );
 };
 
-/** The onaudioprocess handler. This gets called, technically, for audio output. */
-var audioHandler = (event,
-		    isample = 0,
- 		    outbuf = event.outputBuffer.getChannelData(0)) =>
-{
-    var outbuf = event.outputBuffer.getChannelData(0); // DEBUG
-    if (dbg_paused) {for(;isample<AUDIO_BUFSIZE;isample++) outbuf[isample] = 0; return;} // DEBUG
-
-    for (; isample < AUDIO_BUFSIZE;
-	 outbuf[isample++] = audio_sample(audio_time += 1 / A.sampleRate)) ; 
+/** The onaudioprocess handler. Deprecated, but not yet removed.. */
+var audioHandler = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
+    if (dbg_paused) {for(var isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
+    for (e in outbuf) outbuf[e] = audio_sample(audio_time += 1 / A.sampleRate); 
 };
 
 // GFX helper functions -----------------------------------------------------------------
