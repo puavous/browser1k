@@ -212,89 +212,7 @@ var hmap = (x,z) => {
 }
 
 
-
-// Reset the canvas size on each redraw - extra work but less code.
-// Are these 
-var animation_frame = (t,
-		       s = c.style,
-		       w = c.width = innerWidth,
-		       h  = c.height = innerHeight,
-		       C = c.getContext('2d')
-		      ) =>
-{
-//    if ((w != innerWidth) || (h != innerHeight)){ .. }
-
-    s.position = "fixed"; s.left = s.top = 0;
-
-/*
-    C.fillStyle="#301";
-    C.fillRect(0, 0, w, h);
-*/
-    // Ok, I think gradients are a keeper for this prod..
-    // Something I haven't played with much. Can do nice compositions it seems.
-    var gradient;
-
-    var d = (t/DURATION_SECONDS);
-
-    // Sky
-    gradient = C.createLinearGradient(w/2,0,w/2,h/2);
-    gradient.addColorStop(0, "#225");
-    gradient.addColorStop(.2, "#547");
-    gradient.addColorStop(.4, "#c37");
-    gradient.addColorStop(.6, "#e74");
-    C.fillStyle=gradient;
-    C.fillRect(0, 0, w, h/2);
-
-    // Setting sun
-    gradient = C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h);
-    gradient.addColorStop(0, "#fff");
-    gradient.addColorStop(.05, "#fff");
-    gradient.addColorStop(.11, "#ff1");
-    gradient.addColorStop(.2, "#ff4");
-    gradient.addColorStop(1, "#fff0");
-    C.fillStyle=gradient;
-
-    C.fillRect(0, 0, w, h);
-
-
-    // Flat ground
-    gradient = C.createLinearGradient(w/2,h/2,w/2,h);
-    gradient.addColorStop(0, "#126");
-    gradient.addColorStop(.6, "#241");
-    C.fillStyle=gradient;
-
-//    C.fillRect(0, h/2, w, h);
-
-
-/*
-    // Some distant hills.
-    C.beginPath();
-    //    C.ellipse(w/2-h, 2*h, h, h, 0,0,7);
-    C.ellipse(w/2-h+d*h, h, h*2, .6*h, 0,0,7);
-    C.ellipse(w/2+h+d*2*h, h, h*3, .6*h, 0,0,7);
-    C.fill();
-*/
-
-    // Hills, hills, hills, maybe with fir kinda forest
-    for(var iz = 10; iz > 0; iz--){
-
-	gradient = C.createLinearGradient(0,0,0,h);
-	gradient.addColorStop(0, ["#121","#122","#123","#124","#125","#126","#127","#128","#129","#12a","#12b","#12c"][iz]);
-	gradient.addColorStop(.6, "#241");
-	C.fillStyle=gradient;
-
-	C.beginPath();
-	C.moveTo(w,h);
-	C.lineTo(0,h);
-	var bm = 0, seed=iz, bd = h/50/iz;
-	for(var ix = 0; ix < w + h/400; ix += h/400){
-	    bm += (seed = (seed*16807 + 1) & 0xffff)<0x8000?bd:-bd
-	    C.lineTo(ix, h/2 - bm - iz*h/40);
-	}
-	C.fill();
-
-    }
-
+var idea_blobs1 = (t,w,h,C) => {
     /* Prepare some stuff to be drawn... */
 
     stuffpoints = [];
@@ -376,8 +294,96 @@ var animation_frame = (t,
 		   h/2 - tp[1]*h/2 - radius,
 		   2*radius, 2*radius);
 
+    }
+}
+
+
+
+// Reset the canvas size on each redraw - extra work but less code.
+var animation_frame = (t,
+		       s = c.style,
+		       w = c.width = innerWidth,
+		       h = c.height = innerHeight,
+		       C = c.getContext('2d')
+		      ) =>
+{
+//    if ((w != innerWidth) || (h != innerHeight)){ .. }
+
+    s.position = "fixed"; s.left = s.top = 0;
+
+/*
+    C.fillStyle="#301";
+    C.fillRect(0, 0, w, h);
+*/
+    // Ok, I think gradients are a keeper for this prod..
+    // Something I haven't played with much. Can do nice compositions it seems.
+    var gradient;
+
+    var d = (t/DURATION_SECONDS);
+
+    // Sky
+    gradient = C.createLinearGradient(w/2,0,w/2,h/2);
+    gradient.addColorStop(0, "#225");
+    gradient.addColorStop(.2, "#547");
+    gradient.addColorStop(.4, "#c37");
+    gradient.addColorStop(.6, "#e74");
+    C.fillStyle=gradient;
+    C.fillRect(0, 0, w, h/2);
+
+    // Setting sun
+    gradient = C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h);
+    gradient.addColorStop(0, "#fff");
+    gradient.addColorStop(.05, "#fff");
+    gradient.addColorStop(.11, "#ff1");
+    gradient.addColorStop(.2, "#ff4");
+    gradient.addColorStop(1, "#fff0");
+    C.fillStyle=gradient;
+
+    C.fillRect(0, 0, w, h);
+
+
+    // Flat ground
+    gradient = C.createLinearGradient(w/2,h/2,w/2,h);
+    gradient.addColorStop(0, "#126");
+    gradient.addColorStop(.6, "#241");
+    C.fillStyle=gradient;
+
+//    C.fillRect(0, h/2, w, h);
+
+
+/*
+    // Some distant hills.
+    C.beginPath();
+    //    C.ellipse(w/2-h, 2*h, h, h, 0,0,7);
+    C.ellipse(w/2-h+d*h, h, h*2, .6*h, 0,0,7);
+    C.ellipse(w/2+h+d*2*h, h, h*3, .6*h, 0,0,7);
+    C.fill();
+*/
+
+    // Hills, hills, hills, maybe with fir kinda forest
+    for(var iz = 5; iz > 0; iz--){
+
+	gradient = C.createLinearGradient(0,h/2,0,h);
+	gradient.addColorStop(0, [,"#122","#125","#137","#13a","#14c","#14f"][iz]);
+	gradient.addColorStop(1, "#241");
+	C.fillStyle=gradient;
+
+	C.beginPath();
+	C.moveTo(w,h);
+	C.lineTo(0,h);
+	var bm = 0, seed=iz+25, bd = h/99/iz;
+	for(var ix = w/2-2*h-h*t/(9*iz); ix < w/2+2*h; ix += h/400){
+	    bm += (seed = (seed*16807+1) & 0xffff)<0x8000?bd:-bd
+	    C.lineTo(ix, h/2 - bm - iz*h/40);
+	    //C.lineTo(ix, h/2 - bm);
+	}
+	C.fill();
+	//C.stroke();
 
     }
+
+//    idea_blobs1(t,w,h,C);
+
 
     debug_information(C, t, w, h) //DEBUG
 };
