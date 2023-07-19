@@ -55,7 +55,7 @@ tmp.closured.js: tmp.bulk.compo.js
 
 # Debug target: just catenate stuff to an HTML file that has a Canvas called c:
 $(PROD_NAME).debug.html: prod.js
-	echo "<html><head /><body>Click to start show.<canvas id="c" /><script>" > $@
+	echo "<html><head /><body>This message shouldn't persist. See log for errors.<canvas id="c" /><script>" > $@
 	echo "(function (){" >> $@
 	cat $^ >> $@
 	echo "})();" >> $@
