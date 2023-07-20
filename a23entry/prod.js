@@ -62,8 +62,8 @@ var dbg_paused = false;         //DEBUG
 // Return time in seconds when using the debug seek.
 var debug_upd_time = function(curTimeInMillis) {
     if (!dbg_ms_at_last_seek) dbg_ms_at_last_seek = startTimeInMillis;
-    var ms_since_seek = dbg_paused ? 0:(curTimeInMillis - dbg_ms_at_last_seek);
-    var t = dbg_t_at_seek + (ms_since_seek / 1000);
+    let ms_since_seek = dbg_paused ? 0:(curTimeInMillis - dbg_ms_at_last_seek);
+    let t = dbg_t_at_seek + (ms_since_seek / 1000);
     return t;
 }
 
@@ -89,8 +89,8 @@ var debug_information = (ctx, t, w, h) => {
     if (location.href.slice(-1) == '#') return;
 
     framesDrawn++;
-    var since_seek = ( performance.now() - dbg_ms_at_last_seek ) / 1000;
-    var infotext = 't = ' + (t|0)
+    let since_seek = ( performance.now() - dbg_ms_at_last_seek ) / 1000;
+    let infotext = 't = ' + (t|0)
    	+ 's FPS (avg): '+((framesDrawn / since_seek) | 0)
 	+' ar: ' + w/h;
     ctx.font = `${20}px Monospace`;
@@ -130,7 +130,7 @@ var audio_sample = (t) => {
 
 /** The onaudioprocess handler. Deprecated, but not yet removed.. */
 var audioHandler = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
-    if (dbg_paused) {for(var isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
+    if (dbg_paused) {for(let isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
     for (e in outbuf) outbuf[e] = audio_sample(audio_time += 1 / A.sampleRate); 
 };
 
@@ -161,7 +161,7 @@ var zsort = (a, b) => {
 }
 
 var drawing_array_push_at = (pts,x,y,z,t) => {
-    for(var p of pts){
+    for(let p of pts){
 	if (p[2]+z > 0)  // Clip here
 	    drawing_array.push([p[0] + x,
 				p[1] + y,
@@ -176,8 +176,8 @@ var drawing_array_push_at = (pts,x,y,z,t) => {
  * unless result is behind clipping plane at z=0.
  */
 var drawing_array_push_mod = (pts,x,y,z,rY) => {
-    for(var p of pts){
-	var pp = [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
+    for(let p of pts){
+	let pp = [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
 		  p[1] + y,
 		  - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
 		  p[3],
@@ -193,7 +193,7 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
 */
 var gradstops = (g, stops) =>
 {
-    for (var stop of stops) g.addColorStop(stop[0],stop[1]);
+    for (let stop of stops) g.addColorStop(stop[0],stop[1]);
     return g;
 }
 
@@ -217,11 +217,11 @@ var idea_blobs1 = (t,w,h,C) => {
 
     stuffpoints = [];
 
-    for(var ix=-99; ix<100; ix+=15){
-	for(var iz=-99; iz<100; iz+=15){
+    for(let ix=-99; ix<100; ix+=15){
+	for(let iz=-99; iz<100; iz+=15){
 //	    var hh = hmap(ix,iz);
 	    //	    var p = [ix,hh,iz,.4,0];
-	    var p = [
+	    let p = [
 		ix,
 		Math.sin(ix+t) + Math.sin(iz+t*2),
 		iz,
@@ -245,7 +245,7 @@ var idea_blobs1 = (t,w,h,C) => {
     drawing_array.sort(zsort);
 
     C.globalCompositeOperation = "screen";
-    for(var tp of drawing_array){
+    for(let tp of drawing_array){
 	tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
 	//C.fillStyle = toRGB(tp[3]*(Math.min(1,.1*(20-tp[2]))), .2);
 	//C.fillStyle = toRGB(1-tp[2]/380, 1);
@@ -361,7 +361,7 @@ var animation_frame = (t,
 */
 
     // Hills, hills, hills, maybe with fir kinda forest
-    for(var iz = 5; iz > 0; iz--){
+    for(let iz = 5; iz > 0; iz--){
 
 	gradient = C.createLinearGradient(0,h/2,0,h);
 	gradient.addColorStop(0, [,"#122","#125","#137","#13a","#14c","#14f"][iz]);
@@ -371,8 +371,8 @@ var animation_frame = (t,
 	C.beginPath();
 	C.moveTo(w,h);
 	C.lineTo(0,h);
-	var bm = 0, seed=iz+25, bd = h/99/iz;
-	for(var ix = w/2-2*h-h*t/(9*iz); ix < w/2+2*h; ix += h/400){
+	let bm = 0, seed=iz+25, bd = h/99/iz;
+	for(let ix = w/2-2*h-h*t/(9*iz); ix < w/2+2*h; ix += h/400){
 	    bm += (seed = (seed*16807+1) & 0xffff)<0x8000?bd:-bd
 	    C.lineTo(ix, h/2 - bm - iz*h/40);
 	    //C.lineTo(ix, h/2 - bm);
@@ -382,7 +382,7 @@ var animation_frame = (t,
 
     }
 
-//    idea_blobs1(t,w,h,C);
+    idea_blobs1(t,w,h,C);
 
 
     debug_information(C, t, w, h) //DEBUG
@@ -391,7 +391,7 @@ var animation_frame = (t,
 // This function wraps our own one for requestAnimationFrame()
 var animation_driver = (curTimeInMillis) => {
     if (!startTimeInMillis) startTimeInMillis = curTimeInMillis;
-    var t = (curTimeInMillis - startTimeInMillis) / 1000;
+    let t = (curTimeInMillis - startTimeInMillis) / 1000;
     t = debug_upd_time(curTimeInMillis); // DEBUG
     animation_frame(t);
     if (t < DURATION_SECONDS) requestAnimationFrame(animation_driver);
@@ -409,7 +409,7 @@ onclick = () => {
     A = new AudioContext; // This only possible after gesture, so here in onclick
     // Mind the deprecation note...
     // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
-    var sp = A.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
+    let sp = A.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
     sp.connect(A.destination);
     sp.onaudioprocess = audioHandler;
 
