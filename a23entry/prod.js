@@ -303,6 +303,42 @@ var idea_blobs1 = (t,w,h,C) => {
 
 
 
+function gener(x,y,z,p){
+    if (p<.1) return;
+    stuffpoints.push([x,y,z,1]);
+    gener(x+1,y,z,.9*p);
+}
+
+var idea_blobs2 = (t,w,h,C) => {
+    stuffpoints = [];
+    gener(0,0,0,1);
+
+    drawing_array = [];
+    drawing_array_push_mod(stuffpoints,
+			   0,
+			   0,
+			   10,
+			   0);
+
+    drawing_array.sort(zsort);
+    for(var tp of drawing_array){
+	tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
+	C.fillStyle = "#400";
+	C.beginPath();
+	// Screen x, y, account for aspect ratio here.
+	const radius = PERSPECTIVE_F*h/2/tp[2]*tp[3];
+        C.arc(w/2 + tp[0]*h/2,
+              h/2 - tp[1]*h/2,
+              radius,
+              0, 7);
+	//	C.fill();
+	C.stroke();
+    }
+}
+
+
+
+
 // Reset the canvas size on each redraw - extra work but less code.
 var animation_frame = (t,
 		       s = c.style,
@@ -387,7 +423,8 @@ var animation_frame = (t,
 
     }
 
-    idea_blobs1(t,w,h,C);
+    //idea_blobs1(t,w,h,C);
+    idea_blobs2(t,w,h,C);
 
     debug_information(C, t, w, h) //DEBUG
 };
