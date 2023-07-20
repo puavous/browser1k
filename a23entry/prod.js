@@ -44,12 +44,6 @@ var stuffpoints = [];
 
 var drawing_array = [];
 
-/** Return a grayscale color of intensity and alpha as CSS color string.*/
-var toRGB = (intensity, alpha) => {
-    intensity = intensity*255|0;
-    return `rgb(${intensity},${intensity},${intensity},${alpha})`;
-}
-
 // ---------------------------
 // Some debug code, pretty much copy-pasted from my recent-ish 4k stuff.
 // These should get swallowed automatically from the tiny compo version.
@@ -119,9 +113,11 @@ random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
 }
 */
 
-
 // If 20 bytes costs too much, take the implementation-defined Math.random():
 var rnd=()=>Math.random();
+
+
+// Audio content for this show ---------------
 
 var aat = (t) => {
     return ((4*t|0)%2) * Math.sin([220,330][(t/4|0)%2]*6.28*t *(((2*t) % 6)|0) );
@@ -137,6 +133,7 @@ var audioHandler = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
     if (dbg_paused) {for(let isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
     for (e in outbuf) outbuf[e] = audio_sample(audio_time += 1 / A.sampleRate); 
 };
+
 
 // GFX helper functions -----------------------------------------------------------------
 
@@ -190,6 +187,11 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
     }
 }
 
+/** Return a grayscale color of intensity and alpha as CSS color string.*/
+var toRGB = (intensity, alpha) => {
+    intensity = intensity*255|0;
+    return `rgb(${intensity},${intensity},${intensity},${alpha})`;
+}
 
 /** A helper to make gradient creation a one-liner; didn't reduce packed size.
 * Idea was like C.fillStyle = gradstops(C.createLinearGradient(w/2,0,w/2,h/2),
