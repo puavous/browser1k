@@ -150,12 +150,12 @@ var audioHandler = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
  * Doesn't handle aspect ratio nor clipping planes.
  *
  */
-var doPerspectiveFhc = (p, f) => {
+var doPerspectiveFhc = ([x,y,z,w], f) => {
     return [
-	f*p[0]/p[2],
-	f*p[1]/p[2],
-	p[2],
-	p[3]
+	f*x/z,
+	f*y/z,
+	z,
+	w
     ];
 };
 
@@ -321,14 +321,14 @@ var idea_blobs2 = (t,w,h,C) => {
 			   0);
 
     drawing_array.sort(zsort);
-    for(var tp of drawing_array){
-	tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
+    for(var [x,y,z,w] of drawing_array){
+	// tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
 	C.fillStyle = "#400";
 	C.beginPath();
-	// Screen x, y, account for aspect ratio here.
-	const radius = PERSPECTIVE_F*h/2/tp[2]*tp[3];
-        C.arc(w/2 + tp[0]*h/2,
-              h/2 - tp[1]*h/2,
+	// Screen x, y, account for perspective and aspect ratio here.
+	const radius = PERSPECTIVE_F * h / 2 / z * w;
+        C.arc(w/2 + PERSPECTIVE_F * h / 2 / z * x ,
+              h/2 - PERSPECTIVE_F * h / 2 / z * y ,
               radius,
               0, 7);
 	//	C.fill();
