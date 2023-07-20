@@ -29,7 +29,7 @@ var AUDIO_BUFSIZE = 4096;
 var PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 
 // Start time of show (user click)
-var startTimeInMillis = null;
+var startTimeInMillis = 0;
 
 // Hmm, assume this much provided on surrounding HTML, as is by pnginator:
 // we have '<html><body><canvas id="c" /><script>' in the html..
