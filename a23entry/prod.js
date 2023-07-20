@@ -305,36 +305,39 @@ var idea_blobs1 = (t,w,h,C) => {
 
 
 
-function gener(x,y,z,p){
+function gener(x,y,z,p,q){
     if (p<.1) return;
-    stuffpoints.push([x,y,z,1]);
-    gener(x+1,y,z,.9*p);
+    stuffpoints.push([x,y,z,p]);
+    gener(x+p,y,z,q*p,q);
+    gener(x+p,y+p,z+1,q*p,q);
 }
 
 var idea_blobs2 = (t,w,h,C) => {
     stuffpoints = [];
-    gener(0,0,0,1);
+    gener(0,0,0,1,.1+t/120);
 
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
 			   0,
 			   0,
 			   10,
-			   0);
+			   t/10);
 
-    drawing_array.sort(zsort);
-    for(var [x,y,z,w] of drawing_array){
+    //Sort not necessary if we draw silhouette
+    //drawing_array.sort(zsort);
+    
+    for(var [x,y,z,s] of drawing_array){
 	// tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
 	C.fillStyle = "#400";
 	C.beginPath();
 	// Screen x, y, account for perspective and aspect ratio here.
-	const radius = PERSPECTIVE_F * h / 2 / z * w;
+	const radius = PERSPECTIVE_F * h / 2 / z * s;
         C.arc(w/2 + PERSPECTIVE_F * h / 2 / z * x ,
               h/2 - PERSPECTIVE_F * h / 2 / z * y ,
               radius,
               0, 7);
-	//	C.fill();
-	C.stroke();
+	C.fill();
+	//C.stroke();
     }
 }
 
