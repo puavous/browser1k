@@ -368,7 +368,8 @@ var animation_frame = (t,
     for(var iz = 5; iz > 0; iz--){
 
 	gradient = C.createLinearGradient(0,h/2,0,h);
-	gradient.addColorStop(0, [,"#122","#125","#137","#13a","#14c","#14f"][iz]);
+	//gradient.addColorStop(0, [,"#122","#125","#137","#13a","#14c","#14f"][iz]);
+	gradient.addColorStop(0, "#28" + " 57ace"[iz]);
 	gradient.addColorStop(1, "#241");
 	C.fillStyle=gradient;
 
@@ -387,7 +388,6 @@ var animation_frame = (t,
     }
 
     idea_blobs1(t,w,h,C);
-
 
     debug_information(C, t, w, h) //DEBUG
 };
