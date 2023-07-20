@@ -23,10 +23,10 @@
 // warranty of any kind.
 //
 // Author: qma (aka "The Old Dude", or paavo.j.nieminen@jyu.fi )
-var DURATION_SECONDS = 62;
-var AUDIO_BUFSIZE = 4096;
 
-var PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
+const DURATION_SECONDS = 62;
+const AUDIO_BUFSIZE = 4096;
+const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 
 // Start time of show (user click)
 var startTimeInMillis = 0;
