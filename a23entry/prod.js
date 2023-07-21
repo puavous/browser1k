@@ -324,7 +324,7 @@ var idea_hills2 = (t,w,h,C) => {
 
 	gradient = C.createLinearGradient(0,0,0,h);
 	gradient.addColorStop(0, "#26" + " 57acd"[iz]);
-	gradient.addColorStop(1, "#241");
+	gradient.addColorStop(1, "#131");
 	C.fillStyle=gradient;
 
 	C.beginPath();
