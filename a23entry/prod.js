@@ -129,7 +129,7 @@ random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
 
 
 // Audio content for this show ---------------
-
+// audio_sample() will be called for each sample. t is time in seconds.
 var aat = (t) => {
     return ((4*t|0)%2) * Math.sin([220,330][(t/4|0)%2]*6.28*t *(((2*t) % 6)|0) );
 }
@@ -139,11 +139,6 @@ var audio_sample = (t) => {
     return (t > DURATION_SECONDS)?0 : ( aat(t)/2 + aat(t-1)/4 + aat(t-2)/8 );
 };
 
-/** The onaudioprocess handler for ScriptProcessor which is deprecated, but extant.. */
-var audioHandler = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
-    if (dbg_paused) {for(let isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
-    for (e in outbuf) outbuf[e] = audio_sample(audio_time += 1 / A.sampleRate); 
-};
 
 
 // GFX helper functions -----------------------------------------------------------------
@@ -566,7 +561,10 @@ onclick = () => {
     // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
     var sp = A.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
     sp.connect(A.destination);
-    sp.onaudioprocess = audioHandler;
+    sp.onaudioprocess = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
+	if (dbg_paused) {for(let isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
+	for (e in outbuf) outbuf[e] = audio_sample(audio_time += 1 / A.sampleRate);
+    };
 
     // First call to animation will set up requestframe:
     animation_driver(0);
