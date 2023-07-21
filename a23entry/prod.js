@@ -296,6 +296,58 @@ var idea_hills = (t,w,h,C) => {
 }
 
 
+var idea_hills2 = (t,w,h,C) => {
+    var gradient;
+    var d = (t/DURATION_SECONDS);
+
+    // Sky
+    gradient = C.createLinearGradient(w/2,0,w/2,h/2);
+    gradient.addColorStop(0, "#225");
+    gradient.addColorStop(.2, "#547");
+    gradient.addColorStop(.4, "#c37");
+    gradient.addColorStop(.6, "#e74");
+    C.fillStyle=gradient;
+    C.fillRect(0, 0, w, h/2);
+
+    // Setting / rising sun ..
+    gradient = C.createRadialGradient(w/2, h-d*h, 0, w/2, h-d*h, h);
+    gradient.addColorStop(0, "#fff");
+    gradient.addColorStop(.05, "#fff");
+    gradient.addColorStop(.11, "#ff1");
+    gradient.addColorStop(.2, "#ff4");
+    gradient.addColorStop(1, "#fff0");
+    C.fillStyle=gradient;
+
+    C.fillRect(0, 0, w, h);
+
+    // Flat ground
+    gradient = C.createLinearGradient(w/2,h/2,w/2,h);
+    gradient.addColorStop(0, "#126");
+    gradient.addColorStop(.6, "#241");
+    C.fillStyle=gradient;
+
+    // Hills, hills, hills, maybe with fir kinda forest
+    for(var iz = 5; iz > 0; iz--){
+
+	gradient = C.createLinearGradient(0,h/2,0,h);
+	gradient.addColorStop(0, "#28" + " 57ace"[iz]);
+	gradient.addColorStop(1, "#241");
+	C.fillStyle=gradient;
+
+	C.beginPath();
+	C.moveTo(w,h);
+	C.lineTo(0,h);
+	var bm = 0, bd = h/99/iz;
+	random_state = iz;
+	for(var ix = w/2 - 2*h - h*t/(9*iz); ix < w/2 + 2*h; ix += h/400){
+	    bm += rnd() < .5 ? bd : -bd;
+	    C.lineTo(ix, h/2 - bm - iz*h/40);
+	}
+	C.fill();
+    }
+}
+
+
 
 /** A height map function */
 var hmap = (x,z) => {
@@ -488,9 +540,10 @@ var animation_frame = (t,
 
     // C.fillStyle="#301"; C.fillRect(0, 0, w, h);
 
-    idea_hills(t,w,h,C);
+    //idea_hills(t,w,h,C);
+    idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
-    idea_blobs2(t,w,h,C);
+    //idea_blobs2(t,w,h,C);
 
     debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
 };
