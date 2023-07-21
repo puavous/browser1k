@@ -298,7 +298,7 @@ var idea_hills = (t,w,h,C) => {
 
 var idea_hills2 = (t,w,h,C) => {
     var gradient;
-    var d = (t/DURATION_SECONDS);
+    const d = (t/DURATION_SECONDS);
 
     // Sky
     gradient = C.createLinearGradient(0,0,0,h);
@@ -322,7 +322,7 @@ var idea_hills2 = (t,w,h,C) => {
     // Hills, hills, hills, maybe with fir kinda forest
     for(var iz = 5; iz > 0; iz--){
 
-	gradient = C.createLinearGradient(0,h/2,0,h);
+	gradient = C.createLinearGradient(0,0,0,h);
 	gradient.addColorStop(0, "#26" + " 57acd"[iz]);
 	gradient.addColorStop(1, "#241");
 	C.fillStyle=gradient;
