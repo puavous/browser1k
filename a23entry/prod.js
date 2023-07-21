@@ -319,12 +319,6 @@ var idea_hills2 = (t,w,h,C) => {
 
     C.fillRect(0, 0, w, h);
 
-    // Flat ground
-    gradient = C.createLinearGradient(w/2,h/2,w/2,h);
-    gradient.addColorStop(0, "#126");
-    gradient.addColorStop(.6, "#241");
-    C.fillStyle=gradient;
-
     // Hills, hills, hills, maybe with fir kinda forest
     for(var iz = 5; iz > 0; iz--){
 
