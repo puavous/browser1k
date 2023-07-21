@@ -2,7 +2,7 @@
 //
 // Warming up old codes from 2019.
 //
-// TODO: trick vars into pars; use with(Math)
+// TODO: In the end, trick vars into pars; use with(Math); and more dirty tricks
 // (Currently, these tricks can be done manually; wins no more than 20 bytes..)
 //
 // User interface in debug version: You can click top / bottom of canvas to
