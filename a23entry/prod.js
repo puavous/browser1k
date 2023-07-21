@@ -82,7 +82,7 @@ var debug_seek = function(e) {
 }
 
 // Debug information per frame, drawn on 2d context ctx at time t.
-var debug_information = (ctx, t, w, h) => {
+var debug_information = (ctx, t, w, h, msg = '') => {
     /* Omit info if the URL ends in '#'. Use for tidy screenshots...  */
     if (window.location.href.slice(-1) == '#') return;
 
@@ -90,7 +90,8 @@ var debug_information = (ctx, t, w, h) => {
     const since_seek = ( performance.now() - dbg_ms_at_last_seek ) / 1000;
     const infotext = 't = ' + (t|0)
    	+ 's FPS (avg): '+((dbg_frames_drawn / since_seek) | 0)
-	+' ar: ' + w/h;
+	+' ar: ' + w/h
+        + msg;
     ctx.font = `${20}px Monospace`;
     ctx.clearRect(0, h-20, ctx.measureText(infotext).width, 21);
     ctx.fillStyle="#000";
@@ -472,9 +473,12 @@ var animation_frame = (t,
 	C.beginPath();
 	C.moveTo(w,h);
 	C.lineTo(0,h);
-	var bm = 0, seed=iz+25, bd = h/99/iz;
-	for(var ix = w/2-2*h-h*t/(9*iz); ix < w/2+2*h; ix += h/400){
-	    bm += (seed = (seed*16807+1) & 0xffff)<0x8000?bd:-bd
+	var bm = 0, bd = h/99/iz;
+	//var seed = iz+25;
+	random_state = iz;
+	for(var ix = w/2 - 2*h - h*t/(9*iz); ix < w/2 + 2*h; ix += h/400){
+	    //bm += (seed = (seed*16807+1) & 0xffff)<0x8000?bd:-bd
+	    bm += rnd() < .5 ? bd : -bd;
 	    C.lineTo(ix, h/2 - bm - iz*h/40);
 	    //C.lineTo(ix, h/2 - bm);
 	}
@@ -486,7 +490,7 @@ var animation_frame = (t,
     //idea_blobs1(t,w,h,C);
     idea_blobs2(t,w,h,C);
 
-    debug_information(C, t, w, h) //DEBUG
+    debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
 };
 
 // This function wraps our own one for requestAnimationFrame()
