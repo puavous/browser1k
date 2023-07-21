@@ -301,20 +301,19 @@ var idea_hills2 = (t,w,h,C) => {
     var d = (t/DURATION_SECONDS);
 
     // Sky
-    gradient = C.createLinearGradient(w/2,0,w/2,h/2);
-    gradient.addColorStop(0, "#225");
-    gradient.addColorStop(.2, "#547");
-    gradient.addColorStop(.4, "#c37");
-    gradient.addColorStop(.6, "#e74");
+    gradient = C.createLinearGradient(0,0,0,h);
+    gradient.addColorStop(0, "#115");
+    gradient.addColorStop(.3, "#abc");
+    gradient.addColorStop(.5, "#edd");
     C.fillStyle=gradient;
-    C.fillRect(0, 0, w, h/2);
+    C.fillRect(0, 0, w, h);
 
     // Setting / rising sun ..
     gradient = C.createRadialGradient(w/2, h-d*h, 0, w/2, h-d*h, h);
     gradient.addColorStop(0, "#fff");
     gradient.addColorStop(.05, "#fff");
-    gradient.addColorStop(.11, "#ff1");
-    gradient.addColorStop(.2, "#ff4");
+    gradient.addColorStop(.1, "#ff1");
+    gradient.addColorStop(.2, "#ff8");
     gradient.addColorStop(1, "#fff0");
     C.fillStyle=gradient;
 
@@ -330,7 +329,7 @@ var idea_hills2 = (t,w,h,C) => {
     for(var iz = 5; iz > 0; iz--){
 
 	gradient = C.createLinearGradient(0,h/2,0,h);
-	gradient.addColorStop(0, "#28" + " 57ace"[iz]);
+	gradient.addColorStop(0, "#26" + " 57acd"[iz]);
 	gradient.addColorStop(1, "#241");
 	C.fillStyle=gradient;
 
@@ -341,7 +340,7 @@ var idea_hills2 = (t,w,h,C) => {
 	random_state = iz;
 	for(var ix = w/2 - 2*h - h*t/(9*iz); ix < w/2 + 2*h; ix += h/400){
 	    bm += rnd() < .5 ? bd : -bd;
-	    C.lineTo(ix, h/2 - bm - iz*h/40);
+	    C.lineTo(ix, h/2 - bm - iz*h/20);
 	}
 	C.fill();
     }
