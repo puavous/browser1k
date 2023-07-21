@@ -104,17 +104,27 @@ c.addEventListener("click", debug_seek); //DEBUG
 // ---------------------- 
 // Utility functions.. unused ones automatically discarded from compo version.
 
-/*
-// I'd like to know what rands I get.. seems to cost about 20-30 bytes..
+
+/** Random generator to get deterministic rands.. seems to cost about 20-30 bytes,
+but is a must for repeatable stochastic shapes. When "just noise" is not enough..
+
+This version is skewed, ranges to almost 1.0 but not quite.. 0x400000 == 4194304.
+0x3fffff/4200000 == 0.9986435714285714
+*/
 var random_state = 0;
+var rnd = () => (random_state = (16807 * random_state + 1) & 0x3fffff) / 4200000;
+
+/*
+// Old version
 function rnd(){
 random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
     return random_state / 4200000; // almost get 1.0 but not quite..
 }
 */
 
-// If 20 bytes costs too much, take the implementation-defined Math.random():
-var rnd=()=>Math.random();
+// If 20 bytes costs too much, or need "just noise", can switch to
+// the implementation-defined Math.random():
+//var rnd=()=>Math.random();
 
 
 // Audio content for this show ---------------
@@ -312,16 +322,61 @@ function gener(x,y,z,p,q){
     gener(x+p,y+p,z+1,q*p,q);
 }
 
+function grower(pos, dir, age, extent){
+    if (extent <= 0) return;
+    
+    // So far, I have become 'age' units in size. My future parts won't be seen.
+    // Also, I could remain very small for all ages if I'm at an extreme location.
+    const ds = 1; //.9; //Math.sqrt(extent/41);
+    if (age>0) stuffpoints.push([pos[0],pos[1],pos[2],ds*age]);
+
+    // Sometimes, I've branched to two random directions:
+    // (must be same randoms each time, so recurse also 'not yet live' branches.)
+    if (rnd()<.15) {
+	grower([pos[0] + ds*age*dir[0],
+		pos[1] + ds*age*dir[1],
+		pos[2] + ds*age*dir[2]],
+	       [dir[0]+rnd()-.5, dir[1]+rnd()-.5, dir[2]+rnd()-.5],
+	       age - 0.03, extent-1);
+	grower([pos[0] + ds*age*dir[0],
+		pos[1] + ds*age*dir[1],
+		pos[2] + ds*age*dir[2]],
+	       [dir[0]+rnd()-.5, dir[1]+rnd()-.5, dir[2]+rnd()-.5],
+	       age - 0.03, extent-1);
+    } else {
+    // Otherwise, I've just grown new stuff on top of me in the growth direction..
+    grower([pos[0] + ds*age*dir[0],
+	    pos[1] + ds*age*dir[1],
+	    pos[2] + ds*age*dir[2]],
+	   dir,
+	   age - 0.03, extent-1);
+    }
+}
+
 var idea_blobs2 = (t,w,h,C) => {
     stuffpoints = [];
-    gener(0,0,0,1,.1+t/120);
+    //gener(0,0,0,1,.1+t/120);
+    random_state = 2; grower([1,0,0],[0,.5,0], t/30, 40);
 
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
-			   0,
-			   0,
+			   -30+t,
+			   -1,
+			   20,
+			   t/2);
+
+    drawing_array_push_mod(stuffpoints,
+			   -10+t,
+			   -1,
 			   10,
-			   t/10);
+			   t/4);
+
+    drawing_array_push_mod(stuffpoints,
+			   -20+t,
+			   2,
+			   100,
+			   t/4);
+
 
     //Sort not necessary if we draw silhouette
     //drawing_array.sort(zsort);
@@ -375,8 +430,8 @@ var animation_frame = (t,
     C.fillStyle=gradient;
     C.fillRect(0, 0, w, h/2);
 
-    // Setting sun
-    gradient = C.createRadialGradient(w/2, h/3+d*h, 0, w/2, h/3+d*h, h);
+    // Setting / rising sun ..
+    gradient = C.createRadialGradient(w/2, h-d*h, 0, w/2, h-d*h, h);
     gradient.addColorStop(0, "#fff");
     gradient.addColorStop(.05, "#fff");
     gradient.addColorStop(.11, "#ff1");
