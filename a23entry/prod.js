@@ -322,6 +322,8 @@ var idea_hills2 = (t,w,h,C) => {
     // Hills, hills, hills, maybe with fir kinda forest
     for(var iz = 5; iz > 0; iz--){
 
+	// Blur looks really nice but slows down large shape painting..
+	//C.filter = "blur("+iz/2+"px";
 	gradient = C.createLinearGradient(0,0,0,h);
 	gradient.addColorStop(0, "#26" + " 57acd"[iz]);
 	gradient.addColorStop(1, "#131");
