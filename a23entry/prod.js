@@ -430,6 +430,27 @@ var idea_blobs1 = (t,w,h,C) => {
     }
 }
 
+var idea_blobs1b = (t,w,h,C) => {
+    //C.globalCompositeOperation = "screen";
+
+    random_state = 1;
+    for(var i=0; i<t; i+=1){
+	var p = [-5 + 11*rnd(),
+		 -4 + 8*rnd() + Math.sin(i+t),
+		 3 + t/2 + 5 * rnd()]
+	if (p[2]>0){
+	    var radius = PERSPECTIVE_F/p[2]*h/2;
+	    var cx = w/2 + PERSPECTIVE_F/p[2]*h/2*p[0];
+	    var cy = h/2 - PERSPECTIVE_F/p[2]*h/2*p[1];
+	    var gr = C.fillStyle = C.createRadialGradient(cx, cy, 0, cx, cy, radius);
+	    gr.addColorStop(0, "#ffff");
+	    gr.addColorStop(1, "#00f0");
+	    C.fillRect(cx - radius, cy - radius, 2*radius, 2*radius);
+	}
+    }
+}
+
+
 
 
 function gener(x,y,z,p,q){
@@ -530,6 +551,7 @@ var animation_frame = (t,
     //idea_hills(t,w,h,C);
     idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
+    idea_blobs1b(t,w,h,C);
     //idea_blobs2(t,w,h,C);
 
     debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
