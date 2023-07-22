@@ -517,16 +517,13 @@ var idea_blobs2 = (t,w,h,C) => {
 
 
 // Reset the canvas size on each redraw - extra work but less code.
+// Will this be a showstopper in some browser?
 var animation_frame = (t,
-		       s = c.style,
 		       w = c.width = innerWidth,
 		       h = c.height = innerHeight,
 		       C = c.getContext('2d')
 		      ) =>
 {
-//    if ((w != innerWidth) || (h != innerHeight)){ .. }
-
-    s.position = "fixed"; s.left = s.top = 0;
 
     // C.fillStyle="#301"; C.fillRect(0, 0, w, h);
 
@@ -550,6 +547,10 @@ var animation_driver = (curTimeInMillis) => {
 // Use window click handler..
 onclick = () => {
     onclick = null; //DEBUG
+
+    // Magic of the packing algorithm is that repeating "c.style" reduces size.
+    c.style.position = "fixed"; c.style.left = c.style.top = 0;
+
     /* In debug mode I want to control the fullscreen myself, so iffalse..*/
     if (false)                                     //DEBUG
         c.style.cursor='none';
