@@ -616,11 +616,11 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 
 var idea_blobs3 = (t,w,h,C) => {
 
-//    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t);
-//    var cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
+    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t),
+        cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
 	
-    var cx1 = w/2,      cy1 = h/2, r1 = 20,
-	cx2 = w/2+h/3,  cy2 = h/2, r2 = 8;
+//    var cx1 = w/2,      cy1 = h/2, r1 = 20,
+//	cx2 = w/2+h/3,  cy2 = h/2, r2 = 8;
     
     C.fillStyle = "#700";
     fillCapsuleSilhouette(C, cx1, cy1, r1, cx2, cy2, r2);
