@@ -209,6 +209,15 @@ var gradstops = (g, stops) =>
     return g;
 }
 
+/** Cross product when a and b are array representations of 3-vectors*/
+var cross3 = (a,b) => {
+    return [ a[1]*b[2] - a[2]*b[1],
+	     a[2]*b[0] - a[0]*b[2],
+	     a[0]*b[1] - a[1]*b[0] ]
+}
+    
+
+
 
 
 // GFX init -----------------------------------------------------------------
@@ -537,6 +546,111 @@ var idea_blobs2 = (t,w,h,C) => {
 
 
 
+
+var idea_blobs3 = (t,w,h,C) => {
+    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t);
+
+    var cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
+/*
+    var cx2 = 2*w/3, cy2 = h/2+50, r2 = h/14;
+*/
+    
+    // Draw a silhouette of a 'capsule'. As a 2d projection that is
+    // two circles for the round ends and the area between their outer tangents.
+    // These three Components overlap; I'll leave it as a later exercise to figure
+    // out correct angles for the arcs so that each pixel would get painted only once.
+
+    // Compute first; draw then.
+
+    // Actual Distance between circles.
+    var cdist = Math.hypot(cx2-cx1, cy2-cy1);
+
+    // Unit vector (ux,uy) pointing towards circle 2
+    var ux = (cx2 - cx1)/cdist;
+    var uy = (cy2 - cy1)/cdist;
+    
+    // Unit vector orthogonal and pointing left of (ux,uy)
+    var [vx,vy,] = cross3([ux, uy, 0], [0, 0, 1]);
+
+/*
+  // Visualize direction vectors for debug..
+    C.beginPath();
+    C.moveTo(cx1,cy1);
+    C.lineTo(cx1+r1*ux, cy1+r1*uy);
+    C.moveTo(cx1,cy1);
+    C.lineTo(cx1+r1*vx, cy1+r1*vy);
+    C.stroke();
+*/
+    
+    // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
+    // Assuming circles are on x-axis; I'll project them to u,v afterwards.
+    // Then I could solve it with pen, paper and my rusty math brain:
+    var d = cdist / (r1 - r2);
+    var tx = 1/d;
+    var ty = Math.sqrt(1 - 1/(d*d));
+
+    // (tx,ty) now in unit circle coords. Back to actual coordinates..
+    var px = tx*r1;
+    var py = ty*r1;
+    var px2 = tx*r2;
+    var py2 = ty*r2;
+
+/*
+    C.beginPath();
+    C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
+    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
+    C.moveTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
+    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
+    C.stroke();
+*/
+    C.fillStyle = "#000";
+    C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7);
+    C.fill();
+
+    C.beginPath();
+    C.arc(cx2, cy2, r2, 0, 7);
+    C.fill();
+
+    C.beginPath();
+    C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
+    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
+    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
+    C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
+    C.fill();
+    
+    
+/*
+    // External tangent algorithm grabbed from Wikipedia...
+    // Would need some tweaking for special cases.. Couldn't wrap my head
+    // around this, so I made the above version for you to wrap yours around...
+    var gamma = -Math.atan((cy2-cy1)/(cx2-cx1));
+    var beta = Math.asin((r2-r1)/Math.hypot(cx2-cx1, cy2-cy1));
+
+    var x3  = cx1 + r1 * Math.sin(gamma - beta);
+    var y3  = cy1 + r1 * Math.cos(gamma - beta);
+    var x4  = cx2 + r2 * Math.sin(gamma - beta);
+    var y4  = cy2 + r2 * Math.cos(gamma - beta);
+
+    var ox3 = cx1 - r1 * Math.sin(gamma + beta);
+    var oy3 = cy1 - r1 * Math.cos(gamma + beta);
+    var ox4 = cx2 - r2 * Math.sin(gamma + beta);
+    var oy4 = cy2 - r2 * Math.cos(gamma + beta);
+
+    C.beginPath();
+    C.moveTo(x3,y3);
+    C.lineTo(x4,y4);
+    C.lineTo(ox4,oy4);
+    C.lineTo(ox3,oy3);
+    C.stroke();
+*/
+
+
+}
+
+
+
+
 // Reset the canvas size on each redraw - extra work but less code.
 // Will this be a showstopper in some browser?
 var animation_frame = (t,
@@ -551,8 +665,9 @@ var animation_frame = (t,
     //idea_hills(t,w,h,C);
     idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
-    idea_blobs1b(t,w,h,C);
+    //idea_blobs1b(t,w,h,C);
     //idea_blobs2(t,w,h,C);
+    idea_blobs3(t,w,h,C);
 
     debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
 };
