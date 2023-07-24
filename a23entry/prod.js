@@ -544,45 +544,41 @@ var idea_blobs2 = (t,w,h,C) => {
 }
 
 
-var fillCapsuleSilhouette = () => {
-}
+/**
+  Draw a silhouette of a 'capsule'. As a 2d projection that is
+  two circles for the round ends and the area between their outer tangents.
+  These three Components overlap; I'll leave it as a later exercise to figure
+  out correct angles for the arcs so that each pixel would get painted only once.
 
-
-var idea_blobs3 = (t,w,h,C) => {
-//    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t);
-
-    //    var cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
-
-    var cx1 = w/2,     cy1 = h/2, r1 = 20,
-	cx2 = w/2+10,  cy2 = h/2, r2 = 8;
+  Compute first; draw then. Algorithm is eventually made from "first
+  principles", solving simplest kinds of equations. This time the
+  Internet didn't have it all figured out for me... Most stuff seemed
+  to be overly general or use a geometric approach not easily adapted
+  to this code. Wikipedia, for example, has some starters about what
+  goes on with the tangents here:
+  https://en.wikipedia.org/wiki/Tangent_lines_to_circles
     
-/*
-    var cx2 = 2*w/3, cy2 = h/2+50, r2 = h/14;
+  Notes on my latest Javascript learnings: NaNs are valid inputs for Canvas path
+  operations. Such NaN-op doesn't alter the path. So, 0/0 is a good intermediate
+  computation for intentional no-outputs. Infinities fine too.
+
+  Especially: Infinity is a fine value for parallel lines.
+  NaN is a fine value for |r1-r2| > cdist (circle encloses other).
+
+  These observations provide quite straightforward code, but then it probably
+  has to be made dirty and obscure again by micro-optimizations for the 1k intro
+  madness, eventually..
 */
-    
-    // Draw a silhouette of a 'capsule'. As a 2d projection that is
-    // two circles for the round ends and the area between their outer tangents.
-    // These three Components overlap; I'll leave it as a later exercise to figure
-    // out correct angles for the arcs so that each pixel would get painted only once.
-
-    // Compute first; draw then.
-    
-    // Notes on my latest Javascript learnings: NaNs are valid inputs for Canvas path
-    // operations. Such NaN-op doesn't alter the path. So, 0/0 is a good intermediate
-    // computation for intentional no-outputs. Infinities fine too.
-
-    // Actual Distance between circles.
+var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+    // Actual Distance between circles in screen coordinates.
     var cdist = Math.hypot(cx2-cx1, cy2-cy1);
 
-    // Unit vector (ux,uy) pointing towards circle 2
+    // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
     var ux = (cx2 - cx1)/cdist;
     var uy = (cy2 - cy1)/cdist;
     
-    // Unit vector orthogonal and pointing left of (ux,uy)
+    // Unit vector orthogonal to (ux,uy)
     var [vx,vy,] = cross3([ux, uy, 0], [0, 0, 1]);
-
-    // Infinity is a fine value for parallel lines.
-    // NaN is a fine value for |r1-r2| > cdist (circle encloses other)
     
     // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
     // Assuming circles are on x-axis; I'll project them to u,v afterwards.
@@ -597,7 +593,6 @@ var idea_blobs3 = (t,w,h,C) => {
     var px2 = tx*r2;
     var py2 = ty*r2;
 
-    C.fillStyle = "#000";
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
     //    C.fill();
@@ -615,33 +610,20 @@ var idea_blobs3 = (t,w,h,C) => {
     C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
 //    C.fill();
     C.stroke();
+
+}
+
+
+var idea_blobs3 = (t,w,h,C) => {
+
+//    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t);
+//    var cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
+	
+    var cx1 = w/2,      cy1 = h/2, r1 = 20,
+	cx2 = w/2+h/3,  cy2 = h/2, r2 = 8;
     
-    
-/*
-    // External tangent algorithm grabbed from Wikipedia...
-    // Would need some tweaking for special cases.. Couldn't wrap my head
-    // around this, so I made the above version for you to wrap yours around...
-    var gamma = -Math.atan((cy2-cy1)/(cx2-cx1));
-    var beta = Math.asin((r2-r1)/Math.hypot(cx2-cx1, cy2-cy1));
-
-    var x3  = cx1 + r1 * Math.sin(gamma - beta);
-    var y3  = cy1 + r1 * Math.cos(gamma - beta);
-    var x4  = cx2 + r2 * Math.sin(gamma - beta);
-    var y4  = cy2 + r2 * Math.cos(gamma - beta);
-
-    var ox3 = cx1 - r1 * Math.sin(gamma + beta);
-    var oy3 = cy1 - r1 * Math.cos(gamma + beta);
-    var ox4 = cx2 - r2 * Math.sin(gamma + beta);
-    var oy4 = cy2 - r2 * Math.cos(gamma + beta);
-
-    C.beginPath();
-    C.moveTo(x3,y3);
-    C.lineTo(x4,y4);
-    C.lineTo(ox4,oy4);
-    C.lineTo(ox3,oy3);
-    C.stroke();
-*/
-
+    C.fillStyle = "#700";
+    fillCapsuleSilhouette(C, cx1, cy1, r1, cx2, cy2, r2);
 
 }
 
