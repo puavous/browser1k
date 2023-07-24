@@ -585,7 +585,7 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     // Then I could solve it with pen, paper and my rusty math brain:
     var d = cdist / (r1 - r2);
     var tx = 1/d;
-    var ty = Math.sqrt(1 - 1/(d*d));
+    var ty = Math.sqrt(1 - 1/d/d);
     
     // (tx,ty) now in unit circle coords. Back to actual coordinates..
     var px = tx*r1;
@@ -616,15 +616,17 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 
 var idea_blobs3 = (t,w,h,C) => {
 
-    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t),
-        cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
-	
 //    var cx1 = w/2,      cy1 = h/2, r1 = 20,
 //	cx2 = w/2+h/3,  cy2 = h/2, r2 = 8;
-    
-    C.fillStyle = "#700";
-    fillCapsuleSilhouette(C, cx1, cy1, r1, cx2, cy2, r2);
 
+    for (var i = -5; i<6; i++){
+	C.fillStyle = "#700";
+	
+	fillCapsuleSilhouette(C,
+			      w/2 + i*h/10, h/2, h/20,
+			      w/2 + i*h/10, h/3, h/100);
+    }
+    
 }
 
 
