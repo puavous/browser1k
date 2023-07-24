@@ -548,9 +548,13 @@ var idea_blobs2 = (t,w,h,C) => {
 
 
 var idea_blobs3 = (t,w,h,C) => {
-    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t);
+//    var cx1 = w/2 + h/4*Math.sin(t/5),   cy1 = h/2, r1 = h/(4+t);
 
-    var cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
+    //    var cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
+
+    var cx1 = w/2, cy1 = h/2, r1 = h/4,
+	cx2 = w/2+h/4, cy2 = h/2, r2 = h/30;
+    
 /*
     var cx2 = 2*w/3, cy2 = h/2+50, r2 = h/14;
 */
@@ -561,6 +565,10 @@ var idea_blobs3 = (t,w,h,C) => {
     // out correct angles for the arcs so that each pixel would get painted only once.
 
     // Compute first; draw then.
+    
+    // Notes on my latest Javascript learnings: NaNs are valid inputs for Canvas path
+    // operations. Such NaN-op doesn't alter the path. So, 0/0 is a good intermediate
+    // computation for intentional no-outputs. Infinities fine too.
 
     // Actual Distance between circles.
     var cdist = Math.hypot(cx2-cx1, cy2-cy1);
@@ -606,18 +614,21 @@ var idea_blobs3 = (t,w,h,C) => {
     C.fillStyle = "#000";
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
-    C.fill();
+    //    C.fill();
+    C.stroke();
 
     C.beginPath();
     C.arc(cx2, cy2, r2, 0, 7);
-    C.fill();
+//    C.fill();
+    C.stroke();
 
     C.beginPath();
     C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
     C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
     C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
     C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
-    C.fill();
+//    C.fill();
+    C.stroke();
     
     
 /*
