@@ -593,7 +593,22 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     var px2 = tx*r2;
     var py2 = ty*r2;
 
-    // Can't go totally zigzag inside the path, but a little bit:
+    C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7);
+    C.arc(cx2, cy2, r2, 0, 7);
+    C.fill();
+    
+    C.beginPath();
+    C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
+    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
+    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
+    C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
+    C.fill();
+
+
+/*
+    // Couldn't go totally zigzag inside the path, but maybe a little bit(?)
+    // Nah.. there will be some tearing artefacts..
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
     C.lineTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
@@ -602,6 +617,7 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
     C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
     C.fill();
+*/
 
 /*
     C.beginPath();
@@ -614,13 +630,14 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 }
 
 
-var idea_blobs3 = (t,w,h,C) => {
+/** Preliminary test of the capsule code*/
+var idea_blobs3a = (t,w,h,C) => {
 
 //    var cx1 = w/2,      cy1 = h/2, r1 = 20,
 //	cx2 = w/2+h/3,  cy2 = h/2, r2 = 8;
 
     for (var i = -5; i<6; i++){
-	C.fillStyle = "#700";
+	C.fillStyle = "#784";
 	
 	fillCapsuleSilhouette(C,
 			      w/2 + i*h/10, h/2, h/20,
@@ -628,6 +645,61 @@ var idea_blobs3 = (t,w,h,C) => {
     }
     
 }
+
+
+/** Second test of what could be capsule-drawn now..*/
+var idea_blobs3b = (t,w,h,C) => {
+
+    // Interpret drawing_array is now a series of capsule-definitions with
+    // [x,y,z,radius] each.
+    stuffpoints = [];
+    for (var i = 0; i<100; i++){
+	stuffpoints.push([0, 0, 0, .2]);
+	stuffpoints.push([5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1]);
+	stuffpoints.push([5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1]);
+	stuffpoints.push([5*Math.sin(.06*i), Math.sin(t)+3, 5*Math.cos(.06*i), 0]);
+    }
+    drawing_array = [];
+    drawing_array_push_mod(stuffpoints,
+			   Math.sin(t),
+			   -3,
+			   20,
+			   t/3);
+
+    drawing_array_push_mod(stuffpoints,
+			   Math.sin(t/3),
+			   3,
+			   30,
+			   t/4);
+
+    drawing_array_push_mod(stuffpoints,
+			   4+Math.sin(t),
+			   2,
+			   40,
+			   -t/4);
+
+
+
+    //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
+    //drawing_array.sort(zsort);
+
+    for (var i = 0; i<drawing_array.length; i+=2){
+	C.fillStyle = "#210";
+	
+	// Screen x, y, account for perspective and aspect ratio here.
+	var [x1,y1,z1,s1] = drawing_array[i];
+	var [x2,y2,z2,s2] = drawing_array[i+1];
+	fillCapsuleSilhouette(C,
+			      w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
+			      h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 ,
+			      PERSPECTIVE_F * h / 2 / z1 * s1 ,
+			      w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
+			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
+			      PERSPECTIVE_F * h / 2 / z2 * s2);
+    }
+    
+}
+
 
 
 
@@ -647,8 +719,9 @@ var animation_frame = (t,
     idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
     //idea_blobs1b(t,w,h,C);
-    //idea_blobs2(t,w,h,C);
-    idea_blobs3(t,w,h,C);
+    //idea_blobs2(t,w,h,C);  // "grower" with discs
+    //idea_blobs3a(t,w,h,C);  // capsule minitest
+    idea_blobs3b(t,w,h,C);
 
     debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
 };
