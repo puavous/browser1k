@@ -544,7 +544,8 @@ var idea_blobs2 = (t,w,h,C) => {
 }
 
 
-
+var fillCapsuleSilhouette = () => {
+}
 
 
 var idea_blobs3 = (t,w,h,C) => {
@@ -552,8 +553,8 @@ var idea_blobs3 = (t,w,h,C) => {
 
     //    var cx2 = w/2 + (h/2-3*t)*Math.sin(t), cy2 = h/2 + (h/2-3*t)*Math.cos(t), r2 = h/14;
 
-    var cx1 = w/2, cy1 = h/2, r1 = h/4,
-	cx2 = w/2+h/4, cy2 = h/2, r2 = h/30;
+    var cx1 = w/2,     cy1 = h/2, r1 = 20,
+	cx2 = w/2+10,  cy2 = h/2, r2 = 8;
     
 /*
     var cx2 = 2*w/3, cy2 = h/2+50, r2 = h/14;
@@ -580,15 +581,8 @@ var idea_blobs3 = (t,w,h,C) => {
     // Unit vector orthogonal and pointing left of (ux,uy)
     var [vx,vy,] = cross3([ux, uy, 0], [0, 0, 1]);
 
-/*
-  // Visualize direction vectors for debug..
-    C.beginPath();
-    C.moveTo(cx1,cy1);
-    C.lineTo(cx1+r1*ux, cy1+r1*uy);
-    C.moveTo(cx1,cy1);
-    C.lineTo(cx1+r1*vx, cy1+r1*vy);
-    C.stroke();
-*/
+    // Infinity is a fine value for parallel lines.
+    // NaN is a fine value for |r1-r2| > cdist (circle encloses other)
     
     // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
     // Assuming circles are on x-axis; I'll project them to u,v afterwards.
@@ -596,21 +590,13 @@ var idea_blobs3 = (t,w,h,C) => {
     var d = cdist / (r1 - r2);
     var tx = 1/d;
     var ty = Math.sqrt(1 - 1/(d*d));
-
+    
     // (tx,ty) now in unit circle coords. Back to actual coordinates..
     var px = tx*r1;
     var py = ty*r1;
     var px2 = tx*r2;
     var py2 = ty*r2;
 
-/*
-    C.beginPath();
-    C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
-    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
-    C.moveTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
-    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
-    C.stroke();
-*/
     C.fillStyle = "#000";
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
