@@ -588,10 +588,10 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     var ty = Math.sqrt(1 - 1/d/d);
     
     // (tx,ty) now in unit circle coords. Back to actual coordinates..
-    var px = tx*r1;
-    var py = ty*r1;
-    var px2 = tx*r2;
-    var py2 = ty*r2;
+    var p1x = tx*r1;
+    var p1y = ty*r1;
+    var p2x = tx*r2;
+    var p2y = ty*r2;
 
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
@@ -599,10 +599,10 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     C.fill();
     
     C.beginPath();
-    C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
-    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
-    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
-    C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
+    C.moveTo(cx1 + p1x * ux + p1y * uy,   cy1 + p1x * vx + p1y * vy);
+    C.lineTo(cx2 + p2x * ux + p2y * uy,   cy2 + p2x * vx + p2y * vy);
+    C.lineTo(cx2 + p2x * ux - p2y * uy,   cy2 + p2x * vx - p2y * vy);
+    C.lineTo(cx1 + p1x * ux - p1y * uy,   cy1 + p1x * vx - p1y * vy);
     C.fill();
 
 
