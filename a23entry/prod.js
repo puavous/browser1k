@@ -593,24 +593,24 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     var px2 = tx*r2;
     var py2 = ty*r2;
 
+    // Can't go totally zigzag inside the path, but a little bit:
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
-    //    C.fill();
-    C.stroke();
-
-    C.beginPath();
+    C.lineTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
+    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
     C.arc(cx2, cy2, r2, 0, 7);
-//    C.fill();
-    C.stroke();
+    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
+    C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
+    C.fill();
 
+/*
     C.beginPath();
     C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
     C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
     C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
     C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
-//    C.fill();
     C.stroke();
-
+*/
 }
 
 
