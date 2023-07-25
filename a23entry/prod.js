@@ -41,7 +41,6 @@ var audio_time = 0;
 
 // "Graphics assets" :)
 var stuffpoints = [];
-
 var drawing_array = [];
 
 // ---------------------------
@@ -773,14 +772,14 @@ var idea_blobs3a = (t,w,h,C) => {
 /** Second test of what could be capsule-drawn now..*/
 var idea_blobs3b = (t,w,h,C) => {
 
-    // Interpret drawing_array is now a series of capsule-definitions with
-    // [x,y,z,radius] each.
+    // Interpret drawing_array now as a series of capsule-definitions with
+    // [x,y,z,radius] for the two endpoints and so on.
     stuffpoints = [];
     for (var i = 0; i<100; i++){
-	stuffpoints.push([0, 0, 0, .2]);
-	stuffpoints.push([5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1]);
-	stuffpoints.push([5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1]);
-	stuffpoints.push([5*Math.sin(.06*i), Math.sin(t)+3, 5*Math.cos(.06*i), 0]);
+	stuffpoints.push([0, 0, 0, .2],
+			 [5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1],
+			 [5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1],
+			 [5*Math.sin(.06*i), Math.sin(t)+3, 5*Math.cos(.06*i), 0]);
     }
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
