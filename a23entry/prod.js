@@ -774,6 +774,8 @@ var idea_blobs3b = (t,w,h,C) => {
 
     // Interpret drawing_array now as a series of capsule-definitions with
     // [x,y,z,radius] for the two endpoints and so on.
+    // Could it be [x1,y1,z1,[x2,y2,z2,rad1,rad2]] or {a:[], b:[]} for sorting
+    // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
     stuffpoints = [];
     for (var i = 0; i<10; i++){
 	stuffpoints.push([0, 0, 0, .2],
@@ -822,6 +824,70 @@ var idea_blobs3b = (t,w,h,C) => {
     
 }
 
+function stuffer(pos, dir, stepsleft, smax){
+    if (stepsleft < 1) return;
+
+    // Produce one capsule here, from position to end point.
+    var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
+    stuffpoints.push(pos, endp);
+    
+    // Branch sometimes. More often closer to leaves:
+    //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
+    if (rnd()<(.9-stepsleft/smax)) {
+	stuffer(endp,
+		[.25*dir[0]+rnd()-.5, .25*dir[1]+rnd()-.5, .25*dir[2]+rnd()-.5, 0],
+		//[.25*dir[0]+2*rnd()-1, .25*dir[1]+2*rnd()-1, .25*dir[2]+2*rnd()-1, 0],		
+//		[dir[0], dir[1], dir[2], 0],
+	        stepsleft-2, smax);
+    }
+    // Always grow a bit to almost same direction; feel some gravity downwards:
+    stuffer(endp,
+	    [dir[0]+.2*rnd()-.1, dir[1]+.2*rnd()-.15, dir[2]+.2*rnd()-.1, 0],
+	    stepsleft - 1, smax);
+}
+
+/** Second test of what could be capsule-drawn now..*/
+var idea_blobs3c = (t,w,h,C) => {
+
+    // Interpret drawing_array now as a series of capsule-definitions with
+    // [x,y,z,radius] for the two endpoints and so on.
+    // Could it be [x1,y1,z1,[x2,y2,z2,rad1,rad2]] or {a:[], b:[]} for sorting
+    // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
+    stuffpoints = [];
+    random_state = 5;
+    for (itree = 0; itree<10; itree++){
+	var inis = 10+20*rnd();
+	stuffer([60*rnd()-30,0,60*rnd()-30,inis/30],[0,3,0,0],inis,30);
+    }
+    drawing_array = [];
+    drawing_array_push_mod(stuffpoints,
+			   0,
+			   -23,
+			   60,
+			   -t/5);
+
+
+
+    //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
+    //drawing_array.sort(zsort);
+
+    for (var i = 0; i<drawing_array.length; i+=2){
+	C.fillStyle = "#210";
+	
+	// Screen x, y, account for perspective and aspect ratio here.
+	var [x1,y1,z1,s1] = drawing_array[i];
+	var [x2,y2,z2,s2] = drawing_array[i+1];
+	fillCapsuleSilhouette(C,
+			      w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
+			      h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 ,
+			      PERSPECTIVE_F * h / 2 / z1 * s1 ,
+			      w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
+			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
+			      PERSPECTIVE_F * h / 2 / z2 * s2);
+    }
+    
+}
+
 
 
 
@@ -835,15 +901,16 @@ var animation_frame = (t,
 		      ) =>
 {
 
-    // C.fillStyle="#301"; C.fillRect(0, 0, w, h);
+     C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
 
     //idea_hills(t,w,h,C);
-    idea_hills2(t,w,h,C);
+    //idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
     //idea_blobs1b(t,w,h,C);
     //idea_blobs2(t,w,h,C);  // "grower" with discs
     //idea_blobs3a(t,w,h,C);  // capsule minitest
-    idea_blobs3b(t,w,h,C);
+    //idea_blobs3b(t,w,h,C);
+    idea_blobs3c(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
 
     debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
 };
