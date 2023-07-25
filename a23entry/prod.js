@@ -683,19 +683,22 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     //var d = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
 
     // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
-    var ux = (cx2 - cx1) / d;
-    var uy = (cy2 - cy1) / d;
+//    var ux = (cx2 - cx1) / d;
+//    var uy = (cy2 - cy1) / d;
     
     // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
     // Assuming circles are on x-axis; I'll project them to u,v afterwards.
     // Then I could solve it with pen, paper and my rusty math brain:
-    var D = d / (r1 - r2);
+//    var D = d / (r1 - r2);
 
     // (tx,ty) now in unit circle coords. Back to actual coordinates..
 //    var p1x = r1/D;
-    var p1y = r1/D*Math.sqrt(D*D-1);
+//  var p1y = r1/D*Math.sqrt(D*D-1);
+    var a = Math.sqrt(1 - 1 /d/d * (r1 - r2)*(r1 - r2));
+//    var p1y = r1*a;
 //    var p2x = r2/D;
-    var p2y = r2/D*Math.sqrt(D*D-1);
+//    var p2y = r2/D*Math.sqrt(D*D-1);
+//    var p2y = r2*a;
 
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
@@ -703,14 +706,14 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     C.fill();
 
     C.beginPath();
-    C.moveTo(cx1 +  r1/D * ux  +  p1y * uy,
-	     cy1 +  r1/D * uy  -  p1y * ux);
-    C.lineTo(cx2 +  r2/D * ux  +  p2y * uy,
-	     cy2 +  r2/D * uy  -  p2y * ux);
-    C.lineTo(cx2 +  r2/D * ux  -  p2y * uy,
-	     cy2 +  r2/D * uy  +  p2y * ux);
-    C.lineTo(cx1 +  r1/D * ux  -  p1y * uy,
-	     cy1 +  r1/D * uy  +  p1y * ux);
+    C.moveTo( cx1  +  r1*(r1-r2) * (cx2 - cx1) /d/d  +  r1*a * (cy2 - cy1) /d,
+	      cy1  +  r1*(r1-r2) * (cy2 - cy1) /d/d  -  r1*a * (cx2 - cx1) /d);
+    C.lineTo( cx2  +  r2*(r1-r2) * (cx2 - cx1) /d/d  +  r2*a * (cy2 - cy1) /d,
+	      cy2  +  r2*(r1-r2) * (cy2 - cy1) /d/d  -  r2*a * (cx2 - cx1) /d);
+    C.lineTo( cx2  +  r2*(r1-r2) * (cx2 - cx1) /d/d  -  r2*a * (cy2 - cy1) /d,
+	      cy2  +  r2*(r1-r2) * (cy2 - cy1) /d/d  +  r2*a * (cx2 - cx1) /d);
+    C.lineTo( cx1  +  r1*(r1-r2) * (cx2 - cx1) /d/d  -  r1*a * (cy2 - cy1) /d,
+	      cy1  +  r1*(r1-r2) * (cy2 - cy1) /d/d  +  r1*a * (cx2 - cx1) /d);
     C.fill();
 
 }
