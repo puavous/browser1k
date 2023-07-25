@@ -343,7 +343,7 @@ var idea_hills2 = (t,w,h,C) => {
 
 
 
-/** A height map function */
+/** A height map function .. just a thought, later abandoned. */
 var hmap = (x,z) => {
     return 3*Math.sin(x/6) + 2*Math.sin((x+z)/3) + Math.sin(z);
 }
