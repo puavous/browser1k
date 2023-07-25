@@ -886,4 +886,4 @@ onclick = () => {
 
 // Assume we execute this from the PNG unpack trick,
 // so we can replace garbled content with a nicer prompt to user:
-document.body.firstChild.data = "Click!";
+document.body.firstChild.data = "click";
