@@ -633,7 +633,7 @@ var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 /** It is almost impossible (at least for me) to decrypt this version; see
 above original version to see what's going on.
 */
-var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+var fillCapsuleSilhouette_level_2_obfuscation = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     // Actual Distance between circles in screen coordinates.
     var d = Math.hypot(cx2 - cx1, cy2 - cy1);
     //var cdist = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
@@ -672,6 +672,49 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     C.fill();
 
 }
+
+
+/** Then, bye bye readability. See above to get any idea of how this emerged.
+*/
+var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+    
+    // Actual Distance between circles in screen coordinates.
+    var d = Math.hypot(cx2 - cx1, cy2 - cy1);
+    //var d = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
+
+    // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
+    var ux = (cx2 - cx1) / d;
+    var uy = (cy2 - cy1) / d;
+    
+    // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
+    // Assuming circles are on x-axis; I'll project them to u,v afterwards.
+    // Then I could solve it with pen, paper and my rusty math brain:
+    var D = d / (r1 - r2);
+
+    // (tx,ty) now in unit circle coords. Back to actual coordinates..
+//    var p1x = r1/D;
+    var p1y = r1/D*Math.sqrt(D*D-1);
+//    var p2x = r2/D;
+    var p2y = r2/D*Math.sqrt(D*D-1);
+
+    C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7);
+    C.arc(cx2, cy2, r2, 0, 7);
+    C.fill();
+
+    C.beginPath();
+    C.moveTo(cx1 +  r1/D * ux  +  p1y * uy,
+	     cy1 +  r1/D * uy  -  p1y * ux);
+    C.lineTo(cx2 +  r2/D * ux  +  p2y * uy,
+	     cy2 +  r2/D * uy  -  p2y * ux);
+    C.lineTo(cx2 +  r2/D * ux  -  p2y * uy,
+	     cy2 +  r2/D * uy  +  p2y * ux);
+    C.lineTo(cx1 +  r1/D * ux  -  p1y * uy,
+	     cy1 +  r1/D * uy  +  p1y * ux);
+    C.fill();
+
+}
+
 
 
 /** Preliminary test of the capsule code*/
