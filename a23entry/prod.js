@@ -222,6 +222,22 @@ var cross3 = (a,b) => {
 
 // GFX content --------------------------------------------------------------
 
+
+var idea_sky1 = (t,w,h,C) => {
+    // Just a "sky" that brightens with time
+    var gradient = C.createLinearGradient(
+	0,-h*t/DURATION_SECONDS,0,h+3*(1-t/DURATION_SECONDS)*h);
+    gradient.addColorStop(0, "#115");
+    gradient.addColorStop(.8, "#fde");
+    gradient.addColorStop(.9, "#fef");
+    gradient.addColorStop(1, "#fff");
+    C.fillStyle=gradient;
+    C.fillRect(0, 0, w, h);
+
+}
+
+
+
 var idea_hills = (t,w,h,C) => {
     // Ok, I think gradients are a keeper for this prod..
     // Something I haven't played with much. Can do nice compositions it seems.
@@ -901,8 +917,9 @@ var animation_frame = (t,
 		      ) =>
 {
 
-     C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
+    // C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
 
+    idea_sky1(t,w,h,C);
     //idea_hills(t,w,h,C);
     //idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
