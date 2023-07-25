@@ -862,7 +862,7 @@ function stuffer(pos, dir, stepsleft, smax){
     // Always grow a bit to almost same direction; feel some gravity downwards:
     stuffer(endp,
 	    [dir[0]+.2*rnd()-.1,
-	     dir[1]+.2*rnd()-.17,
+	     dir[1]+.2*rnd()-.2,  // Hmm.. should make these vary over time.. kool efekts
 	     dir[2]+.2*rnd()-.1, 0],
 	    stepsleft - 1, smax);
 }
