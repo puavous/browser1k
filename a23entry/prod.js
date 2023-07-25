@@ -751,6 +751,10 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
     C.fill();
 */
 
+// Depending on geometry, could leave out one or both cap arcs without
+// very noticeable artefacts.. but then it really defeats the whole purpose
+// of the exercise with finding outer tangents :). Oh, well, it was a nice
+// learning experience, so let's not ask if it was useful otherwise..
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7); // Depending on geometry, arcs could be here
     C.arc(cx2, cy2, r2, 0, 7); // Separate the paths if artefacts appear
