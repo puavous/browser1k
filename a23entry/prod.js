@@ -846,19 +846,24 @@ function stuffer(pos, dir, stepsleft, smax){
     // Produce one capsule here, from position to end point.
     var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
     stuffpoints.push(pos, endp);
-    
+
+    var ll = Math.hypot(dir[0],dir[1],dir[2]);
     // Branch sometimes. More often closer to leaves:
     //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
     if (rnd()<(.9-stepsleft/smax)) {
 	stuffer(endp,
-		[.25*dir[0]+rnd()-.5, .25*dir[1]+rnd()-.5, .25*dir[2]+rnd()-.5, 0],
+		[.33*dir[0]+ll*(rnd()-.5),
+		 .33*dir[1]+ll*(rnd()-.5),
+		 .33*dir[2]+ll*(rnd()-.5), 0],
 		//[.25*dir[0]+2*rnd()-1, .25*dir[1]+2*rnd()-1, .25*dir[2]+2*rnd()-1, 0],		
 //		[dir[0], dir[1], dir[2], 0],
 	        stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
     stuffer(endp,
-	    [dir[0]+.2*rnd()-.1, dir[1]+.2*rnd()-.15, dir[2]+.2*rnd()-.1, 0],
+	    [dir[0]+.2*rnd()-.1,
+	     dir[1]+.2*rnd()-.17,
+	     dir[2]+.2*rnd()-.1, 0],
 	    stepsleft - 1, smax);
 }
 
@@ -917,9 +922,9 @@ var animation_frame = (t,
 		      ) =>
 {
 
-    // C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
+    C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
 
-    idea_sky1(t,w,h,C);
+    //idea_sky1(t,w,h,C);
     //idea_hills(t,w,h,C);
     //idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
