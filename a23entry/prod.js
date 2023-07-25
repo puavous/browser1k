@@ -569,7 +569,7 @@ var idea_blobs2 = (t,w,h,C) => {
   has to be made dirty and obscure again by micro-optimizations for the 1k intro
   madness, eventually..
 */
-var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     // Actual Distance between circles in screen coordinates.
     var cdist = Math.hypot(cx2-cx1, cy2-cy1);
 
@@ -627,6 +627,50 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
     C.stroke();
 */
+}
+
+
+/** It is almost impossible (at least for me) to decrypt this version; see
+above original version to see what's going on.
+*/
+var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+    // Actual Distance between circles in screen coordinates.
+    var d = Math.hypot(cx2 - cx1, cy2 - cy1);
+    //var cdist = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
+
+    // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
+    var ux = (cx2 - cx1) / d;
+    var uy = (cy2 - cy1) / d;
+    
+    // Unit vector orthogonal to (ux,uy). Damn.. rotate 90 degrees, be done..
+    // var [vx,vy] = [uy, -ux];
+    // And.. it is such a small op, so it is inlined below.. Destroying legibility.
+    
+    // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
+    // Assuming circles are on x-axis; I'll project them to u,v afterwards.
+    // Then I could solve it with pen, paper and my rusty math brain:
+    var D = d / (r1 - r2);
+
+    // var [tx, ty] = [1 / D,  Math.sqrt(1 - 1/ D / D)];
+
+    // (tx,ty) now in unit circle coords. Back to actual coordinates..
+    var p1x = r1/D;
+    var p1y = r1/D*Math.sqrt(D*D-1);  // ty*r1 applying some basic algebra
+    var p2x = r2/D;
+    var p2y = r2/D*Math.sqrt(D*D-1);  // ty*r2
+
+    C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7);
+    C.arc(cx2, cy2, r2, 0, 7);
+    C.fill();
+    
+    C.beginPath();
+    C.moveTo(cx1 + p1x * ux + p1y * uy,   cy1 + p1x * uy - p1y * ux);
+    C.lineTo(cx2 + p2x * ux + p2y * uy,   cy2 + p2x * uy - p2y * ux);
+    C.lineTo(cx2 + p2x * ux - p2y * uy,   cy2 + p2x * uy + p2y * ux);
+    C.lineTo(cx1 + p1x * ux - p1y * uy,   cy1 + p1x * uy + p1y * ux);
+    C.fill();
+
 }
 
 
