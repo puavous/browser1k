@@ -674,9 +674,8 @@ var fillCapsuleSilhouette_level_2_obfuscation = (C, cx1, cy1, r1, cx2, cy2, r2) 
 }
 
 
-/** Then, bye bye readability. See above to get any idea of how this emerged.
-*/
-var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+/** Level 3 obscurity... */
+var fillCapsuleSilhouette_lev3 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     
     // Actual Distance between circles in screen coordinates.
     var d = Math.hypot(cx2 - cx1, cy2 - cy1);
@@ -719,6 +718,38 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     C.fill();
 
 }
+
+
+/** Then, bye bye readability. See above to get any idea of how this emerged. */
+var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
+    // Actual Distance between circles in screen coordinates.
+			     d = Math.hypot(cx2 - cx1, cy2 - cy1),
+    // Unit direction vector from circle 1 towards circle 2.
+			     ux = (cx2-cx1)/d,
+			     uy = (cy2-cy1)/d,
+    // Difference of radii divided by distance:
+			     I = (r1 - r2) / d,
+    // Piece of equation called "a":
+			     a = Math.sqrt(1 - 1 * I*I)
+			    ) => {
+
+    C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7);
+    C.arc(cx2, cy2, r2, 0, 7);
+    C.fill();
+
+    C.beginPath();
+    C.moveTo( cx1  +  I*r1 * ux              +  a*r1 * uy            ,
+	      cy1  +  I*r1 * uy              -  a*r1 * ux            );
+    C.lineTo( cx2  +  I*r2 * ux              +  a*r2 * uy            ,
+	      cy2  +  I*r2 * uy              -  a*r2 * ux            );
+    C.lineTo( cx2  +  I*r2 * ux              -  a*r2 * uy            ,
+	      cy2  +  I*r2 * uy              +  a*r2 * ux            );
+    C.lineTo( cx1  +  I*r1 * ux              -  a*r1 * uy            ,
+	      cy1  +  I*r1 * uy              +  a*r1 * ux            );
+    C.fill();
+}
+
 
 
 
