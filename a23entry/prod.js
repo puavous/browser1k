@@ -725,15 +725,19 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
     // Difference of radii divided by distance:
 			     I = (r1 - r2) / d,
     // Piece of equation called "a":
-			     a = Math.sqrt(1 - 1 * I*I)
+			     a = Math.sqrt(1 - I*I)
 			    ) => {
 
+/*
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
     C.arc(cx2, cy2, r2, 0, 7);
     C.fill();
+*/
 
     C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7); // Depending on geometry, arcs could be here
+    C.arc(cx2, cy2, r2, 0, 7); // Separate the paths if artefacts appear
     C.moveTo( cx1  +  I*r1 * ux              +  a*r1 * uy            ,
 	      cy1  +  I*r1 * uy              -  a*r1 * ux            );
     C.lineTo( cx2  +  I*r2 * ux              +  a*r2 * uy            ,
@@ -771,11 +775,11 @@ var idea_blobs3b = (t,w,h,C) => {
     // Interpret drawing_array now as a series of capsule-definitions with
     // [x,y,z,radius] for the two endpoints and so on.
     stuffpoints = [];
-    for (var i = 0; i<100; i++){
+    for (var i = 0; i<10; i++){
 	stuffpoints.push([0, 0, 0, .2],
-			 [5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1],
-			 [5*Math.sin(.06*i), Math.sin(t), 5*Math.cos(.06*i), .1],
-			 [5*Math.sin(.06*i), Math.sin(t)+3, 5*Math.cos(.06*i), 0]);
+			 [5*Math.sin(.63*i), 2*Math.sin(t), 5*Math.cos(.63*i), .1],
+			 [5*Math.sin(.63*i), 2*Math.sin(t), 5*Math.cos(.63*i), .1],
+			 [5*Math.sin(.63*i), 2*Math.sin(t)+3, 5*Math.cos(.63*i), 0]);
     }
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
