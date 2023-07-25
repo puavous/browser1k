@@ -37,6 +37,16 @@ tmp.bulk.compo.js: prod.js
 # Oh.. closure has an option --assume_function_wrapper .. but is it different?
 #	cat $^ > $@
 
+# Let me try Brotli. It seems trendy, and it does rid of some 300 bytes at once
+# (which is 30% of the 1k compo quota!).
+$(PROD_NAME).compo.html.br: tmp.closured.js
+	echo "click<canvas id=c><script>" > tmp.tobr
+	cat $< >> tmp.tobr
+	echo "</script>" >> tmp.tobr
+	brotli -f -o $@ tmp.tobr
+	rm tmp.tobr
+
+
 # Compo target: After minification, pack it
 $(PROD_NAME).compo.html: tmp.closured.js
 	$(PNGIN) tmp.closured.js $@
@@ -66,6 +76,7 @@ clean:
 
 cleaner: clean
 	-rm *.compo.html
+	-rm *.compo.html.br
 	-rm *.debug.html
 	-rm gzthermal-result.png
 	-rm *.gz

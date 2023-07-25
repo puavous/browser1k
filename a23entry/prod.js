@@ -1,6 +1,7 @@
 // Something for Assembly Summer 2023 intro compo.
 //
-// Warming up old codes from 2019.
+// I started by warming up my old codes from 2019 with the Moetkoe
+// entry, but ended up with mostly new code..
 //
 // TODO: In the end, trick vars into pars; use with(Math); and more dirty tricks
 // (Currently, these tricks can be done manually; wins no more than 20 bytes..)
@@ -8,14 +9,11 @@
 // User interface in debug version: You can click top / bottom of canvas to
 // pause/seek the show. Add "#" to end of URL for screenshots with info hidden.
 //
-// Note to self: RegPack is great, but still Pnginator wins by tens
-// or even hundreds of bytes.. Should look into the way p01 and folk are packing
-// on server-side. Seems to be allowed in compos, so me too, me too..
-//
-// Some of this was adapted from p01's DWITTER-SON1K. Not much of that left,
-// other than my greatest gratitude, once again, for great learnings about JS.
-// Pretty much all I know about javascript comes from reading p01's codes (and
-// the specification :)).
+// Note to self: Perhaps I should pick up using the Brotli packing
+// method, since it was allowed in Assembly Summer 2022, so probably
+// still OK (should ask, though..) It does pack much better than gzip
+// and avoids all the PNG trickery that costs a lot compared to actual
+// content.
 //
 // License: Kindly credit this as prior work, and change the graphics
 // and sound to something notably different. Otherwise do as you
@@ -31,10 +29,8 @@ const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 // Start time of show (user click)
 var startTimeInMillis = 0;
 
-// Hmm, assume this much provided on surrounding HTML, as is by pnginator:
-// we have '<html><body><canvas id="c" /><script>' in the html..
-
-// TODO: See how the top people did it last year by serving packed content
+// Hmm, assume this much provided on surrounding HTML, as is by pnginator, or
+// other carrier: we have '<html><body><canvas id="c" /><script>' in the html..
 
 // Global time in seconds, matching audio exactly (updated in audio callback)
 var audio_time = 0;
