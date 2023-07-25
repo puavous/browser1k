@@ -882,12 +882,12 @@ var idea_blobs3c = (t,w,h,C) => {
     random_state = 5;
     for (itree = 0; itree<10; itree++){
 	var inis = 10+20*rnd();
-	stuffer([60*rnd()-30,0,60*rnd()-30,inis/30],[0,3,0,0],inis,30);
+	stuffer([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
     }
     drawing_array = [];
     drawing_array_push_mod(stuffpoints,
 			   0,
-			   -23,
+			   -63+t,
 			   60,
 			   -t/5);
 
@@ -928,7 +928,7 @@ var animation_frame = (t,
 
     C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
 
-    //idea_sky1(t,w,h,C);
+    idea_sky1(t,w,h,C);
     //idea_hills(t,w,h,C);
     //idea_hills2(t,w,h,C);
     //idea_blobs1(t,w,h,C);
