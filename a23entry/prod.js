@@ -1026,7 +1026,8 @@ var idea_trees1 = (t,w,h,C) => {
 	twigs([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
     }
 
-    camAt(stuffpoints, [t/20,60-t,-60+t], t/10, t/10);
+    //camAt(stuffpoints, [t/20,60-t,-60+t], t/10, t/10);
+    camAt(stuffpoints, [t/20,69-t,-60+t], .2-t/60, .4-t/50);
 
     //Sort not necessary if we draw silhouette only.
     //stuffpoints.sort(zsort);
