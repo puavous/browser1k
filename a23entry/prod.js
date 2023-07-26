@@ -190,48 +190,16 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
     }
 }
 
+
+var mod2 = (p,x,y,z,rY) => [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
+			    p[1] + y,
+			    - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
+			    p[3]];
 /* Applies transformation only. Doesn't clip or anything. */
 var drawing_array_push_mod2 = (pts,x,y,z,rY) => {
-/*
-    drawing_array = pts.map(([p,q])=>
-			    [
-				[Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
-				 p[1] + y,
-				 - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
-				 p[3]],
-				[Math.cos(rY)*q[0] + Math.sin(rY)*q[2] + x,
-				 q[1] + y,
-				 - Math.sin(rY)*q[0] + Math.cos(rY)*q[2] + z,
-				 q[3]]
-			    ]);
-*/
     for(var [p,q] of pts){
-	drawing_array.push([
-	    [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
-	     p[1] + y,
-	     - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
-	     p[3]],
-	    [Math.cos(rY)*q[0] + Math.sin(rY)*q[2] + x,
-	     q[1] + y,
-	     - Math.sin(rY)*q[0] + Math.cos(rY)*q[2] + z,
-	     q[3]]
-	]);
+	drawing_array.push([mod2(p,x,y,z,rY),mod2(q,x,y,z,rY)]);
     }
-/*
-    for(var [p,q] of pts){
-	var pp = [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
-		  p[1] + y,
-		  - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
-		  p[3],
-		  p[4]];
-	var qq = [Math.cos(rY)*q[0] + Math.sin(rY)*q[2] + x,
-		  q[1] + y,
-		  - Math.sin(rY)*q[0] + Math.cos(rY)*q[2] + z,
-		  q[3],
-		  q[4]];
-	drawing_array.push([pp,qq]);
-    }
-*/
 }
 
 /** Return a grayscale color of intensity and alpha as CSS color string.*/
@@ -892,7 +860,7 @@ var stuffer = (pos, dir, stepsleft, smax) => {
 
     // Produce one capsule here, from position to end point.
     var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
-    stuffpoints.push([pos, endp]);
+    stuffpoints.push(pos, endp);
 
     var ll = Math.hypot(dir[0],dir[1],dir[2]);
     // Branch sometimes. More often closer to leaves:
@@ -928,10 +896,91 @@ var idea_blobs3c = (t,w,h,C) => {
 	stuffer([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
     }
     drawing_array = [];
+    drawing_array_push_mod(stuffpoints,
+			   0,
+			   -63+t,
+			   60,
+			   -t/5);
+
+
+
+    //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
+    //drawing_array.sort(zsort);
+
+    for (var i = 0; i<drawing_array.length; i+=2){
+	//C.fillStyle = "#210";
+	C.fillStyle = "#000";  // pure black on white could be simple and effective?
+	
+	// Screen x, y, account for perspective and aspect ratio here.
+	var [x1,y1,z1,s1] = drawing_array[i];
+	var [x2,y2,z2,s2] = drawing_array[i+1];
+// Approximate variants. Visually imperfect but smaller and faster to draw:
+//	strokeBetween(C,
+//	fillBetween(C,
+	fillCapsuleSilhouette(C,
+			      w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
+			      h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 ,
+			      PERSPECTIVE_F * h / 2 / z1 * s1 ,
+			      w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
+			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
+			      PERSPECTIVE_F * h / 2 / z2 * s2);
+    }
+}
+
+
+
+
+
+
+/** Another tree-like geometry builder. Can get quite organic looking things..
+ *
+ * Hmm.. format? Options.. Arrays of 8 values: xyz and radius for both ends of each piece.
+ * Arrays of 2 arrays. Just try each and pick the solution with tiniest size, I guess..
+ */
+var twigs = (pos, dir, stepsleft, smax) => {
+    if (stepsleft < 1) return;
+
+    // Produce one capsule here, from position to end point.
+    var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
+    stuffpoints.push([pos, endp]);
+
+    var ll = Math.hypot(dir[0],dir[1],dir[2]);
+    // Branch sometimes. More often closer to leaves:
+    //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
+    if (rnd()<(.9-stepsleft/smax)) {
+	twigs(endp,
+		[.33*dir[0]+ll*(rnd()-.5),
+		 .33*dir[1]+ll*(rnd()-.5),
+		 .33*dir[2]+ll*(rnd()-.5), 0],
+	        stepsleft-2, smax);
+    }
+    // Always grow a bit to almost same direction; feel some gravity downwards:
+    twigs(endp,
+	    [dir[0]+.2*rnd()-.1,
+	     dir[1]+.2*rnd()-.2,  // Hmm.. should make these vary over time.. kool efekts
+	     dir[2]+.2*rnd()-.1, 0],
+	    stepsleft - 1, smax);
+}
+
+
+/** Finally fixing the concept for this entry.. will have trees.. */
+var idea_trees1 = (t,w,h,C) => {
+
+    // Interpret drawing_array now as a series of capsule-definitions with
+    // [x,y,z,radius] for the two endpoints and so on.
+    // Could it be [x1,y1,z1,[x2,y2,z2,rad1,rad2]] or {a:[], b:[]} for sorting
+    // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
+    stuffpoints = [];
+    random_state = 7;
+    for (itree = 0; itree<10; itree++){
+	var inis = 10+20*rnd();
+	twigs([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
+    }
+    drawing_array = [];
     drawing_array_push_mod2(stuffpoints,
 			   0,
 			   -63+t,
-			   10,
+			   60,
 			   -t/5);
 
 
@@ -979,7 +1028,8 @@ var animation_frame = (t,
     //idea_blobs2(t,w,h,C);  // "grower" with discs
     //idea_blobs3a(t,w,h,C);  // capsule minitest
     //idea_blobs3b(t,w,h,C);
-    idea_blobs3c(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
+    //idea_blobs3c(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
+    idea_trees1(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
 
     debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
 };
