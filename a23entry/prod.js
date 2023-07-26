@@ -175,7 +175,9 @@ var drawing_array_push_at = (pts,x,y,z,t) => {
 }
 
 /** Apply some transformations to pts and push to global drawing array
- * unless result is behind clipping plane at z=0.
+ * unless result is behind clipping plane at z=0. Can be used for pointlike
+ * objects; additional properties could be bundled in p[3] or p[4] that are
+ * carried around unchanged..
  */
 var drawing_array_push_mod = (pts,x,y,z,rY) => {
     for(var p of pts){
