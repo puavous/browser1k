@@ -220,6 +220,8 @@ var drawing_array_push_mod2 = (pts,x,y,z,rY) => {
  *
  */
 
+// var Sin = Math.sin, Cos = Math.cos; // Could do this, but might not spare space
+// Possibly the best thing to do is to just unwrap and inline a lot
 
 // Separate transforms for arrays of 3 coordinates and a fourth value.
 var rot4Y = (theta, p) => [Math.cos(theta)*p[0] + Math.sin(theta)*p[2],
