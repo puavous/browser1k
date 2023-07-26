@@ -898,7 +898,7 @@ var idea_blobs3c = (t,w,h,C) => {
 	// Screen x, y, account for perspective and aspect ratio here.
 	var [x1,y1,z1,s1] = drawing_array[i];
 	var [x2,y2,z2,s2] = drawing_array[i+1];
-// Approximate variants:
+// Approximate variants. Visually imperfect but smaller and faster to draw:
 //	strokeBetween(C,
 //	fillBetween(C,
 	fillCapsuleSilhouette(C,
@@ -924,7 +924,7 @@ var animation_frame = (t,
 		      ) =>
 {
 
-    C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
+    //C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
 
     idea_sky1(t,w,h,C);
     //idea_hills(t,w,h,C);
