@@ -839,7 +839,7 @@ var idea_blobs3b = (t,w,h,C) => {
 
 
 /** Another tree-like geometry builder. Can get quite organic looking things.. */
-function stuffer(pos, dir, stepsleft, smax){
+var stuffer = (pos, dir, stepsleft, smax) => {
     if (stepsleft < 1) return;
 
     // Produce one capsule here, from position to end point.
