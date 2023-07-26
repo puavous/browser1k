@@ -190,6 +190,50 @@ var drawing_array_push_mod = (pts,x,y,z,rY) => {
     }
 }
 
+/* Applies transformation only. Doesn't clip or anything. */
+var drawing_array_push_mod2 = (pts,x,y,z,rY) => {
+/*
+    drawing_array = pts.map(([p,q])=>
+			    [
+				[Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
+				 p[1] + y,
+				 - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
+				 p[3]],
+				[Math.cos(rY)*q[0] + Math.sin(rY)*q[2] + x,
+				 q[1] + y,
+				 - Math.sin(rY)*q[0] + Math.cos(rY)*q[2] + z,
+				 q[3]]
+			    ]);
+*/
+    for(var [p,q] of pts){
+	drawing_array.push([
+	    [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
+	     p[1] + y,
+	     - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
+	     p[3]],
+	    [Math.cos(rY)*q[0] + Math.sin(rY)*q[2] + x,
+	     q[1] + y,
+	     - Math.sin(rY)*q[0] + Math.cos(rY)*q[2] + z,
+	     q[3]]
+	]);
+    }
+/*
+    for(var [p,q] of pts){
+	var pp = [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
+		  p[1] + y,
+		  - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
+		  p[3],
+		  p[4]];
+	var qq = [Math.cos(rY)*q[0] + Math.sin(rY)*q[2] + x,
+		  q[1] + y,
+		  - Math.sin(rY)*q[0] + Math.cos(rY)*q[2] + z,
+		  q[3],
+		  q[4]];
+	drawing_array.push([pp,qq]);
+    }
+*/
+}
+
 /** Return a grayscale color of intensity and alpha as CSS color string.*/
 var toRGB = (intensity, alpha) => {
     intensity = intensity*255|0;
@@ -748,7 +792,7 @@ var fillBetween = (C, cx1, cy1, r1, cx2, cy2, r2,
     C.beginPath();
     // Well, could still paint arcs to fill some of the gaps at joints..
     //C.arc(cx1, cy1, r1, 0, 7);
-    //C.arc(cx2, cy2, r2, 0, 7);
+    C.arc(cx2, cy2, r2, 0, 7);
     C.moveTo( cx1 + r1 * nx, cy1 + r1 * ny );
     C.lineTo( cx2 + r2 * nx, cy2 + r2 * ny );
     C.lineTo( cx2 - r2 * nx, cy2 - r2 * ny );
@@ -838,13 +882,17 @@ var idea_blobs3b = (t,w,h,C) => {
 }
 
 
-/** Another tree-like geometry builder. Can get quite organic looking things.. */
+/** Another tree-like geometry builder. Can get quite organic looking things..
+ *
+ * Hmm.. format? Options.. Arrays of 8 values: xyz and radius for both ends of each piece.
+ * Arrays of 2 arrays. Just try each and pick the solution with tiniest size, I guess..
+ */
 var stuffer = (pos, dir, stepsleft, smax) => {
     if (stepsleft < 1) return;
 
     // Produce one capsule here, from position to end point.
     var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
-    stuffpoints.push(pos, endp);
+    stuffpoints.push([pos, endp]);
 
     var ll = Math.hypot(dir[0],dir[1],dir[2]);
     // Branch sometimes. More often closer to leaves:
@@ -880,24 +928,21 @@ var idea_blobs3c = (t,w,h,C) => {
 	stuffer([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
     }
     drawing_array = [];
-    drawing_array_push_mod(stuffpoints,
+    drawing_array_push_mod2(stuffpoints,
 			   0,
 			   -63+t,
-			   60,
+			   10,
 			   -t/5);
-
 
 
     //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
     //drawing_array.sort(zsort);
 
-    for (var i = 0; i<drawing_array.length; i+=2){
-	//C.fillStyle = "#210";
+    for ([[x1,y1,z1,s1],[x2,y2,z2,s2]] of drawing_array){
 	C.fillStyle = "#000";  // pure black on white could be simple and effective?
-	
-	// Screen x, y, account for perspective and aspect ratio here.
-	var [x1,y1,z1,s1] = drawing_array[i];
-	var [x2,y2,z2,s2] = drawing_array[i+1];
+
+	if ((z1 < 0) || (z2 < 0)) continue;
+
 // Approximate variants. Visually imperfect but smaller and faster to draw:
 //	strokeBetween(C,
 //	fillBetween(C,
