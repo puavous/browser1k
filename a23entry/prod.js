@@ -359,14 +359,7 @@ var idea_hills2 = (t,w,h,C) => {
     }
 }
 
-
-
-/** A height map function .. just a thought, later abandoned. */
-var hmap = (x,z) => {
-    return 3*Math.sin(x/6) + 2*Math.sin((x+z)/3) + Math.sin(z);
-}
-
-
+/* Experiments with compositing discs; warm-up of the Moetkoe entry of 2019..*/
 var idea_blobs1 = (t,w,h,C) => {
     /* Prepare some stuff to be drawn... */
 
@@ -374,8 +367,6 @@ var idea_blobs1 = (t,w,h,C) => {
 
     for(var ix=-99; ix<100; ix+=15){
 	for(var iz=-99; iz<100; iz+=15){
-//	    var hh = hmap(ix,iz);
-	    //	    var p = [ix,hh,iz,.4,0];
 	    var p = [
 		ix,
 		Math.sin(ix+t) + Math.sin(iz+t*2),
@@ -392,7 +383,6 @@ var idea_blobs1 = (t,w,h,C) => {
 			   -4,
 			   0-t/10,
 			   0);
-
 
 
     // Now that we have "modelview" points in array, we can sort them
@@ -416,7 +406,6 @@ var idea_blobs1 = (t,w,h,C) => {
   // Like a bluish dot of light in fog
 	gradient.addColorStop(0, "#ffff");
 	gradient.addColorStop(1, "#00f0");
-
 
 /*
 	// Building block of wispy water clouds
@@ -473,15 +462,7 @@ var idea_blobs1b = (t,w,h,C) => {
 }
 
 
-
-
-function gener(x,y,z,p,q){
-    if (p<.1) return;
-    stuffpoints.push([x,y,z,p]);
-    gener(x+p,y,z,q*p,q);
-    gener(x+p,y+p,z+1,q*p,q);
-}
-
+/* Experiments with recursive random content generation */
 function grower(pos, dir, age, extent){
     if (extent <= 0) return;
     
@@ -515,7 +496,6 @@ function grower(pos, dir, age, extent){
 
 var idea_blobs2 = (t,w,h,C) => {
     stuffpoints = [];
-    //gener(0,0,0,1,.1+t/120);
     random_state = 2; grower([1,0,0],[0,.5,0], t/30, 40);
 
     drawing_array = [];
@@ -567,15 +547,15 @@ var idea_blobs2 = (t,w,h,C) => {
   principles", solving simplest kinds of equations. This time the
   Internet didn't have it all figured out for me... Most stuff seemed
   to be overly general or use a geometric approach not easily adapted
-  to this code. Wikipedia, for example, has some starters about what
-  goes on with the tangents here:
+  to this code and specific purpose. Wikipedia, for example, has some
+  starters about what goes on with the tangents here:
   https://en.wikipedia.org/wiki/Tangent_lines_to_circles
     
   Notes on my latest Javascript learnings: NaNs are valid inputs for Canvas path
   operations. Such NaN-op doesn't alter the path. So, 0/0 is a good intermediate
   computation for intentional no-outputs. Infinities fine too.
 
-  Especially: Infinity is a fine value for parallel lines.
+  Specifically: Infinity is a fine value for parallel lines.
   NaN is a fine value for |r1-r2| > cdist (circle encloses other).
 
   These observations provide quite straightforward code, but then it probably
@@ -618,28 +598,6 @@ var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     C.lineTo(cx1 + p1x * ux - p1y * uy,   cy1 + p1x * vx - p1y * vy);
     C.fill();
 
-
-/*
-    // Couldn't go totally zigzag inside the path, but maybe a little bit(?)
-    // Nah.. there will be some tearing artefacts..
-    C.beginPath();
-    C.arc(cx1, cy1, r1, 0, 7);
-    C.lineTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
-    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
-    C.arc(cx2, cy2, r2, 0, 7);
-    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
-    C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
-    C.fill();
-*/
-
-/*
-    C.beginPath();
-    C.moveTo(cx1 + px  * ux + py  * uy,   cy1 + px  * vx + py  * vy);
-    C.lineTo(cx2 + px2 * ux + py2 * uy,   cy2 + px2 * vx + py2 * vy);
-    C.lineTo(cx2 + px2 * ux - py2 * uy,   cy2 + px2 * vx - py2 * vy);
-    C.lineTo(cx1 + px  * ux - py  * uy,   cy1 + px  * vx - py  * vy);
-    C.stroke();
-*/
 }
 
 
@@ -771,23 +729,58 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
     C.fill();
 }
 
+/** Fill a polygon with varying width. Using this for sharper turns is
+ * suboptimal; you can see the stiches, so to speak.. But for smaller curves
+ * the artefacts are very small and maybe could go mostly unnoticed?.
+ */
+var fillBetween = (C, cx1, cy1, r1, cx2, cy2, r2,
+    // Actual Distance between circles in screen coordinates.
+		   d = Math.hypot(cx2 - cx1, cy2 - cy1),
+    // Unit vector orthogonal to direction from circle 1 towards circle 2.
+		   nx = (cy2-cy1)/d,
+		   ny = -(cx2-cx1)/d ) => {
+
+// Well, could still paint arcs to fill some of the gaps..
+//    C.beginPath();
+//    C.arc(cx2, cy2, r2, 0, 7);
+//    C.fill();
+
+    C.beginPath();
+    // Well, could still paint arcs to fill some of the gaps at joints..
+    //C.arc(cx1, cy1, r1, 0, 7);
+    //C.arc(cx2, cy2, r2, 0, 7);
+    C.moveTo( cx1 + r1 * nx, cy1 + r1 * ny );
+    C.lineTo( cx2 + r2 * nx, cy2 + r2 * ny );
+    C.lineTo( cx2 - r2 * nx, cy2 - r2 * ny );
+    C.lineTo( cx1 - r1 * nx, cy1 - r1 * ny);
+    C.fill();
+
+}
+
+/** Stroke from (cx1,cy1) to (cx2,cy2) with thickness (r1+r2)/2. This
+ * looks surprisingly good at least when there's movement and a lot of
+ * stuff. Also good for framerate.. Maybe an approximation to consider.
+ */
+var strokeBetween = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+    C.lineWidth = (r1+r2)/2;
+    C.beginPath();
+    C.moveTo( cx1, cy1 );
+    C.lineTo( cx2, cy2 );
+    C.stroke();
+}
+
+
 
 
 
 /** Preliminary test of the capsule code*/
 var idea_blobs3a = (t,w,h,C) => {
-
-//    var cx1 = w/2,      cy1 = h/2, r1 = 20,
-//	cx2 = w/2+h/3,  cy2 = h/2, r2 = 8;
-
     for (var i = -5; i<6; i++){
 	C.fillStyle = "#784";
-	
 	fillCapsuleSilhouette(C,
 			      w/2 + i*h/10, h/2, h/20,
 			      w/2 + i*h/10, h/3, h/100);
     }
-    
 }
 
 
@@ -825,7 +818,6 @@ var idea_blobs3b = (t,w,h,C) => {
 			   -t/4);
 
 
-
     //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
     //drawing_array.sort(zsort);
 
@@ -843,9 +835,10 @@ var idea_blobs3b = (t,w,h,C) => {
 			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
 			      PERSPECTIVE_F * h / 2 / z2 * s2);
     }
-    
 }
 
+
+/** Another tree-like geometry builder. Can get quite organic looking things.. */
 function stuffer(pos, dir, stepsleft, smax){
     if (stepsleft < 1) return;
 
@@ -899,11 +892,15 @@ var idea_blobs3c = (t,w,h,C) => {
     //drawing_array.sort(zsort);
 
     for (var i = 0; i<drawing_array.length; i+=2){
-	C.fillStyle = "#210";
+	//C.fillStyle = "#210";
+	C.fillStyle = "#000";  // pure black on white could be simple and effective?
 	
 	// Screen x, y, account for perspective and aspect ratio here.
 	var [x1,y1,z1,s1] = drawing_array[i];
 	var [x2,y2,z2,s2] = drawing_array[i+1];
+// Approximate variants:
+//	strokeBetween(C,
+//	fillBetween(C,
 	fillCapsuleSilhouette(C,
 			      w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
 			      h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 ,
@@ -912,7 +909,6 @@ var idea_blobs3c = (t,w,h,C) => {
 			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
 			      PERSPECTIVE_F * h / 2 / z2 * s2);
     }
-    
 }
 
 
