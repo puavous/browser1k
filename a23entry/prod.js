@@ -202,6 +202,45 @@ var drawing_array_push_mod2 = (pts,x,y,z,rY) => {
     }
 }
 
+
+/*
+ * Assume a scene is built into an array of objects. Plan would be to modify
+ * coordinates in-place to get camera at (x,y,z) with rotations a and b for
+ * "pan" and "tilt". Leave 4th value unhanged, so it could carry information
+ * about the object other than its coordinates..
+ * Transformation is Rx(b)Ry(a)T(xyx), probably easiest to compute usual way.
+ *
+ *
+ * 1     0     0 0     s(a)   0  c(a)  0       1 0 0 x
+ * 0  s(b)  c(b) 0        0   1     0  0       0 1 0 y
+ * 0  c(b) -s(b) 0     c(a)   0 -s(a)  0       0 0 1 z
+ * 0             1        0   0     0  1       0 0 0 1 ..
+ *
+ * Hmm... perhaps the code won't be too long just combining from small transforms..
+ *
+ */
+
+
+// Separate transforms for arrays of 3 coordinates and a fourth value.
+var rot4Y = (theta, p) => [Math.cos(theta)*p[0] + Math.sin(theta)*p[2],
+			   p[1],
+			   - Math.sin(theta)*p[0] + Math.cos(theta)*p[2], p[3]];
+var rot4X = (theta, p) => [p[0],
+			   Math.cos(theta)*p[1] + Math.sin(theta)*p[2],
+			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2], p[3]];
+var tr4  = (tr,p) => [p[0]+tr[0], p[1]+tr[1], p[2]+tr[2], p[3]];
+var tri4 = (tr,p) => [p[0]-tr[0], p[1]-tr[1], p[2]-tr[2], p[3]];
+
+/** Model a camera taken into a position in the scene, panned and tilted.
+ * Positive pan to right, positive tilt up; given in radians.
+ */
+var camAt = (pts, pos, pan, tilt) => {
+    for(var i in pts){
+	pts[i] = [rot4X(-tilt, rot4Y(-pan, tri4(pos,pts[i][0]))),
+		  rot4X(-tilt, rot4Y(-pan, tri4(pos,pts[i][1])))]
+    }
+}
+
 /** Return a grayscale color of intensity and alpha as CSS color string.*/
 var toRGB = (intensity, alpha) => {
     intensity = intensity*255|0;
@@ -976,18 +1015,13 @@ var idea_trees1 = (t,w,h,C) => {
 	var inis = 10+20*rnd();
 	twigs([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
     }
-    drawing_array = [];
-    drawing_array_push_mod2(stuffpoints,
-			   0,
-			   -63+t,
-			   60,
-			   -t/5);
 
+    camAt(stuffpoints, [t/20,60-t,-60+t], t/10, t/10);
 
-    //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
-    //drawing_array.sort(zsort);
+    //Sort not necessary if we draw silhouette only.
+    //stuffpoints.sort(zsort);
 
-    for ([[x1,y1,z1,s1],[x2,y2,z2,s2]] of drawing_array){
+    for ([[x1,y1,z1,s1],[x2,y2,z2,s2]] of stuffpoints){
 	C.fillStyle = "#000";  // pure black on white could be simple and effective?
 
 	if ((z1 < 0) || (z2 < 0)) continue;
