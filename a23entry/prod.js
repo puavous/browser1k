@@ -108,10 +108,18 @@ This version is skewed, ranges to almost 1.0 but not quite.. 0x400000 == 4194304
 0x3fffff/4200000 == 0.9986435714285714
 */
 var random_state = 0;
-var rnd = () => (random_state = (16807 * random_state + 1) & 0x3fffff) / 4200000;
+//var rnd = () => (random_state = (16807 * random_state + 1) & 0x3fffff) / 4200000;
+// Note: Closure compiler inlines this everywhere. Some bytes shorter pack if
+// use the below function and then manually convert its definition to
+// "p=()=>(r=16807*r+1&0x3fffff)/42E5;" where p and r are names by Closure.
 
+// Version that doesn't go inline everywhere:
+var rnd = () => {
+    random_state = (16807 * random_state + 1) & 0x3fffff; return random_state / 4200000;
+}
+
+// Old version:
 /*
-// Old version
 function rnd(){
 random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
     return random_state / 4200000; // almost get 1.0 but not quite..
