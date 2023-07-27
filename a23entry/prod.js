@@ -940,7 +940,7 @@ var idea_blobs3c = (t,w,h,C) => {
     // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
     stuffpoints = [];
     random_state = 5;
-    for (itree = 0; itree<10; itree++){
+    for (var itree = 0; itree<10; itree++){
 	var inis = 10+20*rnd();
 	stuffer([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
     }
@@ -1020,14 +1020,24 @@ var idea_trees1 = (t,w,h,C) => {
     // Could it be [x1,y1,z1,[x2,y2,z2,rad1,rad2]] or {a:[], b:[]} for sorting
     // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
     stuffpoints = [];
-    random_state = 7;
-    for (itree = 0; itree<10; itree++){
+    random_state = 8;
+    // Always put one tree in center?
+    for (var itree = 0; itree<20; itree+=2){
 	var inis = 10+20*rnd();
-	twigs([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
+	twigs([itree*(6*rnd()-3),0,itree*(6*rnd()-3),inis/30],[0,4,0,0],inis,30);
     }
 
-    //camAt(stuffpoints, [t/20,60-t,-60+t], t/10, t/10);
-    camAt(stuffpoints, [t/20,69-t,-60+t], .2-t/60, .4-t/50);
+    // Trying out various ways of moving the camera around...
+    // Some could be used for dramatic effect.
+    // Some are good for examining the model from different angles.
+    //camAt(stuffpoints, [0,3,-60+2*t], 0, 0); // drive through
+    //camAt(stuffpoints, [-60+2*t,6,-40], 0, Math.PI/11); // drive by
+    //camAt(stuffpoints, [0,3,-60+2*t], 0, Math.PI/4); // drive through, looking a bit up
+    //camAt(stuffpoints, [1,3,-30+t], 0, Math.PI/2); // wander forward, looking to zenith
+    //camAt(stuffpoints, [2,3,-60+2*t], 0, t/DURATION_SECONDS * Math.PI); // drive through, tilting to absurd
+    //camAt(stuffpoints, [t/20,69-t,-60+t], .2-t/60, .4-t/50); // tilt-to-view
+    //camAt(stuffpoints, [4,4,4], t/6, Math.PI/2); // look up, spinning
+    camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5); // descend from the air
 
     //Sort not necessary if we draw silhouette only.
     //stuffpoints.sort(zsort);
