@@ -993,10 +993,11 @@ var twigs = (pos, dir, stepsleft, smax) => {
     var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
     stuffpoints.push([pos, endp]);
 
-    var ll = Math.hypot(...dir);
+    var ll = .5*Math.hypot(...dir);
     // Branch sometimes. More often closer to leaves:
     //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
-    if (rnd()<(.9-stepsleft/smax)) {
+    //if (rnd()<(.9-stepsleft/smax)) {
+    if (rnd()<.3) {
 	twigs(endp,
 		[.33*dir[0]+ll*(rnd()-.5),
 		 .33*dir[1]+ll*(rnd()-.5),
@@ -1011,6 +1012,10 @@ var twigs = (pos, dir, stepsleft, smax) => {
 	    stepsleft - 1, smax);
 }
 
+// Dummy for size estimation while building
+var pigs = (pos, dir, stepsleft, smax) => {
+    stuffpoints.push([pos, pos]);
+}
 
 /** Finally fixing the concept for this entry.. will have trees.. */
 var idea_trees1 = (t,w,h,C) => {
@@ -1023,8 +1028,8 @@ var idea_trees1 = (t,w,h,C) => {
     random_state = 8;
     // Always put one tree in center?
     for (var itree = 0; itree<20; itree+=2){
-	var inis = 10+20*rnd();
-	twigs([itree*(6*rnd()-3),0,itree*(6*rnd()-3),inis/30],[0,4,0,0],inis,30);
+	var inis = 20+10*rnd();
+	twigs([itree*(6*rnd()-3),0,itree*(6*rnd()-3),inis/30],[0,4,0,0],inis,30);	
     }
 
     // Trying out various ways of moving the camera around...
@@ -1037,7 +1042,7 @@ var idea_trees1 = (t,w,h,C) => {
     //camAt(stuffpoints, [2,3,-60+2*t], 0, t/DURATION_SECONDS * Math.PI); // drive through, tilting to absurd
     //camAt(stuffpoints, [t/20,69-t,-60+t], .2-t/60, .4-t/50); // tilt-to-view
     //camAt(stuffpoints, [4,4,4], t/6, Math.PI/2); // look up, spinning
-    camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5); // descend from the air
+    camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
 
     //Sort not necessary if we draw silhouette only.
     //stuffpoints.sort(zsort);
