@@ -993,7 +993,7 @@ var twigs = (pos, dir, stepsleft, smax) => {
     var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
     stuffpoints.push([pos, endp]);
 
-    var ll = Math.hypot(dir[0],dir[1],dir[2]);
+    var ll = Math.hypot(...dir);
     // Branch sometimes. More often closer to leaves:
     //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
     if (rnd()<(.9-stepsleft/smax)) {
