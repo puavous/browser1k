@@ -647,21 +647,21 @@ var idea_trees1 = (t,w,h,C) => {
     //Sort not necessary if we draw silhouette only.
     //stuffpoints.sort(zsort);
 
-    for (var [[x1,y1,z1],[x2,y2,z2],s1,s2] of stuffpoints){
+    for (var [p1,p2,s1,s2] of stuffpoints){
 	C.fillStyle = "#000";  // pure black on white could be simple and effective?
 
-	if ((z1 < 0) || (z2 < 0)) continue;
+	if ((p1[2] < 0) || (p2[2] < 0)) continue;
 
 // Approximate variants. Visually imperfect but smaller and faster to draw:
 //	strokeBetween(C,
 	fillBetween(C,
 //	fillCapsuleSilhouette(C,
-			      w/2 + PERSPECTIVE_Fp2 * h / z1 * x1 ,
-			      h/2 - PERSPECTIVE_Fp2 * h / z1 * y1 ,
-			      PERSPECTIVE_Fp2 * h / z1 * s1 ,
-			      w/2 + PERSPECTIVE_Fp2 * h / z2 * x2 ,
-			      h/2 - PERSPECTIVE_Fp2 * h / z2 * y2 ,
-			      PERSPECTIVE_Fp2 * h / z2 * s2);
+			      w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
+			      h/2 - PERSPECTIVE_Fp2 * h / p1[2] * p1[1] ,
+			      PERSPECTIVE_Fp2 * h / p1[2] * s1 ,
+			      w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
+			      h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1] ,
+			      PERSPECTIVE_Fp2 * h / p2[2] * s2);
 
 /*
   // And, well, inlining the whole stroke thing gets 100 bytes away and
