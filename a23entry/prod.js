@@ -227,9 +227,9 @@ var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
  * Positive pan to right, positive tilt up; given in radians.
  */
 var camAt = (pts, pos, pan, tilt) => {
-    for(var i in pts){
-	pts[i][0] = rot3X(tilt, rot3Y(pan, add3(pos,pts[i][0],-1)));
-	pts[i][1] = rot3X(tilt, rot3Y(pan, add3(pos,pts[i][1],-1)));
+    for(var p of pts){
+	p[0] = rot3X(tilt, rot3Y(pan, add3(pos,p[0],-1)));
+	p[1] = rot3X(tilt, rot3Y(pan, add3(pos,p[1],-1)));
     }
 }
 
