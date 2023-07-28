@@ -195,13 +195,15 @@ var zsort = (a, b) => {
 // var Sin = Math.sin, Cos = Math.cos; // Could do this, but might not spare space
 // Possibly the best thing to do is to just unwrap and inline a lot
 
-// Coordinate transforms and other computations for 3-vectors
-var rot3Y = (theta, p) => [Math.cos(theta)*p[0] + Math.sin(theta)*p[2],
+// Coordinate transforms and other computations for 3-vectors. Rotation directions
+// are custom so that camera pan and tilt make most sense to me.. may or may not be
+// usual counterclockwise ones..
+var rot3Y = (theta, p) => [Math.cos(theta)*p[0] - Math.sin(theta)*p[2],
 			   p[1],
-			   - Math.sin(theta)*p[0] + Math.cos(theta)*p[2]];
+			   Math.sin(theta)*p[0] + Math.cos(theta)*p[2]];
 var rot3X = (theta, p) => [p[0],
-			   Math.cos(theta)*p[1] + Math.sin(theta)*p[2],
-			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
+			   Math.cos(theta)*p[1] - Math.sin(theta)*p[2],
+			   Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
 var add3  = (x,y,a=1,b=1) => [a*x[0]+b*y[0], a*x[1]+b*y[1], a*x[2]+b*y[2]];
 
 
@@ -226,8 +228,8 @@ var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
  */
 var camAt = (pts, pos, pan, tilt) => {
     for(var i in pts){
-	pts[i][0] = rot3X(-tilt, rot3Y(-pan, add3(pos,pts[i][0],-1)));
-	pts[i][1] = rot3X(-tilt, rot3Y(-pan, add3(pos,pts[i][1],-1)));
+	pts[i][0] = rot3X(tilt, rot3Y(pan, add3(pos,pts[i][0],-1)));
+	pts[i][1] = rot3X(tilt, rot3Y(pan, add3(pos,pts[i][1],-1)));
     }
 }
 
@@ -628,12 +630,13 @@ var idea_trees1 = (t,w,h,C) => {
     // Some are good for examining the model from different angles.
     //camAt(stuffpoints, [0,10,-60+2*t], 0, 0); // drive through
     //camAt(stuffpoints, [-60+2*t,6,-40], 0, Math.PI/11); // drive by
+    //camAt(stuffpoints, [0,6,-40], -.5+t/DURATION_SECONDS, Math.PI/11); // pan past
     //camAt(stuffpoints, [0,3,-60+2*t], 0, Math.PI/4); // drive through, looking a bit up
-    camAt(stuffpoints, [1,3,-30+t], 0, Math.PI/2); // wander forward, looking to zenith
+    //camAt(stuffpoints, [1,3,-30+t], 0, Math.PI/2); // wander forward, looking to zenith
     //camAt(stuffpoints, [2,3,-60+2*t], 0, t/DURATION_SECONDS * Math.PI); // drive through, tilting to absurd
     //camAt(stuffpoints, [t/20,69-t,-60+t], .2-t/60, .4-t/50); // tilt-to-view
     //camAt(stuffpoints, [4,4,4], t/6, Math.PI/2); // look up, spinning
-    //camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
+    camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
 
 
     // Observation: The upwards looking shots would benefit from a different FOV setting
