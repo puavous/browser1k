@@ -42,7 +42,6 @@ var audio_time = 0;
 
 // "Graphics assets" :)
 var stuffpoints = [];
-var drawing_array = [];
 
 // ---------------------------
 // Some debug code, pretty much copy-pasted from my recent-ish 4k stuff.
@@ -238,6 +237,13 @@ var toRGB = (intensity, alpha) => {
     return `rgb(${intensity},${intensity},${intensity},${alpha})`;
 }
 
+/** Return a CSS color string from a mix of two rgbs in range 0-1. No alpha.*/
+var toRGBmix = (rgb1, rgb2, mixv) => {
+    var c = add3(rgb1,rgb2,255*mixv|0, 255-255*mixv|0);
+    return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+
+
 /** A helper to make gradient creation a one-liner; didn't reduce packed size.
 * Idea was like C.fillStyle = gradstops(C.createLinearGradient(w/2,0,w/2,h/2),
 * [[0,"#225"],[.2,"#547"],[.4,"#c37"],[.6,"#e74"]]);
@@ -270,7 +276,12 @@ var idea_sky1 = (t,w,h,C) => {
     gradient.addColorStop(1, "#fff");
     C.fillStyle=gradient;
     C.fillRect(0, 0, w, h);
+}
 
+var idea_sky0 = (t,w,h,C) => {
+    // A simpler "sky" that brightens with time with no gradient..
+    C.fillStyle = toRGBmix([.8,.9,1],[.3,.1,.6],t/DURATION_SECONDS);
+    C.fillRect(0, 0, w, h);
 }
 
 /* "Brownian hills forever"... */
@@ -570,10 +581,7 @@ var idea_blobs3a = (t,w,h,C) => {
 
 /** Another tree-like geometry builder. Can get quite organic looking things..
  *
- * Hmm.. format? Options.. Arrays of 8 values: xyz and radius for both ends of each piece.
- * Arrays of 2 arrays. Just try each and pick the solution with tiniest size, I guess..
- * So far, the leanest model seems to be array of
- * [pos1, pos2, size1, size2]
+ * So far, the leanest format seems to be an array of [pos1, pos2, size1, size2]
  */
 var twigs = (pos, dir, stepsleft, smax) => {
     if (stepsleft < 1) return;
@@ -592,7 +600,7 @@ var twigs = (pos, dir, stepsleft, smax) => {
 	      stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
-    var newd = add3(dir,randvec3(),1,.2);
+    var newd = add3(dir, randvec3(), 1, .2);
     newd[1]-=.1;  // Hmm.. should make these vary over time.. kool efekts
 
     twigs(endp,	newd, stepsleft - 1, smax);
@@ -600,36 +608,32 @@ var twigs = (pos, dir, stepsleft, smax) => {
 
 // Dummy for size estimation while building
 var pigs = (pos, dir, stepsleft, smax) => {
-    stuffpoints.push([pos, dir], 1, 0);
+    stuffpoints.push([pos, dir, 1, 0]);
 }
 
 /** Finally fixing the concept for this entry.. will have trees.. */
 var idea_trees1 = (t,w,h,C) => {
 
-    // Interpret drawing_array now as a series of capsule-definitions with
-    // [x,y,z,radius] for the two endpoints and so on.
-    // Could it be [x1,y1,z1,[x2,y2,z2,rad1,rad2]] or {a:[], b:[]} for sorting
-    // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
     stuffpoints = [];
-    random_state = 8;
+    random_state = 9;
     // Always put one tree in center?
     for (var itree = 0; itree<20; itree+=2){
 	var inis = 20+10*rnd();
-	twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)],
-	      [0,4,0,0],inis,30);
+	//twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)], [0,4,0,0], inis, 30);
+	twigs([40*rnd()-20, 0, 40*rnd()-20], [0,4,0,0], inis, 30);
     }
 
     // Trying out various ways of moving the camera around...
     // Some could be used for dramatic effect.
     // Some are good for examining the model from different angles.
-    //camAt(stuffpoints, [0,3,-60+2*t], 0, 0); // drive through
+    //camAt(stuffpoints, [0,10,-60+2*t], 0, 0); // drive through
     //camAt(stuffpoints, [-60+2*t,6,-40], 0, Math.PI/11); // drive by
     //camAt(stuffpoints, [0,3,-60+2*t], 0, Math.PI/4); // drive through, looking a bit up
-    //camAt(stuffpoints, [1,3,-30+t], 0, Math.PI/2); // wander forward, looking to zenith
+    camAt(stuffpoints, [1,3,-30+t], 0, Math.PI/2); // wander forward, looking to zenith
     //camAt(stuffpoints, [2,3,-60+2*t], 0, t/DURATION_SECONDS * Math.PI); // drive through, tilting to absurd
     //camAt(stuffpoints, [t/20,69-t,-60+t], .2-t/60, .4-t/50); // tilt-to-view
     //camAt(stuffpoints, [4,4,4], t/6, Math.PI/2); // look up, spinning
-    camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
+    //camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
 
 
     // Observation: The upwards looking shots would benefit from a different FOV setting
@@ -647,8 +651,8 @@ var idea_trees1 = (t,w,h,C) => {
 
 // Approximate variants. Visually imperfect but smaller and faster to draw:
 //	strokeBetween(C,
-//	fillBetween(C,
-	fillCapsuleSilhouette(C,
+	fillBetween(C,
+//	fillCapsuleSilhouette(C,
 			      w/2 + PERSPECTIVE_Fp2 * h / z1 * x1 ,
 			      h/2 - PERSPECTIVE_Fp2 * h / z1 * y1 ,
 			      PERSPECTIVE_Fp2 * h / z1 * s1 ,
@@ -683,14 +687,17 @@ var animation_frame = (t,
 		      ) =>
 {
 
+    // A static one-color background would be very cheap
     //C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
+    //C.fillStyle="#cdf"; C.fillRect(0, 0, w, h);
 
-    idea_sky1(t,w,h,C);
+    //idea_sky1(t,w,h,C);     // A gradient would be sweet, but it costs a lot.
+    idea_sky0(t,w,h,C);       // Single color, but changes over time. +60 bytes?!
     //idea_hills2(t,w,h,C);
     //idea_blobs3a(t,w,h,C);  // capsule minitest
     idea_trees1(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
 
-    debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
+    debug_information(C, t, w, h, ' #darr='+stuffpoints.length) //DEBUG
 };
 
 // This function wraps our own one for requestAnimationFrame()
