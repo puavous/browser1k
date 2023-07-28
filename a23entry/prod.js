@@ -644,7 +644,7 @@ var idea_trees1 = (t,w,h,C) => {
     //Sort not necessary if we draw silhouette only.
     //stuffpoints.sort(zsort);
 
-    for ([[x1,y1,z1],[x2,y2,z2],s1,s2] of stuffpoints){
+    for (var [[x1,y1,z1],[x2,y2,z2],s1,s2] of stuffpoints){
 	C.fillStyle = "#000";  // pure black on white could be simple and effective?
 
 	if ((z1 < 0) || (z2 < 0)) continue;
