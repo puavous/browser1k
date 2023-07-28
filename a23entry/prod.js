@@ -175,46 +175,6 @@ var zsort = (a, b) => {
     return b[2]-a[2];
 }
 
-var drawing_array_push_at = (pts,x,y,z,t) => {
-    for(var p of pts){
-	if (p[2]+z > 0)  // Clip here
-	    drawing_array.push([p[0] + x,
-				p[1] + y,
-				p[2] + z,
-				p[3],
-				p[4]
-			       ]);
-    }
-}
-
-/** Apply some transformations to pts and push to global drawing array
- * unless result is behind clipping plane at z=0. Can be used for pointlike
- * objects; additional properties could be bundled in p[3] or p[4] that are
- * carried around unchanged..
- */
-var drawing_array_push_mod = (pts,x,y,z,rY) => {
-    for(var p of pts){
-	var pp = [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
-		  p[1] + y,
-		  - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
-		  p[3],
-		  p[4]];
-	if (pp[2] > 0) drawing_array.push(pp);
-    }
-}
-
-
-var mod2 = (p,x,y,z,rY) => [Math.cos(rY)*p[0] + Math.sin(rY)*p[2] + x,
-			    p[1] + y,
-			    - Math.sin(rY)*p[0] + Math.cos(rY)*p[2] + z,
-			    p[3]];
-/* Applies transformation only. Doesn't clip or anything. */
-var drawing_array_push_mod2 = (pts,x,y,z,rY) => {
-    for(var [p,q] of pts){
-	drawing_array.push([mod2(p,x,y,z,rY),mod2(q,x,y,z,rY)]);
-    }
-}
-
 
 /*
  * Assume a scene is built into an array of objects. Plan would be to modify
@@ -245,6 +205,13 @@ var rot3X = (theta, p) => [p[0],
 			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
 var axpy3  = (a,x,y) => [a*x[0]+y[0], a*x[1]+y[1], a*x[2]+y[2]];
 
+/** Cross product when a and b are array representations of 3-vectors*/
+var cross3 = (a,b) => {
+    return [ a[1]*b[2] - a[2]*b[1],
+	     a[2]*b[0] - a[0]*b[2],
+	     a[0]*b[1] - a[1]*b[0] ]
+}
+
 
 /** Model a camera taken into a position in the scene, panned and tilted.
  * Positive pan to right, positive tilt up; given in radians.
@@ -272,13 +239,6 @@ var gradstops = (g, stops) =>
     return g;
 }
 
-/** Cross product when a and b are array representations of 3-vectors*/
-var cross3 = (a,b) => {
-    return [ a[1]*b[2] - a[2]*b[1],
-	     a[2]*b[0] - a[0]*b[2],
-	     a[0]*b[1] - a[1]*b[0] ]
-}
-    
 
 
 
@@ -304,81 +264,7 @@ var idea_sky1 = (t,w,h,C) => {
 
 }
 
-
-
-var idea_hills = (t,w,h,C) => {
-    // Ok, I think gradients are a keeper for this prod..
-    // Something I haven't played with much. Can do nice compositions it seems.
-    var gradient;
-
-    var d = (t/DURATION_SECONDS);
-
-    // Sky
-    gradient = C.createLinearGradient(w/2,0,w/2,h/2);
-    gradient.addColorStop(0, "#225");
-    gradient.addColorStop(.2, "#547");
-    gradient.addColorStop(.4, "#c37");
-    gradient.addColorStop(.6, "#e74");
-    C.fillStyle=gradient;
-    C.fillRect(0, 0, w, h/2);
-
-    // Setting / rising sun ..
-    gradient = C.createRadialGradient(w/2, h-d*h, 0, w/2, h-d*h, h);
-    gradient.addColorStop(0, "#fff");
-    gradient.addColorStop(.05, "#fff");
-    gradient.addColorStop(.11, "#ff1");
-    gradient.addColorStop(.2, "#ff4");
-    gradient.addColorStop(1, "#fff0");
-    C.fillStyle=gradient;
-
-    C.fillRect(0, 0, w, h);
-
-
-    // Flat ground
-    gradient = C.createLinearGradient(w/2,h/2,w/2,h);
-    gradient.addColorStop(0, "#126");
-    gradient.addColorStop(.6, "#241");
-    C.fillStyle=gradient;
-
-//    C.fillRect(0, h/2, w, h);
-
-
-/*
-    // Some distant hills.
-    C.beginPath();
-    //    C.ellipse(w/2-h, 2*h, h, h, 0,0,7);
-    C.ellipse(w/2-h+d*h, h, h*2, .6*h, 0,0,7);
-    C.ellipse(w/2+h+d*2*h, h, h*3, .6*h, 0,0,7);
-    C.fill();
-*/
-
-    // Hills, hills, hills, maybe with fir kinda forest
-    for(var iz = 5; iz > 0; iz--){
-
-	gradient = C.createLinearGradient(0,h/2,0,h);
-	//gradient.addColorStop(0, [,"#122","#125","#137","#13a","#14c","#14f"][iz]);
-	gradient.addColorStop(0, "#28" + " 57ace"[iz]);
-	gradient.addColorStop(1, "#241");
-	C.fillStyle=gradient;
-
-	C.beginPath();
-	C.moveTo(w,h);
-	C.lineTo(0,h);
-	var bm = 0, bd = h/99/iz;
-	//var seed = iz+25;
-	random_state = iz;
-	for(var ix = w/2 - 2*h - h*t/(9*iz); ix < w/2 + 2*h; ix += h/400){
-	    //bm += (seed = (seed*16807+1) & 0xffff)<0x8000?bd:-bd
-	    bm += rnd() < .5 ? bd : -bd;
-	    C.lineTo(ix, h/2 - bm - iz*h/40);
-	    //C.lineTo(ix, h/2 - bm);
-	}
-	C.fill();
-	//C.stroke();
-    }
-}
-
-
+/* "Brownian hills forever"... */
 var idea_hills2 = (t,w,h,C) => {
     var gradient;
     const d = (t/DURATION_SECONDS);
@@ -425,182 +311,6 @@ var idea_hills2 = (t,w,h,C) => {
     }
 }
 
-/* Experiments with compositing discs; warm-up of the Moetkoe entry of 2019..*/
-var idea_blobs1 = (t,w,h,C) => {
-    /* Prepare some stuff to be drawn... */
-
-    stuffpoints = [];
-
-    for(var ix=-99; ix<100; ix+=15){
-	for(var iz=-99; iz<100; iz+=15){
-	    var p = [
-		ix,
-		Math.sin(ix+t) + Math.sin(iz+t*2),
-		iz,
-		    1,0
-	    ]
-	    stuffpoints.push(p);
-	}
-    }
-
-    drawing_array = [];
-    drawing_array_push_mod(stuffpoints,
-			   0,
-			   -4,
-			   0-t/10,
-			   0);
-
-
-    // Now that we have "modelview" points in array, we can sort them
-    // for painter's algorithm:
-    drawing_array.sort(zsort);
-
-    C.globalCompositeOperation = "screen";
-    for(var tp of drawing_array){
-	tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
-	//C.fillStyle = toRGB(tp[3]*(Math.min(1,.1*(20-tp[2]))), .2);
-	//C.fillStyle = toRGB(1-tp[2]/380, 1);
-	//C.fillStyle = "#732";
-
-	gradient = C.createRadialGradient(w/2 + tp[0]*h/2,
-					  h/2 - tp[1]*h/2,
-					  0,
-					  w/2 + tp[0]*h/2,
-					  h/2 - tp[1]*h/2,
-					  PERSPECTIVE_F*h/2/tp[2]*tp[3]);
-
-  // Like a bluish dot of light in fog
-	gradient.addColorStop(0, "#ffff");
-	gradient.addColorStop(1, "#00f0");
-
-/*
-	// Building block of wispy water clouds
-	gradient.addColorStop(0, "#fff5");
-	gradient.addColorStop(.5, "#fff3");
-	gradient.addColorStop(1, "#fff0");
-*/
-
-	C.fillStyle = gradient;
-
-
-//  	C.beginPath();
-//        C.ellipse(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
-//                  h/2 - tp[1]*h/2, /*Screen y - model y points 'up', screen 'down' */
-//                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius x*/
-//                  PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius y*/
-//                  0, 0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
-//	C.fill();
-
-//  	C.beginPath();
-//        C.arc(w/2 + tp[0]*h/2, /*Screen x, account for aspect ratio here.*/
-//              h/2 - tp[1]*h/2, /*Screen y - model y points 'up', screen 'down' */
-//              PERSPECTIVE_F*h/2/tp[2]*tp[3],     /*Radius x*/
-//              0, 7);        /*No angle, full arc, a bit more than 2pi :)*/
-//	C.fill();
-
-	/* When using alpha "blobs", could fill rectangle containing the gradient: */
-	var radius = PERSPECTIVE_F*h/2/tp[2]*tp[3];
-        C.fillRect(w/2 + tp[0]*h/2 - radius,
-		   h/2 - tp[1]*h/2 - radius,
-		   2*radius, 2*radius);
-
-    }
-}
-
-var idea_blobs1b = (t,w,h,C) => {
-    //C.globalCompositeOperation = "screen";
-
-    random_state = 1;
-    for(var i=0; i<t; i+=1){
-	var p = [-5 + 11*rnd(),
-		 -4 + 8*rnd() + Math.sin(i+t),
-		 3 + t/2 + 5 * rnd()]
-	if (p[2]>0){
-	    var radius = PERSPECTIVE_F/p[2]*h/2;
-	    var cx = w/2 + PERSPECTIVE_F/p[2]*h/2*p[0];
-	    var cy = h/2 - PERSPECTIVE_F/p[2]*h/2*p[1];
-	    var gr = C.fillStyle = C.createRadialGradient(cx, cy, 0, cx, cy, radius);
-	    gr.addColorStop(0, "#ffff");
-	    gr.addColorStop(1, "#00f0");
-	    C.fillRect(cx - radius, cy - radius, 2*radius, 2*radius);
-	}
-    }
-}
-
-
-/* Experiments with recursive random content generation */
-function grower(pos, dir, age, extent){
-    if (extent <= 0) return;
-    
-    // So far, I have become 'age' units in size. My future parts won't be seen.
-    // Also, I could remain very small for all ages if I'm at an extreme location.
-    const ds = 1; //.9; //Math.sqrt(extent/41);
-    if (age>0) stuffpoints.push([pos[0],pos[1],pos[2],ds*age]);
-
-    // Sometimes, I've branched to two random directions:
-    // (must be same randoms each time, so recurse also 'not yet live' branches.)
-    if (rnd()<.15) {
-	grower([pos[0] + ds*age*dir[0],
-		pos[1] + ds*age*dir[1],
-		pos[2] + ds*age*dir[2]],
-	       [dir[0]+rnd()-.5, dir[1]+rnd()-.5, dir[2]+rnd()-.5],
-	       age - 0.03, extent-1);
-	grower([pos[0] + ds*age*dir[0],
-		pos[1] + ds*age*dir[1],
-		pos[2] + ds*age*dir[2]],
-	       [dir[0]+rnd()-.5, dir[1]+rnd()-.5, dir[2]+rnd()-.5],
-	       age - 0.03, extent-1);
-    } else {
-    // Otherwise, I've just grown new stuff on top of me in the growth direction..
-    grower([pos[0] + ds*age*dir[0],
-	    pos[1] + ds*age*dir[1],
-	    pos[2] + ds*age*dir[2]],
-	   dir,
-	   age - 0.03, extent-1);
-    }
-}
-
-var idea_blobs2 = (t,w,h,C) => {
-    stuffpoints = [];
-    random_state = 2; grower([1,0,0],[0,.5,0], t/30, 40);
-
-    drawing_array = [];
-    drawing_array_push_mod(stuffpoints,
-			   -30+t,
-			   -1,
-			   20,
-			   t/2);
-
-    drawing_array_push_mod(stuffpoints,
-			   -10+t,
-			   -1,
-			   10,
-			   t/4);
-
-    drawing_array_push_mod(stuffpoints,
-			   -20+t,
-			   2,
-			   100,
-			   t/4);
-
-
-    //Sort not necessary if we draw silhouette
-    //drawing_array.sort(zsort);
-    
-    for(var [x,y,z,s] of drawing_array){
-	// tp = doPerspectiveFhc(tp, PERSPECTIVE_F);
-	C.fillStyle = "#400";
-	C.beginPath();
-	// Screen x, y, account for perspective and aspect ratio here.
-	const radius = PERSPECTIVE_F * h / 2 / z * s;
-        C.arc(w/2 + PERSPECTIVE_F * h / 2 / z * x ,
-              h/2 - PERSPECTIVE_F * h / 2 / z * y ,
-              radius,
-              0, 7);
-	C.fill();
-	//C.stroke();
-    }
-}
 
 
 /**
@@ -837,8 +547,6 @@ var strokeBetween = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 
 
 
-
-
 /** Preliminary test of the capsule code*/
 var idea_blobs3a = (t,w,h,C) => {
     for (var i = -5; i<6; i++){
@@ -848,141 +556,6 @@ var idea_blobs3a = (t,w,h,C) => {
 			      w/2 + i*h/10, h/3, h/100);
     }
 }
-
-
-/** Second test of what could be capsule-drawn now..*/
-var idea_blobs3b = (t,w,h,C) => {
-
-    // Interpret drawing_array now as a series of capsule-definitions with
-    // [x,y,z,radius] for the two endpoints and so on.
-    // Could it be [x1,y1,z1,[x2,y2,z2,rad1,rad2]] or {a:[], b:[]} for sorting
-    // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
-    stuffpoints = [];
-    for (var i = 0; i<10; i++){
-	stuffpoints.push([0, 0, 0, .2],
-			 [5*Math.sin(.63*i), 2*Math.sin(t), 5*Math.cos(.63*i), .1],
-			 [5*Math.sin(.63*i), 2*Math.sin(t), 5*Math.cos(.63*i), .1],
-			 [5*Math.sin(.63*i), 2*Math.sin(t)+3, 5*Math.cos(.63*i), 0]);
-    }
-    drawing_array = [];
-    drawing_array_push_mod(stuffpoints,
-			   Math.sin(t),
-			   -3,
-			   20,
-			   t/3);
-
-    drawing_array_push_mod(stuffpoints,
-			   Math.sin(t/3),
-			   3,
-			   30,
-			   t/4);
-
-    drawing_array_push_mod(stuffpoints,
-			   4+Math.sin(t),
-			   2,
-			   40,
-			   -t/4);
-
-
-    //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
-    //drawing_array.sort(zsort);
-
-    for (var i = 0; i<drawing_array.length; i+=2){
-	C.fillStyle = "#210";
-	
-	// Screen x, y, account for perspective and aspect ratio here.
-	var [x1,y1,z1,s1] = drawing_array[i];
-	var [x2,y2,z2,s2] = drawing_array[i+1];
-	fillCapsuleSilhouette(C,
-			      w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
-			      h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 ,
-			      PERSPECTIVE_F * h / 2 / z1 * s1 ,
-			      w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
-			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
-			      PERSPECTIVE_F * h / 2 / z2 * s2);
-    }
-}
-
-
-/** Another tree-like geometry builder. Can get quite organic looking things..
- *
- * Hmm.. format? Options.. Arrays of 8 values: xyz and radius for both ends of each piece.
- * Arrays of 2 arrays. Just try each and pick the solution with tiniest size, I guess..
- */
-var stuffer = (pos, dir, stepsleft, smax) => {
-    if (stepsleft < 1) return;
-
-    // Produce one capsule here, from position to end point.
-    var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
-    stuffpoints.push(pos, endp);
-
-    var ll = Math.hypot(dir[0],dir[1],dir[2]);
-    // Branch sometimes. More often closer to leaves:
-    //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
-    if (rnd()<(.9-stepsleft/smax)) {
-	stuffer(endp,
-		[.33*dir[0]+ll*(rnd()-.5),
-		 .33*dir[1]+ll*(rnd()-.5),
-		 .33*dir[2]+ll*(rnd()-.5), 0],
-		//[.25*dir[0]+2*rnd()-1, .25*dir[1]+2*rnd()-1, .25*dir[2]+2*rnd()-1, 0],		
-//		[dir[0], dir[1], dir[2], 0],
-	        stepsleft-2, smax);
-    }
-    // Always grow a bit to almost same direction; feel some gravity downwards:
-    stuffer(endp,
-	    [dir[0]+.2*rnd()-.1,
-	     dir[1]+.2*rnd()-.2,  // Hmm.. should make these vary over time.. kool efekts
-	     dir[2]+.2*rnd()-.1, 0],
-	    stepsleft - 1, smax);
-}
-
-/** Second test of what could be capsule-drawn now..*/
-var idea_blobs3c = (t,w,h,C) => {
-
-    // Interpret drawing_array now as a series of capsule-definitions with
-    // [x,y,z,radius] for the two endpoints and so on.
-    // Could it be [x1,y1,z1,[x2,y2,z2,rad1,rad2]] or {a:[], b:[]} for sorting
-    // and such effects? Now I'm limited to unsorted (or pre-sorted) paint..
-    stuffpoints = [];
-    random_state = 5;
-    for (var itree = 0; itree<10; itree++){
-	var inis = 10+20*rnd();
-	stuffer([60*rnd()-30,0,60*rnd()-30,inis/30],[0,4,0,0],inis,30);
-    }
-    drawing_array = [];
-    drawing_array_push_mod(stuffpoints,
-			   0,
-			   -63+t,
-			   60,
-			   -t/5);
-
-
-
-    //Sort not necessary if we draw silhouette only. Capsule sort needs thinking..
-    //drawing_array.sort(zsort);
-
-    for (var i = 0; i<drawing_array.length; i+=2){
-	//C.fillStyle = "#210";
-	C.fillStyle = "#000";  // pure black on white could be simple and effective?
-	
-	// Screen x, y, account for perspective and aspect ratio here.
-	var [x1,y1,z1,s1] = drawing_array[i];
-	var [x2,y2,z2,s2] = drawing_array[i+1];
-// Approximate variants. Visually imperfect but smaller and faster to draw:
-//	strokeBetween(C,
-//	fillBetween(C,
-	fillCapsuleSilhouette(C,
-			      w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
-			      h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 ,
-			      PERSPECTIVE_F * h / 2 / z1 * s1 ,
-			      w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
-			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
-			      PERSPECTIVE_F * h / 2 / z2 * s2);
-    }
-}
-
-
-
 
 
 
@@ -1024,7 +597,7 @@ var twigs = (pos, dir, stepsleft, smax) => {
 
 // Dummy for size estimation while building
 var pigs = (pos, dir, stepsleft, smax) => {
-    stuffpoints.push([pos, pos]);
+    stuffpoints.push([pos, dir], 1, 0);
 }
 
 /** Finally fixing the concept for this entry.. will have trees.. */
@@ -1109,14 +682,8 @@ var animation_frame = (t,
     //C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
 
     idea_sky1(t,w,h,C);
-    //idea_hills(t,w,h,C);
     //idea_hills2(t,w,h,C);
-    //idea_blobs1(t,w,h,C);
-    //idea_blobs1b(t,w,h,C);
-    //idea_blobs2(t,w,h,C);  // "grower" with discs
     //idea_blobs3a(t,w,h,C);  // capsule minitest
-    //idea_blobs3b(t,w,h,C);
-    //idea_blobs3c(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
     idea_trees1(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
 
     debug_information(C, t, w, h, ' #darr='+drawing_array.length) //DEBUG
