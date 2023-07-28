@@ -203,8 +203,6 @@ var rot3Y = (theta, p) => [Math.cos(theta)*p[0] + Math.sin(theta)*p[2],
 var rot3X = (theta, p) => [p[0],
 			   Math.cos(theta)*p[1] + Math.sin(theta)*p[2],
 			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
-var axpy3  = (a,x,y) => [a*x[0]+y[0], a*x[1]+y[1], a*x[2]+y[2]];
-
 var add3  = (x,y,a=1,b=1) => [a*x[0]+b*y[0], a*x[1]+b*y[1], a*x[2]+b*y[2]];
 
 
@@ -584,13 +582,13 @@ var twigs = (pos, dir, stepsleft, smax) => {
     var endp = add3(dir,pos);
     stuffpoints.push([pos, endp, stepsleft/smax, (stepsleft-1)/smax]);
 
-    var ll = .5*Math.hypot(...dir);
+    var ll = Math.hypot(...dir);
     // Branch sometimes. More often closer to leaves(?):
     //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
     //if (rnd()<(.9-stepsleft/smax)) {
     if (rnd()<.3) {
 	twigs(endp,
-	      add3(dir,randvec3(),.33,ll),
+	      add3(dir, randvec3(), .33, ll/2),
 	      stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
@@ -617,7 +615,8 @@ var idea_trees1 = (t,w,h,C) => {
     // Always put one tree in center?
     for (var itree = 0; itree<20; itree+=2){
 	var inis = 20+10*rnd();
-	twigs([itree*(6*rnd()-3),0,itree*(6*rnd()-3),inis/30],[0,4,0,0],inis,30);	
+	twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)],
+	      [0,4,0,0],inis,30);
     }
 
     // Trying out various ways of moving the camera around...
