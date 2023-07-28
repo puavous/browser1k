@@ -196,7 +196,7 @@ var zsort = (a, b) => {
 // var Sin = Math.sin, Cos = Math.cos; // Could do this, but might not spare space
 // Possibly the best thing to do is to just unwrap and inline a lot
 
-// Transforms for 3-vectors
+// Coordinate transforms and other computations for 3-vectors
 var rot3Y = (theta, p) => [Math.cos(theta)*p[0] + Math.sin(theta)*p[2],
 			   p[1],
 			   - Math.sin(theta)*p[0] + Math.cos(theta)*p[2]];
@@ -205,6 +205,9 @@ var rot3X = (theta, p) => [p[0],
 			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
 var axpy3  = (a,x,y) => [a*x[0]+y[0], a*x[1]+y[1], a*x[2]+y[2]];
 
+var add3  = (a,b,x,y) => [a*x[0]+b*y[0], a*x[1]+b*y[1], a*x[2]+b*y[2]];
+
+
 /** Cross product when a and b are array representations of 3-vectors*/
 var cross3 = (a,b) => {
     return [ a[1]*b[2] - a[2]*b[1],
@@ -212,14 +215,22 @@ var cross3 = (a,b) => {
 	     a[0]*b[1] - a[1]*b[0] ]
 }
 
+/** Return a new vector with uniform randoms from [-.5,.5] */
+var randvec3 = () => [rnd()-.5, rnd()-.5, rnd()-.5];
+
+/** Add noise to v, from uniform distribution [-delta,delta] */
+var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
+			      v[1]+delta*(rnd()-.5),
+			      v[2]+delta*(rnd()-.5)];
+
 
 /** Model a camera taken into a position in the scene, panned and tilted.
  * Positive pan to right, positive tilt up; given in radians.
  */
 var camAt = (pts, pos, pan, tilt) => {
     for(var i in pts){
-	pts[i][0] = rot3X(-tilt, rot3Y(-pan, axpy3(-1,pos,pts[i][0])));
-	pts[i][1] = rot3X(-tilt, rot3Y(-pan, axpy3(-1,pos,pts[i][1])));
+	pts[i][0] = rot3X(-tilt, rot3Y(-pan, add3(-1,1,pos,pts[i][0])));
+	pts[i][1] = rot3X(-tilt, rot3Y(-pan, add3(-1,1,pos,pts[i][1])));
     }
 }
 
@@ -570,29 +581,23 @@ var twigs = (pos, dir, stepsleft, smax) => {
     if (stepsleft < 1) return;
 
     // Produce one capsule here, from position to end point.
-    var endp = axpy3(1,dir,pos);
-    //var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2]];
-    //var endp = tr4(dir,pos); endp[3] = (stepsleft-1)/smax;
-    
+    var endp = add3(1,1,dir,pos);
     stuffpoints.push([pos, endp, stepsleft/smax, (stepsleft-1)/smax]);
 
     var ll = .5*Math.hypot(...dir);
-    // Branch sometimes. More often closer to leaves:
+    // Branch sometimes. More often closer to leaves(?):
     //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
     //if (rnd()<(.9-stepsleft/smax)) {
     if (rnd()<.3) {
 	twigs(endp,
-		[.33*dir[0]+ll*(rnd()-.5),
-		 .33*dir[1]+ll*(rnd()-.5),
-		 .33*dir[2]+ll*(rnd()-.5)],
-	        stepsleft-2, smax);
+	      add3(.33,ll,dir,randvec3()),
+	      stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
-    twigs(endp,
-	    [dir[0]+.2*rnd()-.1,
-	     dir[1]+.2*rnd()-.2,  // Hmm.. should make these vary over time.. kool efekts
-	     dir[2]+.2*rnd()-.1],
-	    stepsleft - 1, smax);
+    var newd = add3(1,.2,dir,randvec3());
+    newd[1]-=.1;  // Hmm.. should make these vary over time.. kool efekts
+
+    twigs(endp,	newd, stepsleft - 1, smax);
 }
 
 // Dummy for size estimation while building
