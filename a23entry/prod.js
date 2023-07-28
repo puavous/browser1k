@@ -205,7 +205,7 @@ var rot3X = (theta, p) => [p[0],
 			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
 var axpy3  = (a,x,y) => [a*x[0]+y[0], a*x[1]+y[1], a*x[2]+y[2]];
 
-var add3  = (a,b,x,y) => [a*x[0]+b*y[0], a*x[1]+b*y[1], a*x[2]+b*y[2]];
+var add3  = (x,y,a=1,b=1) => [a*x[0]+b*y[0], a*x[1]+b*y[1], a*x[2]+b*y[2]];
 
 
 /** Cross product when a and b are array representations of 3-vectors*/
@@ -229,8 +229,8 @@ var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
  */
 var camAt = (pts, pos, pan, tilt) => {
     for(var i in pts){
-	pts[i][0] = rot3X(-tilt, rot3Y(-pan, add3(-1,1,pos,pts[i][0])));
-	pts[i][1] = rot3X(-tilt, rot3Y(-pan, add3(-1,1,pos,pts[i][1])));
+	pts[i][0] = rot3X(-tilt, rot3Y(-pan, add3(pos,pts[i][0],-1)));
+	pts[i][1] = rot3X(-tilt, rot3Y(-pan, add3(pos,pts[i][1],-1)));
     }
 }
 
@@ -581,7 +581,7 @@ var twigs = (pos, dir, stepsleft, smax) => {
     if (stepsleft < 1) return;
 
     // Produce one capsule here, from position to end point.
-    var endp = add3(1,1,dir,pos);
+    var endp = add3(dir,pos);
     stuffpoints.push([pos, endp, stepsleft/smax, (stepsleft-1)/smax]);
 
     var ll = .5*Math.hypot(...dir);
@@ -590,11 +590,11 @@ var twigs = (pos, dir, stepsleft, smax) => {
     //if (rnd()<(.9-stepsleft/smax)) {
     if (rnd()<.3) {
 	twigs(endp,
-	      add3(.33,ll,dir,randvec3()),
+	      add3(dir,randvec3(),.33,ll),
 	      stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
-    var newd = add3(1,.2,dir,randvec3());
+    var newd = add3(dir,randvec3(),1,.2);
     newd[1]-=.1;  // Hmm.. should make these vary over time.. kool efekts
 
     twigs(endp,	newd, stepsleft - 1, smax);
