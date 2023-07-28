@@ -25,6 +25,11 @@
 const DURATION_SECONDS = 62;
 const AUDIO_BUFSIZE = 4096;
 const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
+// Values for some fovY->PERSPECTIVE_F:
+// 90deg->1.0
+// 60deg->1.732 45deg->2.414 36deg->3.077 30deg->3.732 28.07deg->4.0 20deg->5.671
+
+const PERSPECTIVE_Fp2 = 2; // Pre-set "1/Math.tan(fovY/2)/2"
 
 // Start time of show (user click)
 var startTimeInMillis = 0;
@@ -991,6 +996,8 @@ var twigs = (pos, dir, stepsleft, smax) => {
 
     // Produce one capsule here, from position to end point.
     var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
+    //var endp = tr4(dir,pos); endp[3] = (stepsleft-1)/smax;
+    
     stuffpoints.push([pos, endp]);
 
     var ll = .5*Math.hypot(...dir);
@@ -1044,6 +1051,11 @@ var idea_trees1 = (t,w,h,C) => {
     //camAt(stuffpoints, [4,4,4], t/6, Math.PI/2); // look up, spinning
     camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
 
+    // Observation: The upwards looking shots would benefit from a different FOV setting
+    // than the others. Think about making the camera more flexible..
+
+
+
     //Sort not necessary if we draw silhouette only.
     //stuffpoints.sort(zsort);
 
@@ -1056,12 +1068,24 @@ var idea_trees1 = (t,w,h,C) => {
 //	strokeBetween(C,
 //	fillBetween(C,
 	fillCapsuleSilhouette(C,
-			      w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
-			      h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 ,
-			      PERSPECTIVE_F * h / 2 / z1 * s1 ,
-			      w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
-			      h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 ,
-			      PERSPECTIVE_F * h / 2 / z2 * s2);
+			      w/2 + PERSPECTIVE_Fp2 * h / z1 * x1 ,
+			      h/2 - PERSPECTIVE_Fp2 * h / z1 * y1 ,
+			      PERSPECTIVE_Fp2 * h / z1 * s1 ,
+			      w/2 + PERSPECTIVE_Fp2 * h / z2 * x2 ,
+			      h/2 - PERSPECTIVE_Fp2 * h / z2 * y2 ,
+			      PERSPECTIVE_Fp2 * h / z2 * s2);
+
+/*
+  // And, well, inlining the whole stroke thing gets 100 bytes away and
+  // looks reeeally ok from far away.. but brakes down in close perspective shots..
+	C.lineWidth = (PERSPECTIVE_F * h / 2 / z1 * s1 + PERSPECTIVE_F * h / 2 / z2 * s2)/2
+	C.beginPath();
+	C.moveTo( w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
+		  h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 );
+	C.lineTo( w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
+		  h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 );
+	C.stroke();
+*/
     }
 }
 
