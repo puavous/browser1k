@@ -236,23 +236,23 @@ var drawing_array_push_mod2 = (pts,x,y,z,rY) => {
 // var Sin = Math.sin, Cos = Math.cos; // Could do this, but might not spare space
 // Possibly the best thing to do is to just unwrap and inline a lot
 
-// Separate transforms for arrays of 3 coordinates and a fourth value.
-var rot4Y = (theta, p) => [Math.cos(theta)*p[0] + Math.sin(theta)*p[2],
+// Transforms for 3-vectors
+var rot3Y = (theta, p) => [Math.cos(theta)*p[0] + Math.sin(theta)*p[2],
 			   p[1],
-			   - Math.sin(theta)*p[0] + Math.cos(theta)*p[2], p[3]];
-var rot4X = (theta, p) => [p[0],
+			   - Math.sin(theta)*p[0] + Math.cos(theta)*p[2]];
+var rot3X = (theta, p) => [p[0],
 			   Math.cos(theta)*p[1] + Math.sin(theta)*p[2],
-			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2], p[3]];
-var tr4  = (tr,p) => [p[0]+tr[0], p[1]+tr[1], p[2]+tr[2], p[3]];
-var tri4 = (tr,p) => [p[0]-tr[0], p[1]-tr[1], p[2]-tr[2], p[3]];
+			   - Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
+var axpy3  = (a,x,y) => [a*x[0]+y[0], a*x[1]+y[1], a*x[2]+y[2]];
+
 
 /** Model a camera taken into a position in the scene, panned and tilted.
  * Positive pan to right, positive tilt up; given in radians.
  */
 var camAt = (pts, pos, pan, tilt) => {
     for(var i in pts){
-	pts[i] = [rot4X(-tilt, rot4Y(-pan, tri4(pos,pts[i][0]))),
-		  rot4X(-tilt, rot4Y(-pan, tri4(pos,pts[i][1])))]
+	pts[i][0] = rot3X(-tilt, rot3Y(-pan, axpy3(-1,pos,pts[i][0])));
+	pts[i][1] = rot3X(-tilt, rot3Y(-pan, axpy3(-1,pos,pts[i][1])));
     }
 }
 
@@ -990,15 +990,18 @@ var idea_blobs3c = (t,w,h,C) => {
  *
  * Hmm.. format? Options.. Arrays of 8 values: xyz and radius for both ends of each piece.
  * Arrays of 2 arrays. Just try each and pick the solution with tiniest size, I guess..
+ * So far, the leanest model seems to be array of
+ * [pos1, pos2, size1, size2]
  */
 var twigs = (pos, dir, stepsleft, smax) => {
     if (stepsleft < 1) return;
 
     // Produce one capsule here, from position to end point.
-    var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2], (stepsleft-1)/smax];
+    var endp = axpy3(1,dir,pos);
+    //var endp = [pos[0]+dir[0], pos[1]+dir[1], pos[2]+dir[2]];
     //var endp = tr4(dir,pos); endp[3] = (stepsleft-1)/smax;
     
-    stuffpoints.push([pos, endp]);
+    stuffpoints.push([pos, endp, stepsleft/smax, (stepsleft-1)/smax]);
 
     var ll = .5*Math.hypot(...dir);
     // Branch sometimes. More often closer to leaves:
@@ -1008,14 +1011,14 @@ var twigs = (pos, dir, stepsleft, smax) => {
 	twigs(endp,
 		[.33*dir[0]+ll*(rnd()-.5),
 		 .33*dir[1]+ll*(rnd()-.5),
-		 .33*dir[2]+ll*(rnd()-.5), 0],
+		 .33*dir[2]+ll*(rnd()-.5)],
 	        stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
     twigs(endp,
 	    [dir[0]+.2*rnd()-.1,
 	     dir[1]+.2*rnd()-.2,  // Hmm.. should make these vary over time.. kool efekts
-	     dir[2]+.2*rnd()-.1, 0],
+	     dir[2]+.2*rnd()-.1],
 	    stepsleft - 1, smax);
 }
 
@@ -1051,6 +1054,7 @@ var idea_trees1 = (t,w,h,C) => {
     //camAt(stuffpoints, [4,4,4], t/6, Math.PI/2); // look up, spinning
     camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
 
+
     // Observation: The upwards looking shots would benefit from a different FOV setting
     // than the others. Think about making the camera more flexible..
 
@@ -1059,7 +1063,7 @@ var idea_trees1 = (t,w,h,C) => {
     //Sort not necessary if we draw silhouette only.
     //stuffpoints.sort(zsort);
 
-    for ([[x1,y1,z1,s1],[x2,y2,z2,s2]] of stuffpoints){
+    for ([[x1,y1,z1],[x2,y2,z2],s1,s2] of stuffpoints){
 	C.fillStyle = "#000";  // pure black on white could be simple and effective?
 
 	if ((z1 < 0) || (z2 < 0)) continue;
