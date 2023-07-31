@@ -223,8 +223,10 @@ var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
 			      v[2]+delta*(rnd()-.5)];
 
 
-/** Model a camera taken into a position in the scene, panned and tilted.
+/**
+ * Model a camera taken into a position in the scene, panned and tilted.
  * Positive pan to right, positive tilt up; given in radians.
+ * (Such a short function - manually inlined; not calling this in drawing code..)
  */
 var camAt = (pts, pos, pan, tilt) => {
     for(var p of pts){
@@ -628,16 +630,15 @@ var idea_trees1 = (t,w,h,C) => {
     // Trying out various ways of moving the camera around...
     // Some could be used for dramatic effect.
     // Some are good for examining the model from different angles.
-    //camAt(stuffpoints, [0,10,-60+2*t], 0, 0); // drive through
-    //camAt(stuffpoints, [-60+2*t,6,-40], 0, Math.PI/11); // drive by
-    //camAt(stuffpoints, [0,6,-40], -.5+t/DURATION_SECONDS, Math.PI/11); // pan past
-    //camAt(stuffpoints, [0,3,-60+2*t], 0, Math.PI/4); // drive through, looking a bit up
-    //camAt(stuffpoints, [1,3,-30+t], 0, Math.PI/2); // wander forward, looking to zenith
-    //camAt(stuffpoints, [2,3,-60+2*t], 0, t/DURATION_SECONDS * Math.PI); // drive through, tilting to absurd
-    //camAt(stuffpoints, [t/20,69-t,-60+t], .2-t/60, .4-t/50); // tilt-to-view
-    //camAt(stuffpoints, [4,4,4], t/6, Math.PI/2); // look up, spinning
-    camAt(stuffpoints, [0,130-2*t,-130+2*t], 0, -Math.PI/5+t/200); // descend from the air
-
+    //var pos = [0,10,-60+2*t], pan = 0, tilt = 0; // drive through
+    //var pos = [-60+2*t,6,-40], pan = 0, tilt = Math.PI/11; // drive by
+    //var pos = [0,6,-40], pan = -.5+t/DURATION_SECONDS, tilt = Math.PI/11; // pan past
+    //var pos = [0,3,-60+2*t], pan = 0, tilt = Math.PI/4; // drive through, looking a bit up
+    //var pos = [1,3,-30+t], pan = 0, tilt = Math.PI/2; // wander forward, looking to zenith
+    //var pos = [2,3,-60+2*t], pan = 0, tilt = t/DURATION_SECONDS * Math.PI; // drive through, tilting to absurd
+    //var pos=[t/20,69-t,-60+t], pan=.2-t/60, tilt=.4-t/50; // tilt-to-view
+    //var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
+    var pos=[0,130-2*t,-130+2*t], pan=0, tilt=-Math.PI/5+t/200; // descend from the air
 
     // Observation: The upwards looking shots would benefit from a different FOV setting
     // than the others. Think about making the camera more flexible..
@@ -650,7 +651,12 @@ var idea_trees1 = (t,w,h,C) => {
     for (var [p1,p2,s1,s2] of stuffpoints){
 	C.fillStyle = "#000";  // pure black on white could be simple and effective?
 
+	// Model a camera taken into a position in the scene, panned and tilted.
+	// Positive pan to right, positive tilt up; given in radians.
+	p1 = rot3X(tilt, rot3Y(pan, add3(pos,p1,-1)));
+	p2 = rot3X(tilt, rot3Y(pan, add3(pos,p2,-1)));
 	if ((p1[2] < 0) || (p2[2] < 0)) continue;
+
 
 // Approximate variants. Visually imperfect but smaller and faster to draw:
 //	strokeBetween(C,
