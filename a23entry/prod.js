@@ -672,12 +672,12 @@ var idea_trees1 = (t,w,h,C) => {
 /*
   // And, well, inlining the whole stroke thing gets 100 bytes away and
   // looks reeeally ok from far away.. but brakes down in close perspective shots..
-	C.lineWidth = (PERSPECTIVE_F * h / 2 / z1 * s1 + PERSPECTIVE_F * h / 2 / z2 * s2)/2
+	C.lineWidth = (PERSPECTIVE_F * h / 2 / p1[2] * s1 + PERSPECTIVE_F * h / 2 / p2[2] * s2)/2
 	C.beginPath();
-	C.moveTo( w/2 + PERSPECTIVE_F * h / 2 / z1 * x1 ,
-		  h/2 - PERSPECTIVE_F * h / 2 / z1 * y1 );
-	C.lineTo( w/2 + PERSPECTIVE_F * h / 2 / z2 * x2 ,
-		  h/2 - PERSPECTIVE_F * h / 2 / z2 * y2 );
+	C.moveTo( w/2 + PERSPECTIVE_F * h / 2 / p1[2] * p1[0] ,
+		  h/2 - PERSPECTIVE_F * h / 2 / p1[2] * p1[1] );
+	C.lineTo( w/2 + PERSPECTIVE_F * h / 2 / p2[2] * p2[0] ,
+		  h/2 - PERSPECTIVE_F * h / 2 / p2[2] * p2[1] );
 	C.stroke();
 */
     }
