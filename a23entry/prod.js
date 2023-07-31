@@ -722,9 +722,10 @@ var animation_frame = (t,
     // A static one-color background would be very cheap
     //C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
     //C.fillStyle="#cdf"; C.fillRect(0, 0, w, h);
+    C.fillStyle="#ffe"; C.fillRect(0, 0, w, h);
 
+    //idea_sky0(t,w,h,C);     // Single color, but changes over time. +60 bytes?!
     //idea_sky1(t,w,h,C);     // A gradient would be sweet, but it costs a lot.
-    idea_sky0(t,w,h,C);       // Single color, but changes over time. +60 bytes?!
     //idea_hills2(t,w,h,C);
     //idea_blobs3a(t,w,h,C);  // capsule minitest
     idea_trees1(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
