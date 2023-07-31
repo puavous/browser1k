@@ -206,6 +206,7 @@ var rot3X = (theta, p) => [p[0],
 			   Math.sin(theta)*p[1] + Math.cos(theta)*p[2]];
 var add3  = (x,y,a=1,b=1) => [a*x[0]+b*y[0], a*x[1]+b*y[1], a*x[2]+b*y[2]];
 
+var scale3 = (p,q) => [p[0]*q[0], p[1]*q[1], p[2]*q[2]];
 
 /** Cross product when a and b are array representations of 3-vectors*/
 var cross3 = (a,b) => {
@@ -625,6 +626,7 @@ var idea_trees1 = (t,w,h,C) => {
 	var inis = 20+10*rnd();
 	//twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)], [0,4,0,0], inis, 30);
 	twigs([40*rnd()-20, 0, 40*rnd()-20], [0,4,0,0], inis, 30);
+	//twigs(scale3(randvec3(),[40, 0, 40]), [0,4,0,0], inis, 30);
     }
 
     // Trying out various ways of moving the camera around...
