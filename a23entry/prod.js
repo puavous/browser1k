@@ -122,6 +122,11 @@ var rnd = () => {
     random_state = (16807 * random_state + 1) & 0x3fffff; return random_state / 4200000;
 }
 
+// Version that gives zero-centered values in so-so-approximate range [-1,1]
+var crnd = () => {
+    random_state = (16807 * random_state + 1) & 0x3fffff; return random_state / 2100000 - 1;
+}
+
 // Old version:
 /*
 function rnd(){
@@ -216,7 +221,11 @@ var cross3 = (a,b) => {
 }
 
 /** Return a new vector with uniform randoms from [-.5,.5] */
-var randvec3 = () => [rnd()-.5, rnd()-.5, rnd()-.5];
+var randvec3alt = () => [crnd()/2, crnd()/2, crnd()/2];
+
+/** Return a new vector with uniform randoms from [-1,1] */
+var randvec3 = () => [crnd(), crnd(), crnd()];
+
 
 /** Add noise to v, from uniform distribution [-delta,delta] */
 var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
@@ -611,9 +620,9 @@ var twigs = (pos, dir, stepsleft, smax) => {
     // Branch sometimes. More often closer to leaves(?):
     //if ((stepsleft/smax<.9) &&  (rnd()<.3)) {
     //if (rnd()<(.9-stepsleft/smax)) {
-    if (rnd()<.3) {
+    if (crnd()>.4) {
 	twigs(endp,
-	      add3(dir, randvec3(), .33, ll/2),
+	      add3(dir, randvec3(), .33, ll/3),
 	      stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
@@ -632,12 +641,12 @@ var pigs = (pos, dir, stepsleft, smax) => {
 var idea_trees1 = (t,w,h,C) => {
 
     stuffpoints = [];
-    random_state = 9;
+    random_state = 6;
     // Always put one tree in center?
     for (var itree = 0; itree<20; itree+=2){
-	var inis = 20+10*rnd();
+	var inis = 25+5*crnd();
 	//twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)], [0,4,0,0], inis, 30);
-	twigs([40*rnd()-20, 0, 40*rnd()-20], [0,4,0,0], inis, 30);
+	twigs([20*crnd(), 0, 20*crnd()], [0,4,0,0], inis, 30);
 	//twigs(scale3(randvec3(),[40, 0, 40]), [0,4,0,0], inis, 30);
     }
 
