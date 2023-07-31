@@ -223,6 +223,18 @@ var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
 			      v[1]+delta*(rnd()-.5),
 			      v[2]+delta*(rnd()-.5)];
 
+/** Combine pan and tilt (tiltable cam on rotating stand..) */
+var rot3YthenX = (pan, tilt, p) => [
+    Math.cos(pan)*p[0] - Math.sin(pan)*p[2],
+    Math.cos(tilt)*p[1] - Math.sin(tilt)*(Math.sin(pan)*p[0] + Math.cos(pan)*p[2]),
+    Math.sin(tilt)*p[1] + Math.cos(tilt)*(Math.sin(pan)*p[0] + Math.cos(pan)*p[2])];
+
+// Variation that contains fewer characters but packs worse both in gzip and Brotli
+var rot3YthenXvar = (pan, tilt, p, cp = Math.cos(pan), sp = Math.sin(pan), ct = Math.cos(tilt), st = Math.sin(tilt)) =>
+    [cp*p[0] - sp*p[2],
+     ct*p[1] - st*(sp*p[0] + cp*p[2]),
+     st*p[1] + ct*(sp*p[0] + cp*p[2])];
+
 
 /**
  * Model a camera taken into a position in the scene, panned and tilted.
@@ -655,8 +667,8 @@ var idea_trees1 = (t,w,h,C) => {
 
 	// Model a camera taken into a position in the scene, panned and tilted.
 	// Positive pan to right, positive tilt up; given in radians.
-	p1 = rot3X(tilt, rot3Y(pan, add3(pos,p1,-1)));
-	p2 = rot3X(tilt, rot3Y(pan, add3(pos,p2,-1)));
+	p1 = rot3YthenX(pan, tilt, add3(pos,p1,-1));
+	p2 = rot3YthenX(pan, tilt, add3(pos,p2,-1));
 	if ((p1[2] < 0) || (p2[2] < 0)) continue;
 
 
