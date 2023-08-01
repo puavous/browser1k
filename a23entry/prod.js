@@ -699,7 +699,7 @@ var idea_trees1 = (t,w,h,C) => {
     stuffpoints = [];
     random_state = 6;
     // Always put one tree in center?
-    for (var itree = 0; itree<20; itree+=2){
+    for (var itree = 0; itree<10; itree++){
 	var inis = 25+5*crnd();
 	//twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)], [0,4,0,0], inis, 30);
 	twigs([20*crnd(), 0, 20*crnd()], [0,4,0,0], inis, 30);
