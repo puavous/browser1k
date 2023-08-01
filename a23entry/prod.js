@@ -23,7 +23,7 @@
 // Author: qma (aka "The Old Dude", or paavo.j.nieminen@jyu.fi )
 
 const DURATION_SECONDS = 62;
-const AUDIO_BUFSIZE = 4096;
+const AUDIO_BUFSIZE = 2048;
 const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 // Values for some fovY->PERSPECTIVE_F:
 // 90deg->1.0
@@ -763,9 +763,11 @@ onclick = () => {
     sp.onaudioprocess = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
 	if (dbg_paused) {for(let isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
 	for (e in outbuf) outbuf[e] = audio_sample(audio_time += 1 / A.sampleRate);
+	// Graphics update from audio callback. Very dirty but might need those bytes:
+	// animation_frame(audio_time);
     };
 
-    // First call to animation will set up requestframe:
+    // First call to animation will set up requestAnimationFrame:
     animation_driver(0);
 }
 
