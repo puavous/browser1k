@@ -49,6 +49,51 @@ var A,sp;
 var stuffpoints;
 
 
+// ------------- just a try.. benchmarking the usefulness of this in 1k again
+var enumerate_and_shorten_API = (obj) => {
+    // Apply p01's trick for grabbing short names from GL obj
+    // (http://slides.com/pdesch/js-demoscene-techniques#/5/6)
+    // This didn't help me earlier when trying to make a 1k..
+    // was OK for 4k using GL. saves something like 30 bytes / 4kb.
+    // Not much.. The trick itself costs some 45 bytes compressed.
+    // Once again, not very helpful for 1k.. doesn't re-assign properties
+    // which would be necessary for most size-optimizations..
+    var dbgNameLists = {}; //DEBUG
+    for(s in obj){
+        // Instanssi 2023 still had: gl[s.match(/^..|[A-Z]|\d\D+$/g).join('')]=gl[s];
+        // Contemplation at some point.. some alternatives with few clashes:
+        // gl[s.match(/^.|[A-Zhol]|\d|[ruiv]+$/g).join('')]=gl[s];
+        //gl[s.match(/^.|[A-Zlp]|\d.|[fv]+$/g).join('')]=gl[s];
+        //gl[s.match(/^.|[A-Zlp]|\d.*$/g).join('')]=gl[s];
+        //gl[s.match(/^.|[A-Zlp\d]|[fuiv]+$/g).join('')]=gl[s];
+
+        // The trick itself (not for GL but for other HTML APIs now):
+        const trick_regex = /^..|[A-Z]./g;
+        obj[s.match(trick_regex).join('')] = obj[s];
+        // Gather names for clash inspection and creating a minifier:    //DEBUG
+        var shortname = s.match(trick_regex).join('');                   //DEBUG
+        if (shortname in dbgNameLists) {dbgNameLists[shortname].push(s); //DEBUG
+        } else { dbgNameLists[shortname]=[s]; }                          //DEBUG
+    }
+    // Inspect all names and clashing ones //DEBUG
+    var dbgClashing = {};               //DEBUG
+    for(s in dbgNameLists)              //DEBUG
+        if ((dbgNameLists[s].length>1)  //DEBUG
+            && (!dbgNameLists[s][0].match(/^[A-Z]/g))) //DEBUG
+                dbgClashing[s]=dbgNameLists[s]; //DEBUG
+    console.log(dbgNameLists);          //DEBUG
+    console.log(dbgClashing);           //DEBUG
+    // Output a sed script to change original names that don't clash:   //DEBUG
+    // Then we should be safe... Can use any name; minified if possible //DEBUG
+    var dbgSedStrings=[]; //DEBUG
+    for (s in dbgNameLists) {           //DEBUG
+        if ((dbgNameLists[s].length==1) //DEBUG
+            && (!dbgNameLists[s][0].match(/^[A-Z]/g)) //DEBUG
+            ) {dbgSedStrings.push("s/\\."+dbgNameLists[s][0]+"(/."+s+"(/g"); //DEBUG
+        }                               //DEBUG
+    }                                   //DEBUG
+    // console.log(dbgSedStrings.join('\n')); //DEBUG
+}
 
 
 // ---------------------------
@@ -755,6 +800,15 @@ var animation_driver = (curTimeInMillis) => {
 onclick = () => {
     onclick = null; //DEBUG
 
+    A = new AudioContext; // This only possible after gesture, so here in onclick
+    // Mind the deprecation note...
+    // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
+
+    // This trick was tried, and found not to decrease but to increase size:
+    // enumerate_and_shorten_API(c);
+    // enumerate_and_shorten_API(c.getContext("2d"));
+    // enumerate_and_shorten_API(A);
+
     // Magic of the packing algorithm is that repeating "c.style" reduces size.
     c.style.position = "fixed"; c.style.left = c.style.top = 0;
 
@@ -764,9 +818,6 @@ onclick = () => {
     if (false)                                     //DEBUG
         c.requestFullscreen();
 
-    A = new AudioContext; // This only possible after gesture, so here in onclick
-    // Mind the deprecation note...
-    // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
     sp = A.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
     sp.connect(A.destination);
     sp.onaudioprocess = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
