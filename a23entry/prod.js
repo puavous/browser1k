@@ -714,9 +714,10 @@ var idea_trees1 = (t,w,h,C) => {
     //var pos = [0,6,-40], pan = -.5+t/DURATION_SECONDS, tilt = Math.PI/11; // pan past
     //var pos = [0,3,-60+2*t], pan = 0, tilt = Math.PI/4; // drive through, looking a bit up
     //var pos = [1,3,-30+t], pan = 0, tilt = Math.PI/2; // wander forward, looking to zenith
+    //var pos = [1,3,30-2*t], pan = t, tilt = Math.PI/2; // wander through fast, spinning
     //var pos = [2,3,-60+2*t], pan = 0, tilt = t/DURATION_SECONDS * Math.PI; // drive through, tilting to absurd
     //var pos=[t/20,69-t,-60+t], pan=.2-t/60, tilt=.4-t/50; // tilt-to-view
-    //var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
+    // var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
     var pos=[0,130-2*t,-130+2*t], pan=0, tilt=-Math.PI/5+t/200; // descend from the air
 
     // Observation: The upwards looking shots would benefit from a different FOV setting
@@ -737,7 +738,8 @@ var idea_trees1 = (t,w,h,C) => {
 	if ((p1[2] < 1) || (p2[2] < 1)) continue;
 
 
-// Approximate variants. Visually imperfect but smaller and faster to draw:
+// Approximate variants. Visually imperfect but smaller and faster to draw.
+// In fact, for the current tree geometries, a full capsule is not needed.
 //	strokeBetween(C,
 	fillBetween(C,
 //	fillCapsuleSilhouette(C,
@@ -754,24 +756,7 @@ var idea_trees1 = (t,w,h,C) => {
   // looks reeeally ok from far away.. but brakes down in close perspective shots..
 
 	C.lineWidth = PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2
-	// C.lineCap = "round";  // Round caps for +10 bytes. Clip z must be >0
-	C.beginPath();
-	C.moveTo( w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
-		  h/2 - PERSPECTIVE_Fp2 * h / p1[2] * p1[1] );
-	C.lineTo( w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
-		  h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1] );
-	C.stroke();
-*/
-
-/*
-  // Fill an arc at endpoints for extra 19 bytes
-	C.beginPath();
-	C.arc( w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
-	       h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1],
-	       (PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2)/2/2,
-	       0,7);
-	C.fill()
-	C.lineWidth = (PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2)/2
+	C.lineCap = "round";  // Round caps for +10 bytes. Clip z must be >0
 	C.beginPath();
 	C.moveTo( w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
 		  h/2 - PERSPECTIVE_Fp2 * h / p1[2] * p1[1] );
