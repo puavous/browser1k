@@ -670,7 +670,7 @@ var twigs = (pos, dir, stepsleft, smax) => {
 
     // Produce one capsule here, from position to end point.
     var endp = add3(dir,pos);
-    stuffpoints.push([pos, endp, stepsleft/smax, (stepsleft-1)/smax]);
+    stuffpoints.push([pos, endp, stepsleft/smax/2, (stepsleft-1)/smax/2]);
 
     var ll = Math.hypot(...dir);
     // Branch sometimes. More often closer to leaves(?):
@@ -753,7 +753,7 @@ var idea_trees1 = (t,w,h,C) => {
   // And, well, inlining the whole stroke thing gets 100 bytes away and
   // looks reeeally ok from far away.. but brakes down in close perspective shots..
 
-	C.lineWidth = (PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2)/2
+	C.lineWidth = PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2
 	// C.lineCap = "round";  // Round caps for +10 bytes. Clip z must be >0
 	C.beginPath();
 	C.moveTo( w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
