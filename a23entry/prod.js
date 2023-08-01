@@ -22,6 +22,9 @@
 //
 // Author: qma (aka "The Old Dude", or paavo.j.nieminen@jyu.fi )
 
+// Assume this much provided on surrounding HTML, as is by pnginator, or
+// other carrier: '<html><body><canvas id="c" /><script>' in the html..
+
 const DURATION_SECONDS = 62;
 const AUDIO_BUFSIZE = 2048;
 const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
@@ -31,17 +34,22 @@ const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 
 const PERSPECTIVE_Fp2 = 2; // Pre-set "1/Math.tan(fovY/2)/2"
 
+// Random state at beginning. TODO: always initialize upon content-creation?
+var random_state = 0;
+
 // Start time of show (user click)
 var startTimeInMillis = 0;
 
-// Hmm, assume this much provided on surrounding HTML, as is by pnginator, or
-// other carrier: we have '<html><body><canvas id="c" /><script>' in the html..
-
 // Global time in seconds, matching audio exactly (updated in audio callback)
 var audio_time = 0;
+// Audio-system-related global vars; initialized upon user gesture.
+var A,sp;
 
-// "Graphics assets" :)
-var stuffpoints = [];
+// "Graphics assets"; initialized before each screen update
+var stuffpoints;
+
+
+
 
 // ---------------------------
 // Some debug code, pretty much copy-pasted from my recent-ish 4k stuff.
@@ -111,7 +119,8 @@ but is a must for repeatable stochastic shapes. When "just noise" is not enough.
 This version is skewed, ranges to almost 1.0 but not quite.. 0x400000 == 4194304.
 0x3fffff/4200000 == 0.9986435714285714
 */
-var random_state = 0;
+// var random_state = 0; // Moved up, closer to other zero-initialized vars.
+
 //var rnd = () => (random_state = (16807 * random_state + 1) & 0x3fffff) / 4200000;
 // Note: Closure compiler inlines this everywhere. Some bytes shorter pack if
 // use the below function and then manually convert its definition to
@@ -758,7 +767,7 @@ onclick = () => {
     A = new AudioContext; // This only possible after gesture, so here in onclick
     // Mind the deprecation note...
     // (https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createScriptProcessor)
-    var sp = A.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
+    sp = A.createScriptProcessor(AUDIO_BUFSIZE, 0, 1);
     sp.connect(A.destination);
     sp.onaudioprocess = (e, outbuf = e.outputBuffer.getChannelData(0)) => {
 	if (dbg_paused) {for(let isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
