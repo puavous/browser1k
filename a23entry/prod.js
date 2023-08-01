@@ -734,7 +734,7 @@ var idea_trees1 = (t,w,h,C) => {
 	// Positive pan to right, positive tilt up; given in radians.
 	p1 = rot3YthenX(pan, tilt, add3(pos,p1,-1));
 	p2 = rot3YthenX(pan, tilt, add3(pos,p2,-1));
-	if ((p1[2] < 0) || (p2[2] < 0)) continue;
+	if ((p1[2] < 1) || (p2[2] < 1)) continue;
 
 
 // Approximate variants. Visually imperfect but smaller and faster to draw:
@@ -748,15 +748,35 @@ var idea_trees1 = (t,w,h,C) => {
 			      h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1] ,
 			      PERSPECTIVE_Fp2 * h / p2[2] * s2);
 
+
 /*
   // And, well, inlining the whole stroke thing gets 100 bytes away and
   // looks reeeally ok from far away.. but brakes down in close perspective shots..
-	C.lineWidth = (PERSPECTIVE_F * h / 2 / p1[2] * s1 + PERSPECTIVE_F * h / 2 / p2[2] * s2)/2
+
+	C.lineWidth = (PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2)/2
+	// C.lineCap = "round";  // Round caps for +10 bytes. Clip z must be >0
 	C.beginPath();
-	C.moveTo( w/2 + PERSPECTIVE_F * h / 2 / p1[2] * p1[0] ,
-		  h/2 - PERSPECTIVE_F * h / 2 / p1[2] * p1[1] );
-	C.lineTo( w/2 + PERSPECTIVE_F * h / 2 / p2[2] * p2[0] ,
-		  h/2 - PERSPECTIVE_F * h / 2 / p2[2] * p2[1] );
+	C.moveTo( w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
+		  h/2 - PERSPECTIVE_Fp2 * h / p1[2] * p1[1] );
+	C.lineTo( w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
+		  h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1] );
+	C.stroke();
+*/
+
+/*
+  // Fill an arc at endpoints for extra 19 bytes
+	C.beginPath();
+	C.arc( w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
+	       h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1],
+	       (PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2)/2/2,
+	       0,7);
+	C.fill()
+	C.lineWidth = (PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2)/2
+	C.beginPath();
+	C.moveTo( w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
+		  h/2 - PERSPECTIVE_Fp2 * h / p1[2] * p1[1] );
+	C.lineTo( w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
+		  h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1] );
 	C.stroke();
 */
     }
