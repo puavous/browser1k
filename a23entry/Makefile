@@ -53,9 +53,12 @@ $(PROD_NAME).compo.html: tmp.closured.js
 
 # Remove all debugging code, minify and pack everything.
 tmp.closured.js: tmp.bulk.compo.js
+	# Use tail and head to remove 'function(){...}();' used to guide Closure
 	cat tmp.bulk.compo.js \
 		| sed -f $(LMAD1)/tools/prep.sed \
-		| $(CLOS) --assume_function_wrapper --strict_mode_input=false > tmp.closured.js
+		| $(CLOS) --assume_function_wrapper --strict_mode_input=false \
+		| tail -c+13 | head -c-6 \
+		> tmp.closured.js
 
 	 # Some compression profiling for fun - if you wanna you canna..
 	 # results are approximate, not same as Pnginator output.
