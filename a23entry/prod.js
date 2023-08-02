@@ -750,8 +750,8 @@ var idea_trees1 = (t,w,h,C) => {
 
     // Viewpoints. Will be circulated one after the other:
     var vps = [
-        [[0,44,-40], 1-t/40, 1-Math.sin(t/DURATION_SECONDS*3.5), 2 * h], // slowly-to-and-from-view
-        [[0,130-2*(t+10),-130+2*(t+10)], 0, -Math.PI/5+(t-10)/200, 2 * h], // descend from the air
+        [[0,44,-40], 0, 1-Math.sin(t/20 /*/DURATION_SECONDS*3.5*/ ), 2 * h], // slowly-to-and-from-view
+        [[0,130-2*(t+10),-130+2*(t+10)], 0, t/44-1, 2 * h], // descend from the air
 	[[(t-46),5,3], t/6, Math.PI/2, h], // look up, spinning, walk a bit
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
@@ -796,7 +796,7 @@ var idea_trees1 = (t,w,h,C) => {
   // And, well, inlining the whole stroke thing gets 100 bytes away and
   // looks reeeally ok from far away.. but brakes down in close perspective shots..
 
-	C.lineWidth = persp / p1[2] * s1 + persp / p2[2] * s2
+	C.lineWidth = persp / p1[2] * s1 + persp / p2[2] * s2;
 	C.lineCap = "round";  // Round caps for +10 bytes. Clip z must be >0
 	C.beginPath();
 	C.moveTo( w/2 + persp / p1[2] * p1[0] ,
