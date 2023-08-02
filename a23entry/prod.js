@@ -220,6 +220,7 @@ var audio_sample = (t) => {
     var now = aat(t);
     //var past = delay[(t-.33)*A.sampleRate|0]||0;
     var past = delay[(t-.5)*A.sampleRate|0]||0;
+    //var gone = t>60?0:t<26?0:aat(t-26); return delay[t*A.sampleRate|0] = now/3 - .7*past + .2*gone;
     //var past = delay[(t-1)*A.sampleRate|0]||0;
     //var last = delay[(t*A.sampleRate|0)-1]||0;
     return delay[t*A.sampleRate|0] = now/3 - .8*past;
