@@ -193,7 +193,7 @@ random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
 // the implementation-defined Math.random():
 //var rnd=()=>Math.random();
 
-
+delay=[];
 // Audio content for this show ---------------
 // audio_sample() will be called for each sample. t is time in seconds.
 var aat = (t) => {
@@ -201,8 +201,9 @@ var aat = (t) => {
 }
 
 var audio_sample = (t) => {
-    // Go from beep again..
-    return (t > DURATION_SECONDS)?0 : ( aat(t)/2 + aat(t-1)/4 + aat(t-2)/8 );
+    var now = aat(t);
+    var past = delay[(t-1)*A.sampleRate|0]||0;
+    return delay[t*A.sampleRate|0] = (t > DURATION_SECONDS)?0 : now/2 + past/4;
 };
 
 
