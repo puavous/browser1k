@@ -744,17 +744,17 @@ var idea_trees1 = (t,w,h,C) => {
     //var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
     //var pos=[0,130-2*t,-130+2*t], pan=0, tilt=-Math.PI/5+t/200; // descend from the air
 
-    // Viewpoints:
+    // Viewpoints. Will be circulated one after the other:
     var vps = [
-        [[0,43,-40], 1-t/60, 1-t/25], // slowly-to-view (TODO: Could be also from-view?!)
-        [[0,130-2*(t-10),-130+2*(t-10)], 0, -Math.PI/5+(t-10)/200], // descend from the air
+        [[0,43,-40], 1-t/40, 1-Math.sin(t/DURATION_SECONDS*3.6)], // slowly-to-and-from-view (TODO: Could be also from-view?!)
+        [[0,130-2*(t-00),-130+2*(t-00)], 0, -Math.PI/5+(t-10)/200], // descend from the air
 	[[4+(t-46),4,4], t/6, Math.PI/2], // look up, spinning, walk a bit
-	[[0,-30,0], 0, -Math.PI/2] // look down down down (see nothing)
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
     ]
 
-    var [pos,pan,tilt] = vps[t/23%4|0];
+    var [pos,pan,tilt] = vps[t/20%3|0];
+    //var [pos,pan,tilt] = vps[0];
     
     // Observation: The upwards looking shots would benefit from a different FOV setting
     // than the others. Think about making the camera more flexible..
