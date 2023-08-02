@@ -224,6 +224,8 @@ var audio_sample = (t) => {
     //var last = delay[(t*A.sampleRate|0)-1]||0;
     return delay[t*A.sampleRate|0] = now/3 - .8*past;
     //return delay[t*A.sampleRate|0] = .1*now + .6*last - .3*past;
+    //return aat(t)/3+aat(t-1)/4+aat(t-2)/6+aat(t-3)/8; // fake delay if desparate
+
 };
 
 
