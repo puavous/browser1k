@@ -25,7 +25,7 @@
 // Assume this much provided on surrounding HTML, as is by pnginator, or
 // other carrier: '<html><body><canvas id="c" /><script>' in the html..
 
-const DURATION_SECONDS = 62;
+const DURATION_SECONDS = 69;
 const AUDIO_BUFSIZE = 2048;
 const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 // Values for some fovY->PERSPECTIVE_F:
@@ -721,12 +721,12 @@ var pigs = (pos, dir, stepsleft, smax) => {
 var idea_trees1 = (t,w,h,C) => {
 
     stuffpoints = [];
-    random_state = 6;
+    random_state = 8;
     // Always put one tree in center?
-    for (var itree = 0; itree<10; itree++){
+    for (var itree = 0; itree<13; itree++){
 	var inis = 25+5*crnd();
 	//twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)], [0,4,0,0], inis, 30);
-	twigs([20*crnd(), 0, 20*crnd()], [0,4,0,0], inis, 30);
+	twigs([25*crnd(), 0, 25*crnd()], [0,4,0,0], inis, 30);
 	//twigs(scale3(randvec3(),[40, 0, 40]), [0,4,0,0], inis, 30);
     }
 
@@ -741,9 +741,21 @@ var idea_trees1 = (t,w,h,C) => {
     //var pos = [1,3,30-2*t], pan = t, tilt = Math.PI/2; // wander through fast, spinning
     //var pos = [2,3,-60+2*t], pan = 0, tilt = t/DURATION_SECONDS * Math.PI; // drive through, tilting to absurd
     //var pos=[t/20,69-t,-60+t], pan=.2-t/60, tilt=.4-t/50; // tilt-to-view
-    // var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
-    var pos=[0,130-2*t,-130+2*t], pan=0, tilt=-Math.PI/5+t/200; // descend from the air
+    //var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
+    //var pos=[0,130-2*t,-130+2*t], pan=0, tilt=-Math.PI/5+t/200; // descend from the air
 
+    // Viewpoints:
+    var vps = [
+        [[0,43,-40], 1-t/60, 1-t/25], // slowly-to-view (TODO: Could be also from-view?!)
+        [[0,130-2*(t-10),-130+2*(t-10)], 0, -Math.PI/5+(t-10)/200], // descend from the air
+	[[4+(t-46),4,4], t/6, Math.PI/2], // look up, spinning, walk a bit
+	[[0,-30,0], 0, -Math.PI/2] // look down down down (see nothing)
+	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
+	
+    ]
+
+    var [pos,pan,tilt] = vps[t/23%4|0];
+    
     // Observation: The upwards looking shots would benefit from a different FOV setting
     // than the others. Think about making the camera more flexible..
 
