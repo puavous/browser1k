@@ -197,13 +197,13 @@ var delay=[];
 // Audio content for this show ---------------
 // audio_sample() will be called for each sample. t is time in seconds.
 var aat = (t) => {
-    return ((4*t|0)%2) * Math.sin([220,330][(t/4|0)%2]*6.28*t *(((2*t) % 6)|0) );
+    return (t > DURATION_SECONDS)?0 : ((4*t|0)%2) * Math.sin([220,330][(t/4|0)%2]*6.28*t *(((2*t) % 6)|0) );
 }
 
 var audio_sample = (t) => {
     var now = aat(t);
     var past = delay[(t-1)*A.sampleRate|0]||0;
-    return delay[t*A.sampleRate|0] = (t > DURATION_SECONDS)?0 : now/2 + past/4;
+    return delay[t*A.sampleRate|0] = now/2 + past/4;
 };
 
 
