@@ -193,7 +193,7 @@ random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
 // the implementation-defined Math.random():
 //var rnd=()=>Math.random();
 
-delay=[];
+var delay=[];
 // Audio content for this show ---------------
 // audio_sample() will be called for each sample. t is time in seconds.
 var aat = (t) => {
