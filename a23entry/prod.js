@@ -204,6 +204,10 @@ var aat = (t) => {
     //return ((4*t|0)%2) * (((330+t*4)*t) *(((2*t) % 6)|0)%2|0) ;
 }
 
+// Note-to-self: Tried different implementations in branches audio01{,altB} and
+// decided to take altB that was 2 bytes larger but more logical with audio time.
+// (just in case I need to revisit the alternatives.. won't be pushed to public repo).
+
 var audio_sample = (t) => {
     var now = aat(t);
     //var past = delay[(t-.33)*A.sampleRate|0]||0;
