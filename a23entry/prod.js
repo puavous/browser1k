@@ -721,7 +721,7 @@ var pigs = (pos, dir, stepsleft, smax) => {
 var idea_trees1 = (t,w,h,C) => {
 
     stuffpoints = [];
-    random_state = 8;
+    random_state = 8;  // (used forest #8 to tune first camera runs but others OK..)
     // Always put one tree in center?
     for (var itree = 0; itree<13; itree++){
 	var inis = 25+5*crnd();
@@ -744,16 +744,20 @@ var idea_trees1 = (t,w,h,C) => {
     //var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
     //var pos=[0,130-2*t,-130+2*t], pan=0, tilt=-Math.PI/5+t/200; // descend from the air
 
+    // View angle in Y taken now here as a camera parameter,
+    // pre-computing "1/Math.tan(fovY/2)/2 * h" of the perspective transform.
+    // Some values: 90deg->.5*h 36deg->1.54 * h  28.07deg->2.0 * h
+
     // Viewpoints. Will be circulated one after the other:
     var vps = [
-        [[0,43,-40], 1-t/40, 1-Math.sin(t/DURATION_SECONDS*3.6)], // slowly-to-and-from-view (TODO: Could be also from-view?!)
-        [[0,130-2*(t-00),-130+2*(t-00)], 0, -Math.PI/5+(t-10)/200], // descend from the air
-	[[4+(t-46),4,4], t/6, Math.PI/2], // look up, spinning, walk a bit
+        [[0,44,-40], 1-t/40, 1-Math.sin(t/DURATION_SECONDS*3.5), 2 * h], // slowly-to-and-from-view
+        [[0,130-2*(t+10),-130+2*(t+10)], 0, -Math.PI/5+(t-10)/200, 2 * h], // descend from the air
+	[[(t-46),5,3], t/6, Math.PI/2, h], // look up, spinning, walk a bit
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
     ]
 
-    var [pos,pan,tilt] = vps[t/20%3|0];
+    var [pos,pan,tilt,persp] = vps[t/20%3|0];
     //var [pos,pan,tilt] = vps[0];
     
     // Observation: The upwards looking shots would benefit from a different FOV setting
@@ -779,25 +783,26 @@ var idea_trees1 = (t,w,h,C) => {
 //	strokeBetween(C,
 	fillBetween(C,
 //	fillCapsuleSilhouette(C,
-			      w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
-			      h/2 - PERSPECTIVE_Fp2 * h / p1[2] * p1[1] ,
-			      PERSPECTIVE_Fp2 * h / p1[2] * s1 ,
-			      w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
-			      h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1] ,
-			      PERSPECTIVE_Fp2 * h / p2[2] * s2);
+			      w/2 + persp / p1[2] * p1[0] ,
+			      h/2 - persp / p1[2] * p1[1] ,
+			      persp / p1[2] * s1 ,
+			      w/2 + persp / p2[2] * p2[0] ,
+			      h/2 - persp / p2[2] * p2[1] ,
+			      persp / p2[2] * s2);
+
 
 
 /*
   // And, well, inlining the whole stroke thing gets 100 bytes away and
   // looks reeeally ok from far away.. but brakes down in close perspective shots..
 
-	C.lineWidth = PERSPECTIVE_Fp2 * h / p1[2] * s1 + PERSPECTIVE_Fp2 * h / p2[2] * s2
+	C.lineWidth = persp / p1[2] * s1 + persp / p2[2] * s2
 	C.lineCap = "round";  // Round caps for +10 bytes. Clip z must be >0
 	C.beginPath();
-	C.moveTo( w/2 + PERSPECTIVE_Fp2 * h / p1[2] * p1[0] ,
-		  h/2 - PERSPECTIVE_Fp2 * h / p1[2] * p1[1] );
-	C.lineTo( w/2 + PERSPECTIVE_Fp2 * h / p2[2] * p2[0] ,
-		  h/2 - PERSPECTIVE_Fp2 * h / p2[2] * p2[1] );
+	C.moveTo( w/2 + persp / p1[2] * p1[0] ,
+		  h/2 - persp / p1[2] * p1[1] );
+	C.lineTo( w/2 + persp / p2[2] * p2[0] ,
+		  h/2 - persp / p2[2] * p2[1] );
 	C.stroke();
 */
     }
