@@ -65,7 +65,9 @@ var stuffpoints;
 // automatic Closure toolchain, but decreases size when applied in hand-tuning
 // phase afterwards using hand-picked symbols. Some funny interplay with the naming
 // scheme of Closure and the packing algorithm? Better not do it automatically, then?
-
+// A thing to do though, after Closure, is to add like S=Math.sin and replace S(.)
+// But it could be deeper than that. Not doing it automatically anyway because of the
+// mixed observations.
 
 // ------------- just a try.. benchmarking the usefulness of this in 1k again
 // (Ended up not using this now)
