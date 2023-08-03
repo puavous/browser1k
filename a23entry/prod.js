@@ -314,9 +314,8 @@ var rot3YthenX = (pan, tilt, p) => [
     Math.cos(tilt)*p[1] - Math.sin(tilt)*(Math.sin(pan)*p[0] + Math.cos(pan)*p[2]),
     Math.sin(tilt)*p[1] + Math.cos(tilt)*(Math.sin(pan)*p[0] + Math.cos(pan)*p[2])];
 
-// Variations that contain fewer characters but packs worse both in gzip and Brotli
+// Variations that contain fewer characters but pack worse both in gzip and Brotli
 var sincos = (rad) => [Math.sin(rad), Math.cos(rad)];
-//var rot3YthenXvar = (pan, tilt, p, cp = Math.cos(pan), sp = Math.sin(pan), ct = Math.cos(tilt), st = Math.sin(tilt)) =>
 var rot3YthenXvar = (pan, tilt, p, [sp,cp] = sincos(pan), [st,ct] = sincos(tilt)) =>
     [cp*p[0] - sp*p[2],
      ct*p[1] - st*(sp*p[0] + cp*p[2]),
