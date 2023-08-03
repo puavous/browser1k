@@ -197,6 +197,8 @@ var crnd = () => {
 var delay=[];
 // Audio content for this show ---------------
 // audio_sample() will be called for each sample. t is time in seconds.
+// aat() short for 'actual audio at time..' produces content and there's a delay
+// line in audio_sample(). Some earlier try-outs are left here, commented-out.
 var aat = (t) => {
     //return (t > DURATION_SECONDS)?0 : ((4*t|0)%2) * Math.sin([220,330][(t/4|0)%2]*6.28*t *(((2*t) % 6)|0) );
     //return ((4*t|0)%2) * Math.sin([220,330][(t/4|0)%2]*6.28*t *(((2*t) % 6)|0) );
@@ -209,11 +211,11 @@ var aat = (t) => {
     //(t%6<2)*(1-((t/3)%1)) * (((220-t*2)*t)%1) ;
     //(t%6<2)*(1-((t/3)%1)) * Math.sin((7000-(t+30)**2)*t) ; // Creepy, awkward (with unwanted pops)
     //(t%6<2)*(1-((t/3)%1)) * (((999-(t/5+8)**2)*t)%1) ;   // tried with saw wave
-    Math.max(Math.sin(t),0) * Math.sin((7000-(t+30)**2)*t) ;   // Creepy, awkward
+    Math.max(Math.sin(t),0) * Math.sin((7000-(t+30)**2)*t) ;   // Creepy, awkward, suitable
 
 }
 
-// Note-to-self: Tried different implementations in branches audio01{,altB} and
+// Note-to-self: Tried different implementations in my local branches audio01{,altB} and
 // decided to take altB that was 2 bytes larger but more logical with audio time.
 // (just in case I need to revisit the alternatives.. won't be pushed to public repo).
 
@@ -223,16 +225,18 @@ var audio_sample = (t) => {
     var past = delay[(t-.5)*A.sampleRate|0]||0;
     //var gone = t>60?0:t<26?0:aat(t-26); return delay[t*A.sampleRate|0] = now/3 - .7*past + .2*gone;
     //var past = delay[(t-1)*A.sampleRate|0]||0;
-    //var last = delay[(t*A.sampleRate|0)-1]||0;
     return delay[t*A.sampleRate|0] = now/3 - .8*past;
+    //var last = delay[(t*A.sampleRate|0)-1]||0;  // For simple filter
     //return delay[t*A.sampleRate|0] = .1*now + .6*last - .3*past;
-    //return aat(t)/3+aat(t-1)/4+aat(t-2)/6+aat(t-3)/8; // fake delay if desparate
-
+    //return aat(t)/3+aat(t-1)/4+aat(t-2)/6+aat(t-3)/8; // fake delay if desperate
 };
 
 
 
 // GFX helper functions -----------------------------------------------------------------
+// Some codes from some earlier productions just-in-case.
+// Many probably not used.. The nice thing about Closure compiler is that it leaves
+// out all the unused ones, so it is quite easy to pick-and-compare during creation.
 
 /**
  * Perspective effect without aspect ratio.
