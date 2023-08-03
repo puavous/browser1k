@@ -56,6 +56,17 @@ var A,sp;
 var stuffpoints;
 
 
+// Could do this kind of renaming, but might not spare space:
+// var Sin = Math.sin, Cos = Math.cos, Hypot = Math.hypot, Max = Math.max;
+// with(Math){var Sin = sin, Cos = cos, Hypot = hypot, Max = max, Pi=PI;}
+// Possibly the best thing to do is to just unwrap and inline a lot?
+//
+// Nooo... this one remains a mystery: Seems to increase zipped size when used in the
+// automatic Closure toolchain, but decreases size when applied in hand-tuning
+// phase afterwards using hand-picked symbols. Some funny interplay with the naming
+// scheme of Closure and the packing algorithm? Better not do it automatically, then?
+
+
 // ------------- just a try.. benchmarking the usefulness of this in 1k again
 // (Ended up not using this now)
 var enumerate_and_shorten_API = (obj) => {
@@ -279,9 +290,6 @@ var zsort = (a, b) => {
  * Hmm... perhaps the code won't be too long just combining from small transforms..
  *
  */
-
-// var Sin = Math.sin, Cos = Math.cos; // Could do this, but might not spare space
-// Possibly the best thing to do is to just unwrap and inline a lot
 
 // Coordinate transforms and other computations for 3-vectors. Rotation directions
 // are custom so that camera pan and tilt make most sense to me.. may or may not be
