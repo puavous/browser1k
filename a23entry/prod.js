@@ -1,17 +1,23 @@
-// Something for Assembly Summer 2023 intro compo.
+// Something for Assembly Summer 2023 1k intro compo.
 //
-// I started by warming up my old codes from 2019 with the Moetkoe
-// entry, but ended up with mostly new code..
+// This is the original, unobfuscated, code that I try to keep borderline tidy so
+// that it can be created and possibly re-used easily. It has some rudimentary
+// tools to help in content creation and debugging. And of course it has many
+// obscure size-optimizations in place.
 //
-// TODO: In the end, trick vars into pars; use with(Math); and more dirty tricks
-// (Currently, these tricks can be done manually; wins no more than 20 bytes..)
+// Observe that this could be different from the actual 1024-byte compo version
+// that is submitted to the system and shown on-site. The reason is that some
+// ultimate size optimizations may require changes / reducstions to content at
+// the very final stage after the automatic toolchain has been run and there is
+// practically no possibility to synchronize those changes back to the original.
 //
 // User interface in debug version: You can click top / bottom of canvas to
-// pause/seek the show. Add "#" to end of URL for screenshots with info hidden.
+// pause / seek the show. Adding "#" to the end of the URL hides the info bar
+// so that clean screenshots can be taken from a paused show.
 //
 // Note to self: Perhaps I should pick up using the Brotli packing
 // method, since it was allowed in Assembly Summer 2022, so probably
-// still OK (should ask, though..) It does pack much better than gzip
+// still OK (should ask, though..) It does pack much better than zip
 // and avoids all the PNG trickery that costs a lot compared to actual
 // content.
 //
@@ -27,17 +33,18 @@
 
 const DURATION_SECONDS = 69;
 const AUDIO_BUFSIZE = 2048;
+
+// Leaving these as notes for future.. I'm not using these constants anymore.
 const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 // Values for some fovY->PERSPECTIVE_F:
 // 90deg->1.0
 // 60deg->1.732 45deg->2.414 36deg->3.077 30deg->3.732 28.07deg->4.0 20deg->5.671
-
 const PERSPECTIVE_Fp2 = 2; // Pre-set "1/Math.tan(fovY/2)/2"
 
 // Random state at beginning. TODO: always initialize upon content-creation?
 var random_state = 0;
 
-// Start time of show (user click)
+// Start time of show (user click). Another thing likely not used at Asm23 eventually
 var startTimeInMillis = 0;
 
 // Global time in seconds, matching audio exactly (updated in audio callback)
@@ -50,14 +57,15 @@ var stuffpoints;
 
 
 // ------------- just a try.. benchmarking the usefulness of this in 1k again
+// (Ended up not using this now)
 var enumerate_and_shorten_API = (obj) => {
     // Apply p01's trick for grabbing short names from GL obj
     // (http://slides.com/pdesch/js-demoscene-techniques#/5/6)
     // This didn't help me earlier when trying to make a 1k..
-    // was OK for 4k using GL. saves something like 30 bytes / 4kb.
-    // Not much.. The trick itself costs some 45 bytes compressed.
-    // Once again, not very helpful for 1k.. doesn't re-assign properties
-    // which would be necessary for most size-optimizations..
+    // was OK for 4k using GL. saved something like 30 bytes / 4kb.
+    // Not much.. The trick itself costs some 45 bytes compressed with PNG.
+    // Once again, not very helpful for 1k.. doesn't re-assign writable
+    // properties which would be necessary for most size-optimizations..
     var dbgNameLists = {}; //DEBUG
     for(s in obj){
         // Instanssi 2023 still had: gl[s.match(/^..|[A-Z]|\d\D+$/g).join('')]=gl[s];
@@ -105,7 +113,7 @@ var dbg_ms_at_last_seek = 0;    //DEBUG
 var dbg_t_at_seek = 0;          //DEBUG
 var dbg_paused = false;         //DEBUG
 
-// Return time in seconds when using the debug seek.
+/** Returns time in seconds when using the debug seek. */
 var debug_upd_time = function(curTimeInMillis) {
     if (!dbg_ms_at_last_seek) dbg_ms_at_last_seek = startTimeInMillis;
     const ms_since_seek = dbg_paused ? 0:(curTimeInMillis - dbg_ms_at_last_seek);
@@ -133,7 +141,7 @@ var debug_seek = function(e) {
     dbg_frames_drawn = 0;
 }
 
-// Debug information per frame, drawn on 2d context ctx at time t.
+/** Debug information per frame, drawn on 2d context ctx at time t. */
 var debug_information = (ctx, t, w, h, msg = '') => {
     /* Omit info if the URL ends in '#'. Use for tidy screenshots...  */
     if (window.location.href.slice(-1) == '#') return;
@@ -170,6 +178,7 @@ This version is skewed, ranges to almost 1.0 but not quite.. 0x400000 == 4194304
 // Note: Closure compiler inlines this everywhere. Some bytes shorter pack if
 // use the below function and then manually convert its definition to
 // "p=()=>(r=16807*r+1&0x3fffff)/42E5;" where p and r are names by Closure.
+// There might be a neater way to disable inlining, but I didn't go looking for one.
 
 // Version that doesn't go inline everywhere:
 var rnd = () => {
@@ -181,16 +190,8 @@ var crnd = () => {
     random_state = (16807 * random_state + 1) & 0x3fffff; return random_state / 2100000 - 1;
 }
 
-// Old version:
-/*
-function rnd(){
-random_state = (16807 * random_state + 1) & 0x3fffff; //0x400000;
-    return random_state / 4200000; // almost get 1.0 but not quite..
-}
-*/
-
-// If 20 bytes costs too much, or need "just noise", can switch to
-// the implementation-defined Math.random():
+// If 20 bytes costs too much, or need "just noise", can switch to the 
+// implementation-defined Math.random() that always returns different numbers by spec:
 //var rnd=()=>Math.random();
 
 var delay=[];
