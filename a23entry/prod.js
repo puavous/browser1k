@@ -723,8 +723,9 @@ var idea_trees1 = (t,w,h,C) => {
     stuffpoints = [];
     random_state = 8;  // (used forest #8 to tune first camera runs but others OK..)
     // Always put one tree in center?
-    for (var itree = 0; itree<13; itree++){
-	var inis = 25+5*crnd();
+    for (var itree = 13; itree--;){
+	//var inis = 25+5*crnd();
+	var inis = 25;
 	//twigs([itree*(6*rnd()-3), 0, itree*(6*rnd()-3)], [0,4,0,0], inis, 30);
 	twigs([25*crnd(), 0, 25*crnd()], [0,4,0,0], inis, 30);
 	//twigs(scale3(randvec3(),[40, 0, 40]), [0,4,0,0], inis, 30);
@@ -751,7 +752,8 @@ var idea_trees1 = (t,w,h,C) => {
     // Viewpoints. Will be circulated one after the other:
     var vps = [
         [[0,44,-40], 0, 1-Math.sin(t/20 /*/DURATION_SECONDS*3.5*/ ), 2 * h], // slowly-to-and-from-view
-        [[0,130-2*(t+10),-130+2*(t+10)], 0, t/44-1, 2 * h], // descend from the air
+        //[[0,130-2*(t+10),-130+2*(t+10)], 0, t/40-1, 2 * h], // descend from the air
+	[[0,110-2*t,-110+2*t], 0, t/40-1, 2 * h], // descend from the air
 	[[(t-46),5,3], t/6, Math.PI/2, h], // look up, spinning, walk a bit
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
