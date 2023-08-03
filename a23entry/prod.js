@@ -308,12 +308,6 @@ var randvec3alt = () => [crnd()/2, crnd()/2, crnd()/2];
 /** Return a new vector with uniform randoms from [-1,1] */
 var randvec3 = () => [crnd(), crnd(), crnd()];
 
-
-/** Add noise to v, from uniform distribution [-delta,delta] */
-var perturb3 = (delta, v) => [v[0]+delta*(rnd()-.5),
-			      v[1]+delta*(rnd()-.5),
-			      v[2]+delta*(rnd()-.5)];
-
 /** Combine pan and tilt (tiltable cam on rotating stand..) */
 var rot3YthenX = (pan, tilt, p) => [
     Math.cos(pan)*p[0] - Math.sin(pan)*p[2],
