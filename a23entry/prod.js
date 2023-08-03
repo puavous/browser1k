@@ -279,18 +279,7 @@ var zsort = (a, b) => {
 /*
  * Assume a scene is built into an array of objects. Plan would be to modify
  * coordinates in-place to get camera at (x,y,z) with rotations a and b for
- * "pan" and "tilt". Leave 4th value unhanged, so it could carry information
- * about the object other than its coordinates..
- * Transformation is Rx(b)Ry(a)T(xyx), probably easiest to compute usual way.
- *
- *
- * 1     0     0 0     s(a)   0  c(a)  0       1 0 0 x
- * 0  s(b)  c(b) 0        0   1     0  0       0 1 0 y
- * 0  c(b) -s(b) 0     c(a)   0 -s(a)  0       0 0 1 z
- * 0             1        0   0     0  1       0 0 0 1 ..
- *
- * Hmm... perhaps the code won't be too long just combining from small transforms..
- *
+ * "pan" and "tilt".
  */
 
 // Coordinate transforms and other computations for 3-vectors. Rotation directions
