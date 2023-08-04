@@ -42,7 +42,7 @@ const PERSPECTIVE_F = 3; // The "1/Math.tan(fovY/2)"
 const PERSPECTIVE_Fp2 = 2; // Pre-set "1/Math.tan(fovY/2)/2"
 
 // Random state at beginning. TODO: always initialize upon content-creation?
-var random_state = 0;
+var random_state; // = 0;
 
 // Start time of show (user click). Another thing likely not used at Asm23 eventually
 var startTimeInMillis = 0;
@@ -555,7 +555,13 @@ var idea_trees1 = (t,w,h,C) => {
 	[[0,110-2*t,-110+2*t], 0, t/40-1, 2 * h], // descend from the air
 	[[(t-46),6,2.5], t/6, Math.PI/2, h], // look up, spinning, walk a bit
         //[[0,-80+2*t,40-t], -1-(t-60)/20, (t-60)/10, 2 * h], // away-from-view
-	[[0,10-(t-60)/2,-30+(t-60)*6], -(t-60)/10, (t-60)/20, 2*h], // away-from-view
+
+	//[[0,10-t/2+30,-30+(t-60)*8], -t/6+10, t/20-3, 2*h], // away-from-view
+	//[[0,10-(t-60)/2,-30+(t-60)*8], -t/6+10, t/20-3, 2*h], // away-from-view
+
+	//[[0,10-(t-60)/2,-30+(t-60)*8], -(t-60)/6, (t-60)/20, 2*h], // away-from-view
+	[[0,10-(t-60)/2,-30+(t-60)*6], -(t-60)/9, (t-60)/20, 2*h], // away-from-view
+
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
     ]
