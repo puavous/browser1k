@@ -236,9 +236,9 @@ var audio_sample = (t) => {
     var now = aat(t);
     //var past = delay[(t-.33)*A.sampleRate|0]||0;
     var past = delay[(t-.5)*A.sampleRate|0]||0;
-    //var gone = t>60?0:t<26?0:aat(t-26); return delay[t*A.sampleRate|0] = now/3 - .7*past + .2*gone;
+    var gone = t>60?0:t<26?0:aat(t-26); return delay[t*A.sampleRate|0] = now/3 - .7*past + .2*gone;
     //var past = delay[(t-1)*A.sampleRate|0]||0;
-    return delay[t*A.sampleRate|0] = now/3 - .8*past;
+    //return delay[t*A.sampleRate|0] = now/3 - .8*past;
     //var last = delay[(t*A.sampleRate|0)-1]||0;  // For simple filter
     //return delay[t*A.sampleRate|0] = .1*now + .6*last - .3*past;
     //return aat(t)/3+aat(t-1)/4+aat(t-2)/6+aat(t-3)/8; // fake delay if desperate
@@ -552,7 +552,7 @@ var idea_trees1 = (t,w,h,C) => {
         [[0,44,-40], 0, 1-Math.sin(t/20 /*/DURATION_SECONDS*3.5*/ ), 2 * h], // slowly-to-and-from-view
         //[[0,130-2*(t+10),-130+2*(t+10)], 0, t/40-1, 2 * h], // descend from the air
 	[[0,110-2*t,-110+2*t], 0, t/40-1, 2 * h], // descend from the air
-	[[(t-46),5,3], t/6, Math.PI/2, h], // look up, spinning, walk a bit
+	[[(t-46),6,2.5], t/6, Math.PI/2, h], // look up, spinning, walk a bit
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
     ]
@@ -619,10 +619,10 @@ var animation_frame = (t,
     // A static one-color background would be very cheap
     //C.fillStyle="#fff"; C.fillRect(0, 0, w, h);
     //C.fillStyle="#cdf"; C.fillRect(0, 0, w, h);
-    C.fillStyle="#ffe"; C.fillRect(0, 0, w, h);
+    //C.fillStyle="#ffe"; C.fillRect(0, 0, w, h);
 
     //idea_sky0(t,w,h,C);     // Single color, but changes over time. +60 bytes?!
-    //idea_sky1(t,w,h,C);     // A gradient would be sweet, but it costs a lot.
+    idea_sky1(t,w,h,C);     // A gradient would be sweet, but it costs a lot.
     //idea_hills2(t,w,h,C);
     //idea_blobs3a(t,w,h,C);  // capsule minitest
     idea_trees1(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
