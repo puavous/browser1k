@@ -9,7 +9,7 @@ Author: qma
 
 (also known as "The Old Dude" in Instanssi contexts and Paavo Nieminen
 in real life. The one currently with the Faculty of Information
-Technology, University of Jyväskylä; email and phone number will be
+Technology, University of Jyvaskyla; email and phone number will be
 easily found with these clues. Happy to be in contact about anything.)
 
 ** Further credits
@@ -19,7 +19,7 @@ inspiration and learnings about the craziest size minification tricks.
 I succumbed to the temptation of using Brotli for packing, like p01
 showed us last year.
 
-By the way, I'll include a Brotli-less version in the zíp, as a
+By the way, I'll include a Brotli-less version in the zip, as a
 comparison to what I initially was about to let go of the content
 using png packing..
 
@@ -59,11 +59,10 @@ https://github.com/puavous/browser1k
 I use (with the compo organizers' kind permission), the Brotli packing
 trick introduced by p01 last year. Therefore the intro web page must
 come from a server that attaches a content encoding header. I include
-the same mini server that p01 used last year, and to give credit to
-where it needs to go, I named it accordingly. To run the intro from a
-local machine, launch the server like this:
+the same kind of mini server that p01 used last year. To run the intro
+from a local machine, launch the server like this:
 
-  node p01s_mini-server.js
+  node mini-server.js
 
 Then take your browser to the elite port provided by the server:
 
@@ -76,7 +75,9 @@ so there will be no "Press ESC to exit fullscreen" or such message in
 the beginning.
 
 Alternatively you can view the debug version. It is the same show but
-with original non-minimized source with comments and bells and whistles.
+with original non-minimized source with comments and bells and
+whistles. To hide the info bar in the bottom of the screen, add "#" to
+the end of the address of the debug version.
 
 
 ** Additional reduced version using pnginator
@@ -93,8 +94,3 @@ insecure:
 I guess the show needs a lot of processing power. I'm developing on a
 pretty heavy duty laptop and haven't benchmarked slower machines.
 Slowdown and audio crackling is quite likely on lighter equipment.
-
-Actually, 2 hours before the compo deadline I realize that Chrome and
-Edge will hick-up at one point if I view a downloaded version. I hope
-that the compo version at Assembly can be recorded for example using
-the Chrome invocation above if other methods would glitch..
