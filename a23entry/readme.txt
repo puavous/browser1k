@@ -2,7 +2,7 @@
 
 An entry to Assembly Summer 2023 1k Intro competition.
 
-1024 bytes of appreciation to the event, its people, and its
+1023 bytes of appreciation to the event, its people, and its
 surroundings.
 
 Author: qma
@@ -16,11 +16,12 @@ easily found with these clues. Happy to be in contact about anything.)
 
 As always with anything Javascript, I must specifically thank p01 for
 inspiration and learnings about the craziest size minification tricks.
-Although, I'm probably not going to use Brotli yet this year.. being a
-masochist in that, even though they would've allowed it at Assembly
-once again. Thanks to the Compo Crew for communications regarding
-Brotli. The tempting 30% more content.. the temptation, the
-temptation.. maybe at a later compo.
+I succumbed to the temptation of using Brotli for packing, like p01
+showed us last year.
+
+By the way, I'll include a Brotli-less version in the zíp, as a
+comparison to what I initially was about to let go of the content
+using png packing..
 
 ** The story behind
 
@@ -30,10 +31,7 @@ summer holidays 2023 jogging long runs at midnight and looking at
 forests against skies after sunset. Streetlights were off to save
 energy, and the landscapes were pretty. Another inspiration is the
 Vallila print pattern Kelohonka by Tanja Orsjoki. I wanted to get
-something similar on screen, animated. Would look nicer with
-sunset-colored gradient backgrounds, but, well, can't fit everything
-in 1k, can I... with Brotli maybe, but opting out this time.. Attempts
-to that direction can be found in the source codes that are available.
+something similar on screen, animated.
 
 Now, being at Assembly, I discover a connection with dear, sometimes
 little fuzzy, memories from the certain little forest hill in Pasila
@@ -44,9 +42,7 @@ like it :).
 
 ** Tools used
 
-HTML Canvas, Javascript, PNGinator, zopfli, memories of Pasila woods
-
-(No piece of Brotli was eaten this time; maybe at a later compo:))
+HTML Canvas, Javascript, Brotli, memories of the real Pasila woods
 
 ** Source code
 
@@ -60,15 +56,39 @@ https://github.com/puavous/browser1k
 
 ** Instructions on how to view
 
+I use (with the compo organizers' kind permission), the Brotli packing
+trick introduced by p01 last year. Therefore the intro web page must
+come from a server that attaches a content encoding header. I include
+the same mini server that p01 used last year, and to give credit to
+where it needs to go, I named it accordingly. To run the intro from a
+local machine, launch the server like this:
+
+  node p01s_mini-server.js
+
+Then take your browser to the elite port provided by the server:
+
+  http://localhost:1337/
+
+Click in the window exactly once to launch the intro. Enjoy the woods
+experience. The intro will automatically go to fullscreen and hide the
+mouse cursor. I would appreciate if you full screen manually before,
+so there will be no "Press ESC to exit fullscreen" or such message in
+the beginning.
+
+Alternatively you can view the debug version. It is the same show but
+with original non-minimized source with comments and bells and whistles.
+
+
+** Additional reduced version using pnginator
+
+I put into the package also a reduced lo-fi version using pnginator.
+
 Browsers don't allow the PNG compression trick from a file system
 source.  Use a web server or insecure browser session without CORS. In
 July 2023, the following invocation works for Chrome, makes it
 insecure:
 
 "chrome.exe --disable-web-security --disable-gpu --user-data-dir=C:\\tmp\\chromeTemp"
-
-Please, go to fullscreen, click once, and move the mouse cursor away
-when showing.
 
 I guess the show needs a lot of processing power. I'm developing on a
 pretty heavy duty laptop and haven't benchmarked slower machines.
