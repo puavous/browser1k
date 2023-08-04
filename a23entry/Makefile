@@ -24,7 +24,7 @@ include Settings.mk
 
 
 # Compo entry package:
-$(PROD_NAME_FULL)_by_$(PROD_AUTHOR).zip: $(PROD_NAME).compo.html $(PROD_NAME).debug.html $(NFO_NAME)
+$(PROD_NAME_FULL)_by_$(PROD_AUTHOR).zip: $(PROD_NAME).compo.html $(PROD_NAME).debug.html $(NFO_NAME) screenshot.png
 	zip -j $@ $^
 
 # Order matters because of catenation etc:

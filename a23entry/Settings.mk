@@ -14,7 +14,7 @@ PROD_NAME_FULL=Memories_From_Pasila_Woods_1k
 PROD_AUTHOR=qma
 
 # info file name
-NFO_NAME=Readme.md
+NFO_NAME=readme.txt
 
 
 ## Change these to match your local installation directories...
