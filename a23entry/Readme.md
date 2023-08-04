@@ -73,3 +73,8 @@ when showing.
 I guess the show needs a lot of processing power. I'm developing on a
 pretty heavy duty laptop and haven't benchmarked slower machines.
 Slowdown and audio crackling is quite likely on lighter equipment.
+
+Actually, 2 hours before the compo deadline I realize that Chrome and
+Edge will hick-up at one point if I view a downloaded version. I hope
+that the compo version at Assembly can be recorded for example using
+the Chrome invocation above if other methods would glitch..
