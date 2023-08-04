@@ -5,10 +5,10 @@
 ## Change these to match your own production:
 
 # A short name of the production, used in generated file names (don't use spaces!)
-PROD_NAME=example
+PROD_NAME=pasilawoods
 
 # A "full" name of the production, used in zip package name (don't use spaces!)
-PROD_NAME_FULL=Example_1k
+PROD_NAME_FULL=Memories_From_Pasila_Woods_1k
 
 # Your handle/nickname, also included in the zip package name (don't use spaces!)
 PROD_AUTHOR=qma
