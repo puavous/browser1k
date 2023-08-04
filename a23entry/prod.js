@@ -553,11 +553,12 @@ var idea_trees1 = (t,w,h,C) => {
         //[[0,130-2*(t+10),-130+2*(t+10)], 0, t/40-1, 2 * h], // descend from the air
 	[[0,110-2*t,-110+2*t], 0, t/40-1, 2 * h], // descend from the air
 	[[(t-46),6,2.5], t/6, Math.PI/2, h], // look up, spinning, walk a bit
+        [[0,44,-40], -1-(t-60)/20, (t-60)/10, 2 * h], // away-from-view
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
     ]
 
-    var [pos,pan,tilt,persp] = vps[t/20%3|0];
+    var [pos,pan,tilt,persp] = vps[t/20%4|0];
     //var [pos,pan,tilt] = vps[0];
 
     //Sort not necessary if we draw silhouette only. With more bytes, could have fog etc.
@@ -667,7 +668,7 @@ onclick = () => {
 	if (dbg_paused) {for(let isamp in outbuf) outbuf[isamp] = 0; return;} // DEBUG
 	for (e in outbuf) outbuf[e] = audio_sample(audio_time += 1 / A.sampleRate);
 	// Graphics update from audio callback. Very dirty but might need those bytes:
-	// animation_frame(audio_time);
+	//animation_frame(audio_time);
     };
 
     // First call to animation will set up requestAnimationFrame:
