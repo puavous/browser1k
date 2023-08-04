@@ -387,210 +387,7 @@ var idea_sky0 = (t,w,h,C) => {
     C.fillRect(0, 0, w, h);
 }
 
-/* "Brownian hills forever"... An early idea, abandoned when I got the tree idea..
- * Maybe get back to this at some later compo. You'll have to allow this much of
- * pre-publication in case I do..
- */
-var idea_hills2 = (t,w,h,C) => {
-    var gradient;
-    const d = (t/DURATION_SECONDS);
 
-    // Sky
-    gradient = C.createLinearGradient(0,0,0,h);
-    gradient.addColorStop(0, "#115");
-    gradient.addColorStop(.3, "#abc");
-    gradient.addColorStop(.5, "#edd");
-    C.fillStyle=gradient;
-    C.fillRect(0, 0, w, h);
-
-    // Setting / rising sun ..
-    gradient = C.createRadialGradient(w/2, h-d*h, 0, w/2, h-d*h, h);
-    gradient.addColorStop(0, "#fff");
-    gradient.addColorStop(.05, "#fff");
-    gradient.addColorStop(.1, "#ff1");
-    gradient.addColorStop(.2, "#ff8");
-    gradient.addColorStop(1, "#fff0");
-    C.fillStyle=gradient;
-
-    C.fillRect(0, 0, w, h);
-
-    // Hills, hills, hills, maybe with fir kinda forest
-    for(var iz = 5; iz > 0; iz--){
-
-	// Blur looks really nice but slows down large shape painting a lot..
-	//C.filter = "blur("+iz/2+"px";
-	gradient = C.createLinearGradient(0,0,0,h);
-	gradient.addColorStop(0, "#26" + " 57acd"[iz]);
-	gradient.addColorStop(1, "#131");
-	C.fillStyle=gradient;
-
-	C.beginPath();
-	C.moveTo(w,h);
-	C.lineTo(0,h);
-	var bm = 0, bd = h/99/iz;
-	random_state = iz;
-	for(var ix = w/2 - 2*h - h*t/(9*iz); ix < w/2 + 2*h; ix += h/400){
-	    bm += rnd() < .5 ? bd : -bd;
-	    C.lineTo(ix, h/2 - bm - iz*h/20);
-	}
-	C.fill();
-    }
-}
-
-
-
-/**
-  Draw a silhouette of a 'capsule'. As a 2d projection that is
-  two circles for the round ends and the area between their outer tangents.
-  These three Components overlap; I'll leave it as a later exercise to figure
-  out correct angles for the arcs so that each pixel would get painted only once.
-
-  Compute first; draw then. Algorithm is eventually made from "first
-  principles", solving simplest kinds of equations. This time the
-  Internet didn't have it all figured out for me... Most stuff seemed
-  to be overly general or use a geometric approach not easily adapted
-  to this code and specific purpose. Wikipedia, for example, has some
-  starters about what goes on with the tangents here:
-  https://en.wikipedia.org/wiki/Tangent_lines_to_circles
-    
-  Notes on my latest Javascript learnings: NaNs are valid inputs for Canvas path
-  operations. Such NaN-op doesn't alter the path. So, 0/0 is a good intermediate
-  computation for intentional no-outputs. Infinities fine too.
-
-  Specifically: Infinity is a fine value for parallel lines.
-  NaN is a fine value for |r1-r2| > cdist (circle encloses other).
-
-  These observations provide quite straightforward code, but then it probably
-  has to be made dirty and obscure again by micro-optimizations for the 1k intro
-  madness, eventually..
-*/
-var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
-    // Actual Distance between circles in screen coordinates.
-    var cdist = Math.hypot(cx2-cx1, cy2-cy1);
-
-    // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
-    var ux = (cx2 - cx1)/cdist;
-    var uy = (cy2 - cy1)/cdist;
-    
-    // Unit vector orthogonal to (ux,uy)
-    var [vx,vy,] = cross3([ux, uy, 0], [0, 0, 1]);
-    
-    // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
-    // Assuming circles are on x-axis; I'll project them to u,v afterwards.
-    // Then I could solve it with pen, paper and my rusty math brain:
-    var d = cdist / (r1 - r2);
-    var tx = 1/d;
-    var ty = Math.sqrt(1 - 1/d/d);
-    
-    // (tx,ty) now in unit circle coords. Back to actual coordinates..
-    var p1x = tx*r1;
-    var p1y = ty*r1;
-    var p2x = tx*r2;
-    var p2y = ty*r2;
-
-    C.beginPath();
-    C.arc(cx1, cy1, r1, 0, 7);
-    C.arc(cx2, cy2, r2, 0, 7);
-    C.fill();
-    
-    C.beginPath();
-    C.moveTo(cx1 + p1x * ux + p1y * uy,   cy1 + p1x * vx + p1y * vy);
-    C.lineTo(cx2 + p2x * ux + p2y * uy,   cy2 + p2x * vx + p2y * vy);
-    C.lineTo(cx2 + p2x * ux - p2y * uy,   cy2 + p2x * vx - p2y * vy);
-    C.lineTo(cx1 + p1x * ux - p1y * uy,   cy1 + p1x * vx - p1y * vy);
-    C.fill();
-
-}
-
-
-/** It is almost impossible (at least for me) to decrypt this version; see
-above original version to see what's going on.
-*/
-var fillCapsuleSilhouette_level_2_obfuscation = (C, cx1, cy1, r1, cx2, cy2, r2) => {
-    // Actual Distance between circles in screen coordinates.
-    var d = Math.hypot(cx2 - cx1, cy2 - cy1);
-    //var cdist = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
-
-    // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
-    var ux = (cx2 - cx1) / d;
-    var uy = (cy2 - cy1) / d;
-    
-    // Unit vector orthogonal to (ux,uy). Damn.. rotate 90 degrees, be done..
-    // var [vx,vy] = [uy, -ux];
-    // And.. it is such a small op, so it is inlined below.. Destroying legibility.
-    
-    // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
-    // Assuming circles are on x-axis; I'll project them to u,v afterwards.
-    // Then I could solve it with pen, paper and my rusty math brain:
-    var D = d / (r1 - r2);
-
-    // var [tx, ty] = [1 / D,  Math.sqrt(1 - 1/ D / D)];
-
-    // (tx,ty) now in unit circle coords. Back to actual coordinates..
-    var p1x = r1/D;
-    var p1y = r1/D*Math.sqrt(D*D-1);  // ty*r1 applying some basic algebra
-    var p2x = r2/D;
-    var p2y = r2/D*Math.sqrt(D*D-1);  // ty*r2
-
-    C.beginPath();
-    C.arc(cx1, cy1, r1, 0, 7);
-    C.arc(cx2, cy2, r2, 0, 7);
-    C.fill();
-    
-    C.beginPath();
-    C.moveTo(cx1 + p1x * ux + p1y * uy,   cy1 + p1x * uy - p1y * ux);
-    C.lineTo(cx2 + p2x * ux + p2y * uy,   cy2 + p2x * uy - p2y * ux);
-    C.lineTo(cx2 + p2x * ux - p2y * uy,   cy2 + p2x * uy + p2y * ux);
-    C.lineTo(cx1 + p1x * ux - p1y * uy,   cy1 + p1x * uy + p1y * ux);
-    C.fill();
-
-}
-
-
-/** Level 3 obscurity... */
-var fillCapsuleSilhouette_lev3 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
-    
-    // Actual Distance between circles in screen coordinates.
-    var d = Math.hypot(cx2 - cx1, cy2 - cy1);
-    //var d = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
-
-    // Difference of radii divided by distance:
-    var I = (r1 - r2) / d;
-
-    // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
-    //    var ux = (cx2 - cx1) / d, uy = (cy2 - cy1) / d;
-    
-    // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
-    // Assuming circles are on x-axis; I'll project them to u,v afterwards.
-    // Then I could solve it with pen, paper and my rusty math brain:
-//    var D = d / (r1 - r2);
-
-    // (tx,ty) now in unit circle coords. Back to actual coordinates..
-//    var p1x = r1/D;
-//  var p1y = r1/D*Math.sqrt(D*D-1);
-    var a = Math.sqrt(1 - 1 * I*I);
-//    var p1y = r1*a;
-//    var p2x = r2/D;
-//    var p2y = r2/D*Math.sqrt(D*D-1);
-//    var p2y = r2*a;
-
-    C.beginPath();
-    C.arc(cx1, cy1, r1, 0, 7);
-    C.arc(cx2, cy2, r2, 0, 7);
-    C.fill();
-
-    C.beginPath();
-    C.moveTo( cx1  +  r1*I * (cx2 - cx1) /d  +  r1*a * (cy2 - cy1) /d,
-	      cy1  +  r1*I * (cy2 - cy1) /d  -  r1*a * (cx2 - cx1) /d);
-    C.lineTo( cx2  +  r2*I * (cx2 - cx1) /d  +  r2*a * (cy2 - cy1) /d,
-	      cy2  +  r2*I * (cy2 - cy1) /d  -  r2*a * (cx2 - cx1) /d);
-    C.lineTo( cx2  +  r2*I * (cx2 - cx1) /d  -  r2*a * (cy2 - cy1) /d,
-	      cy2  +  r2*I * (cy2 - cy1) /d  +  r2*a * (cx2 - cx1) /d);
-    C.lineTo( cx1  +  r1*I * (cx2 - cx1) /d  -  r1*a * (cy2 - cy1) /d,
-	      cy1  +  r1*I * (cy2 - cy1) /d  +  r1*a * (cx2 - cx1) /d);
-    C.fill();
-
-}
 
 
 /** Then, bye bye readability. See above to get any idea of how this emerged. */
@@ -673,21 +470,12 @@ var strokeBetween = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 
 
 
-/** Preliminary test of the capsule code*/
-var idea_blobs3a = (t,w,h,C) => {
-    for (var i = -5; i<6; i++){
-	C.fillStyle = "#784";
-	fillCapsuleSilhouette(C,
-			      w/2 + i*h/10, h/2, h/20,
-			      w/2 + i*h/10, h/3, h/100);
-    }
-}
-
-
-
-/** Another tree-like geometry builder. Can get quite organic looking things..
+/**
+ * A tree-like geometry builder. Can get quite organic looking things..
+ * Consists of capsule-like objects that may have different sizes of ends.
  *
  * So far, the leanest format seems to be an array of [pos1, pos2, size1, size2]
+ * This builds into a global "stuffpoints" variable that needs to be set to [] before.
  */
 var twigs = (pos, dir, stepsleft, smax) => {
     if (stepsleft < 1) return;
@@ -702,7 +490,7 @@ var twigs = (pos, dir, stepsleft, smax) => {
     //if (rnd()<(.9-stepsleft/smax)) {
     if (crnd()>.4) {
 	twigs(endp,
-	      add3(dir, randvec3(), .33, ll/3),
+	      add3(dir, randvec3(), 1/3, ll/3),
 	      stepsleft-2, smax);
     }
     // Always grow a bit to almost same direction; feel some gravity downwards:
@@ -712,17 +500,25 @@ var twigs = (pos, dir, stepsleft, smax) => {
     twigs(endp,	newd, stepsleft - 1, smax);
 }
 
-// Dummy for size estimation while building
+// Dummy for size estimation while building, to see how much tree-likeness weighs.
 var pigs = (pos, dir, stepsleft, smax) => {
     stuffpoints.push([pos, dir, 1, 0]);
 }
 
-/** Finally fixing the concept for this entry.. will have trees.. */
+/**
+ * Finally fixing the concept for this entry.. will have trees..
+ * I have always wanted to make a small intro about gloomy, eerie, woods.
+ * The idea came more clear during summer holidays 2023 jogging long runs
+ * at midnight and looking at forests against skies after sunset. Now,
+ * being at Assembly, I find out a connection with great, sometimes little fuzzy,
+ * memories from the certain little forest hill in Pasila some steps away
+ * from Assembly. This entry will represent a lot of love to forests, Finnish
+ * midnights, and good times with the demoscene community over the years.
+ */
 var idea_trees1 = (t,w,h,C) => {
 
     stuffpoints = [];
     random_state = 8;  // (used forest #8 to tune first camera runs but others OK..)
-    // Always put one tree in center?
     for (var itree = 13; itree--;){
 	//var inis = 25+5*crnd();
 	var inis = 25;
@@ -745,8 +541,10 @@ var idea_trees1 = (t,w,h,C) => {
     //var pos=[4,4,4], pan=t/6, tilt=Math.PI/2; // look up, spinning
     //var pos=[0,130-2*t,-130+2*t], pan=0, tilt=-Math.PI/5+t/200; // descend from the air
 
-    // View angle in Y taken now here as a camera parameter,
-    // pre-computing "1/Math.tan(fovY/2)/2 * h" of the perspective transform.
+    // Observation: The upwards looking shots benefit from a wider-angle FOV setting
+    // than the others. So, I'm adding perspective as part of camera parameters here.
+    // View angle in Y is pre-computed into a value that is based on viewport height h as
+    // "1/Math.tan(fovY/2)/2 * h" of the perspective transform.
     // Some values: 90deg->.5*h 36deg->1.54 * h  28.07deg->2.0 * h
 
     // Viewpoints. Will be circulated one after the other:
@@ -761,13 +559,8 @@ var idea_trees1 = (t,w,h,C) => {
 
     var [pos,pan,tilt,persp] = vps[t/20%3|0];
     //var [pos,pan,tilt] = vps[0];
-    
-    // Observation: The upwards looking shots would benefit from a different FOV setting
-    // than the others. Think about making the camera more flexible..
 
-
-
-    //Sort not necessary if we draw silhouette only.
+    //Sort not necessary if we draw silhouette only. With more bytes, could have fog etc.
     //stuffpoints.sort(zsort);
 
     for (var [p1,p2,s1,s2] of stuffpoints){
