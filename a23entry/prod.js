@@ -387,7 +387,10 @@ var idea_sky0 = (t,w,h,C) => {
     C.fillRect(0, 0, w, h);
 }
 
-/* "Brownian hills forever"... */
+/* "Brownian hills forever"... An early idea, abandoned when I got the tree idea..
+ * Maybe get back to this at some later compo. You'll have to allow this much of
+ * pre-publication in case I do..
+ */
 var idea_hills2 = (t,w,h,C) => {
     var gradient;
     const d = (t/DURATION_SECONDS);
@@ -414,7 +417,7 @@ var idea_hills2 = (t,w,h,C) => {
     // Hills, hills, hills, maybe with fir kinda forest
     for(var iz = 5; iz > 0; iz--){
 
-	// Blur looks really nice but slows down large shape painting..
+	// Blur looks really nice but slows down large shape painting a lot..
 	//C.filter = "blur("+iz/2+"px";
 	gradient = C.createLinearGradient(0,0,0,h);
 	gradient.addColorStop(0, "#26" + " 57acd"[iz]);
