@@ -19,9 +19,13 @@ inspiration and learnings about the craziest size minification tricks.
 I succumbed to the temptation of using Brotli for packing, like p01
 showed us last year.
 
-By the way, I'll include a Brotli-less version in the zip, as a
-comparison to what I initially was about to let go of the content
-using png packing..
+By the way, I'll include a Brotli-less version in the zip, so a
+comparison can be made between the actual compo version and the
+version I was initially about to submit with png packing.. The Brotli
+trick allowed inclusion of background color and a much nicer shape of
+the tree silhouettes. And no manual post-automatic minification was
+needed this time - it is exactly the same as the included debug
+version, only minified automatically with Closure compiler.
 
 ** The story behind
 
@@ -38,7 +42,7 @@ little fuzzy, memories from the certain little forest hill in Pasila
 some steps away from the main event... This entry ends up representing
 a lot of love to forests, Finnish summer midnights, and good times
 with the demoscene community over the years. Remember to vote if you
-like it :).
+like it or relate to the concept :).
 
 ** Tools used
 
@@ -52,7 +56,7 @@ next to Moetkoe from some years back:
 
 https://github.com/puavous/browser1k
 
-( Some tools needed are in https://github.com/puavous/lmad1 )
+( Some build tools needed are in https://github.com/puavous/lmad1 )
 
 ** Instructions on how to view
 
@@ -82,7 +86,8 @@ the end of the address of the debug version.
 
 ** Additional reduced version using pnginator
 
-I put into the package also a reduced lo-fi version using pnginator.
+I put into the package also a reduced lo-fi version using
+pnginator. It is called pasilawoods.lofi.NOT-FOR-COMPO.png.html
 
 Browsers don't allow the PNG compression trick from a file system
 source.  Use a web server or insecure browser session without CORS. In
