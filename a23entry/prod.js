@@ -15,11 +15,11 @@
 // pause / seek the show. Adding "#" to the end of the URL hides the info bar
 // so that clean screenshots can be taken from a paused show.
 //
-// Note to self: Perhaps I should pick up using the Brotli packing
-// method, since it was allowed in Assembly Summer 2022, so probably
-// still OK (should ask, though..) It does pack much better than zip
-// and avoids all the PNG trickery that costs a lot compared to actual
-// content.
+// Note to everybody: Yep, I ended up using the Brotli packing
+// method, which is kindly allowed in Assembly Summer 2023 as well as 2022.
+// I did ask Compo Crew by email beforehand. So.. ended up with exact same
+// show as in here, because no hand-minimization was needed afterwards.
+// For curiosity, I will add a lo-fi version using PNG packing in the entry zip.
 //
 // License: Kindly credit this as prior work, and change the graphics
 // and sound to something notably different. Otherwise do as you
