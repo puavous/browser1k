@@ -220,6 +220,7 @@ var aat = (t) => {
     //return ((4*t|0)%2) * (((330+t*4)*t) *(((2*t) % 6)|0)%2|0) ;
     //return ((4*t|0)%2) * ((330-t*4)*t)%1 ;
     return (t > DURATION_SECONDS)?0 :
+    //return (t > 60)?0 :
 	//((4*t|0)%2) * ((55+t*4)*t)%1 ;
     //(t%6<2)*(1-((t/3)%1)) * (((220-t*2)*t)%1) ;
     //(t%6<2)*(1-((t/3)%1)) * Math.sin((7000-(t+30)**2)*t) ; // Creepy, awkward (with unwanted pops)
@@ -553,7 +554,8 @@ var idea_trees1 = (t,w,h,C) => {
         //[[0,130-2*(t+10),-130+2*(t+10)], 0, t/40-1, 2 * h], // descend from the air
 	[[0,110-2*t,-110+2*t], 0, t/40-1, 2 * h], // descend from the air
 	[[(t-46),6,2.5], t/6, Math.PI/2, h], // look up, spinning, walk a bit
-        [[0,44,-40], -1-(t-60)/20, (t-60)/10, 2 * h], // away-from-view
+        //[[0,-80+2*t,40-t], -1-(t-60)/20, (t-60)/10, 2 * h], // away-from-view
+	[[0,10-(t-60)/2,-30+(t-60)*6], -(t-60)/10, (t-60)/20, 2*h], // away-from-view
 	//[[0,3,30-2*(t-43)], t, Math.PI/2] // wander through fast, spinning
 	
     ]
