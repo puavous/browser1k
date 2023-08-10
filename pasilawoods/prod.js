@@ -479,6 +479,36 @@ var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
 }
 
+/** Yet one more version, after compo with no deadline pressure... */
+var fillCapsuleSilhouette2b = (C, cx1, cy1, r1, cx2, cy2, r2,
+			       alpha = Math.acos((r1-r2)/Math.hypot(cx2-cx1,cy2-cy1)),
+			       beta = Math.atan((cy2-cy1)/(cx2-cx1))
+) => {
+    // Computations that give either usable alpha&beta or NaN if circle encloses another
+    if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
+
+    // Handle the sticky special cases of overlaps:
+    C.beginPath();
+    if (alpha == alpha){
+	C.arc(cx1, cy1, r1,
+	      alpha + beta,
+	      2*Math.PI - alpha + beta);
+	C.arc(cx2, cy2, r2,
+	      2*Math.PI - alpha + beta,
+	      alpha  + beta);
+    } else {
+	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
+	if (r1>r2){
+	    C.arc(cx1, cy1, r1, 0, 2*Math.PI);
+	} else {
+	    C.arc(cx2, cy2, r2, 0, 2*Math.PI);
+	}
+    }
+    C.fill();
+
+    //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
+}
+
 
 
 
@@ -640,7 +670,7 @@ var idea_trees1 = (t,w,h,C) => {
 //	strokeBetween(C,
 //	fillBetween(C,
 //	fillCapsuleSilhouette(C,
-	fillCapsuleSilhouette2(C,
+	fillCapsuleSilhouette2b(C,
 			      w/2 + persp / p1[2] * p1[0] ,
 			      h/2 - persp / p1[2] * p1[1] ,
 			      persp / p1[2] * s1 ,
