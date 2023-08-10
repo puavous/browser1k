@@ -429,6 +429,59 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
     C.fill();
 }
 
+/** Yet one more version, after compo with no deadline pressure... */
+var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+
+/*
+    // Debug/devel helper: stroke circles with white
+    C.strokeStyle = "#eee";
+    C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7);
+    C.stroke();
+    C.beginPath();
+    C.arc(cx2, cy2, r2, 0, 7);
+    C.stroke();
+*/
+
+    // Computations that give either usable alpha&beta or NaN if circle encloses another
+    var d = (Math.hypot(cx2-cx1,cy2-cy1));
+    var thecos = (r1-r2)/d;
+    var alpha = Math.acos(thecos);
+    if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
+    var beta = Math.atan((cy2-cy1)/(cx2-cx1));
+
+/*
+    // Stroke it when circles don't completely overlap:
+    C.strokeStyle = "#f00";
+    C.beginPath();
+    C.arc(cx1, cy1, r1, alpha + beta, 2*Math.PI-alpha  + beta);
+    C.arc(cx2, cy2, r2, 2*Math.PI-alpha  + beta, alpha  + beta);
+    C.closePath();
+    C.stroke();
+*/
+
+    // Handle the sticky special cases of overlaps:
+    C.beginPath();
+    if (alpha == alpha){
+	C.arc(cx1, cy1, r1, alpha + beta, 2*Math.PI-alpha  + beta);
+	C.arc(cx2, cy2, r2, 2*Math.PI-alpha  + beta, alpha  + beta);
+    } else {
+	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
+	if (r1>r2){
+	    C.arc(cx1, cy1, r1, 0, 7);
+	} else {
+	    C.arc(cx2, cy2, r2, 0, 7);
+	}
+    }
+    C.closePath();
+    C.fill();
+
+    //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
+}
+
+
+
+
 /** Fill a polygon with varying width. Using this for sharper turns is
  * suboptimal; you can see the stiches, so to speak.. But for smaller curves
  * the artefacts are very small and maybe could go mostly unnoticed?.
@@ -585,8 +638,9 @@ var idea_trees1 = (t,w,h,C) => {
 // Approximate variants. Visually imperfect but smaller and faster to draw.
 // In fact, for the current tree geometries, a full capsule is not needed.
 //	strokeBetween(C,
-	fillBetween(C,
+//	fillBetween(C,
 //	fillCapsuleSilhouette(C,
+	fillCapsuleSilhouette2(C,
 			      w/2 + persp / p1[2] * p1[0] ,
 			      h/2 - persp / p1[2] * p1[1] ,
 			      persp / p1[2] * s1 ,
@@ -614,6 +668,18 @@ var idea_trees1 = (t,w,h,C) => {
 
 
 
+/** Test of the capsule code*/
+var idea_blobs4 = (t,w,h,C) => {
+    stuffpoints = [];
+    C.fillStyle = "#784";
+    //let [x1,y1,r1,x2,y2,r2] = [w/3, h/2, h/4, 2*w/3, h/2, h/20];
+    //let [x1,y1,r1,x2,y2,r2] = [w/3, h/2, h/3, 2*w/3, h/2, h/3 + Math.sin(t)*h/3];
+    let [x1,y1,r1,x2,y2,r2] = [w/2, h/2, h/4,
+			       w/2 + Math.sin(t/6)*h/4,
+			       h/2 + Math.cos(t/6)*h/8, h/3 + Math.sin(t)*h/3];
+    fillCapsuleSilhouette2(C, x1, y1, r1, x2, y2, r2);
+}
+
 
 
 // Reset the canvas size on each redraw - extra work but less code.
@@ -633,7 +699,7 @@ var animation_frame = (t,
     //idea_sky0(t,w,h,C);     // Single color, but changes over time. +60 bytes?!
     idea_sky1(t,w,h,C);     // A gradient would be sweet, but it costs a lot.
     //idea_hills2(t,w,h,C);
-    //idea_blobs3a(t,w,h,C);  // capsule minitest
+    //idea_blobs4(t,w,h,C);  // capsule test once more
     idea_trees1(t,w,h,C);  // Tree silhouettes.. getting somewhere? works in B&W?
 
     debug_information(C, t, w, h, ' #darr='+stuffpoints.length) //DEBUG
