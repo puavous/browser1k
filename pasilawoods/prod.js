@@ -499,9 +499,9 @@ var fillCapsuleSilhouette2b = (C, cx1, cy1, r1, cx2, cy2, r2,
     } else {
 	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
 	if (r1>r2){
-	    C.arc(cx1, cy1, r1, 0, 2*Math.PI);
+	    C.arc(cx1, cy1, r1, 0, 7);
 	} else {
-	    C.arc(cx2, cy2, r2, 0, 2*Math.PI);
+	    C.arc(cx2, cy2, r2, 0, 7);
 	}
     }
     C.fill();
