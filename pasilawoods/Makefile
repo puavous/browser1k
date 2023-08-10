@@ -48,7 +48,7 @@ $(PROD_NAME).compo.html.br: tmp.closured.js
 
 
 # Compo target: After minification, pack it
-$(PROD_NAME).compo.html: tmp.closured.js
+$(PROD_NAME).compo.png.html: tmp.closured.js
 	$(PNGIN) tmp.closured.js $@
 
 # Remove all debugging code, minify and pack everything.
@@ -78,7 +78,7 @@ clean:
 	-rm *~ tmp.* *.closured.js
 
 cleaner: clean
-	-rm *.compo.html
+	-rm *.compo.png.html
 	-rm *.compo.html.br
 	-rm *.debug.html
 	-rm gzthermal-result.png
