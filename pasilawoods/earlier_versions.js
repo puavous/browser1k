@@ -196,6 +196,109 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
 }
 
 
+/** Yet one more version, after compo with no deadline pressure... */
+var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
+
+/*
+    // Debug/devel helper: stroke circles with white
+    C.strokeStyle = "#eee";
+    C.beginPath();
+    C.arc(cx1, cy1, r1, 0, 7);
+    C.stroke();
+    C.beginPath();
+    C.arc(cx2, cy2, r2, 0, 7);
+    C.stroke();
+*/
+
+    // Computations that give either usable alpha&beta or NaN if circle encloses another
+    var d = (Math.hypot(cx2-cx1,cy2-cy1));
+    var thecos = (r1-r2)/d;
+    var alpha = Math.acos(thecos);
+    if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
+    var beta = Math.atan((cy2-cy1)/(cx2-cx1));
+
+/*
+    // Stroke it when circles don't completely overlap:
+    C.strokeStyle = "#f00";
+    C.beginPath();
+    C.arc(cx1, cy1, r1, alpha + beta, 2*Math.PI-alpha  + beta);
+    C.arc(cx2, cy2, r2, 2*Math.PI-alpha  + beta, alpha  + beta);
+    C.closePath();
+    C.stroke();
+*/
+
+    // Handle the sticky special cases of overlaps:
+    C.beginPath();
+    if (alpha == alpha){
+	C.arc(cx1, cy1, r1, alpha + beta, 2*Math.PI-alpha  + beta);
+	C.arc(cx2, cy2, r2, 2*Math.PI-alpha  + beta, alpha  + beta);
+    } else {
+	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
+	if (r1>r2){
+	    C.arc(cx1, cy1, r1, 0, 7);
+	} else {
+	    C.arc(cx2, cy2, r2, 0, 7);
+	}
+    }
+    C.closePath();
+    C.fill();
+
+    //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
+}
+
+/**
+* Yet one more version, after compo with no deadline pressure...  Some
+* bytes might come off by approximating 3.14 and 6.28 for PI and
+* 2*PI..  That way I could actually stuff my Pasila Woods within 1047
+* bytes, so losing only 24 bytes to original (using Brotli, of
+* course). This version with exact Math.PI became 1051 bytes.
+*
+* This is the shortest micro-optimization I could reach a couple of
+* days after Assembly Summer 2023. I just had to do the thing that I
+* left as 'a later exercise' under deadline pressure the week before
+* Assembly Summer 2023. Without an approaching deadline, the exercise
+* was now the simplest ever. Enlightenment took place about the
+* Wikipedia article about outer tangents, and I'm almost giving myself
+* the "Dumbest Math Person Award of 2023" for my abandoned attempts at
+* this before... But, it changes nothing afterwards - this version
+* would not have been useful in my 2023 entry because it didn't have
+* the requirement of drawing each pixel just once (which, to my
+* understading, would come only from transparent drawing with alpha
+* blending, or using blur, or stroking the outer boundary or... well,
+* ok, there are quite a few intriguing use cases to try in a later
+* entry in a later production).
+*/
+var fillCapsuleSilhouette2b = (C, cx1, cy1, r1, cx2, cy2, r2,
+			       alpha = Math.acos((r1-r2)/Math.hypot(cx2-cx1,cy2-cy1)),
+			       beta = Math.atan((cy2-cy1)/(cx2-cx1))
+) => {
+    // Computations that give either usable alpha&beta or NaN if circle encloses another
+    if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
+
+    // Handle the sticky special cases of overlaps:
+    C.beginPath();
+    if (alpha == alpha){
+	C.arc(cx1, cy1, r1,
+	      alpha + beta,
+	      2*Math.PI - alpha + beta);
+	C.arc(cx2, cy2, r2,
+	      2*Math.PI - alpha + beta,
+	      alpha  + beta);
+    } else {
+	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
+	if (r1>r2){
+	    C.arc(cx1, cy1, r1, 0, 7);
+	} else {
+	    C.arc(cx2, cy2, r2, 0, 7);
+	}
+    }
+    C.fill();
+
+    //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
+}
+
+
+
 /** Preliminary test of the capsule code*/
 var idea_blobs3a = (t,w,h,C) => {
     for (var i = -5; i<6; i++){
@@ -204,6 +307,18 @@ var idea_blobs3a = (t,w,h,C) => {
 			      w/2 + i*h/10, h/2, h/20,
 			      w/2 + i*h/10, h/3, h/100);
     }
+}
+
+/** Another test of the capsule code*/
+var idea_blobs4 = (t,w,h,C) => {
+    stuffpoints = [];
+    C.fillStyle = "#784";
+    //let [x1,y1,r1,x2,y2,r2] = [w/3, h/2, h/4, 2*w/3, h/2, h/20];
+    //let [x1,y1,r1,x2,y2,r2] = [w/3, h/2, h/3, 2*w/3, h/2, h/3 + Math.sin(t)*h/3];
+    let [x1,y1,r1,x2,y2,r2] = [w/2, h/2, h/4,
+			       w/2 + Math.sin(t/6)*h/4,
+			       h/2 + Math.cos(t/6)*h/8, h/3 + Math.sin(t)*h/3];
+    fillCapsuleSilhouette2(C, x1, y1, r1, x2, y2, r2);
 }
 
 
