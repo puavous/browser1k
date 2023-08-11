@@ -479,7 +479,28 @@ var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
 }
 
-/** Yet one more version, after compo with no deadline pressure... */
+/**
+* Yet one more version, after compo with no deadline pressure...  Some
+* bytes might come off by approximating 3.14 and 6.28 for PI and
+* 2*PI..  That way I could actually stuff my Pasila Woods within 1047
+* bytes, so losing only 24 bytes to original (using Brotli, of
+* course). This version with exact Math.PI became 1051 bytes.
+*
+* This is the shortest micro-optimization I could reach a couple of
+* days after Assembly Summer 2023. I just had to do the thing that I
+* left as 'a later exercise' under deadline pressure the week before
+* Assembly Summer 2023. Without an approaching deadline, the exercise
+* was now the simplest ever. Enlightenment took place about the
+* Wikipedia article about outer tangents, and I'm almost giving myself
+* the "Dumbest Math Person Award of 2023" for my abandoned attempts at
+* this before... But, it changes nothing afterwards - this version
+* would not have been useful in my 2023 entry because it didn't have
+* the requirement of drawing each pixel just once (which, to my
+* understading, would come only from transparent drawing with alpha
+* blending, or using blur or stroking the outer boundary or... well,
+* ok, there are quite a few intriguing use cases to try in a later
+* entry in a later production).
+*/
 var fillCapsuleSilhouette2b = (C, cx1, cy1, r1, cx2, cy2, r2,
 			       alpha = Math.acos((r1-r2)/Math.hypot(cx2-cx1,cy2-cy1)),
 			       beta = Math.atan((cy2-cy1)/(cx2-cx1))
