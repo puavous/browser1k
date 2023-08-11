@@ -487,11 +487,9 @@ var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 * than my pre-compo version with complete silhouette and more elegant at
 * the same time. Dumbest Math Person Award well deserved, it seems :-) ...
 *
-* Yet one more version, after compo with no deadline pressure...  Some
-* bytes might come off by approximating 3.14 and 6.28 for PI and
-* 2*PI..  That way I could actually stuff my Pasila Woods within 1047
-* bytes, so losing only 24 bytes to original (using Brotli, of
-* course). This version with exact Math.PI became 1051 bytes.
+* Yet one more version, after compo with no deadline pressure...
+* Tried also approximating Math.PI by literal 3.14; mixed results, depending
+* on context and packing interplay. Likely not worth it.
 *
 * This is the shortest micro-optimization I could reach a couple of
 * days after Assembly Summer 2023. I just had to do the thing that I
