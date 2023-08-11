@@ -497,7 +497,7 @@ var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 * would not have been useful in my 2023 entry because it didn't have
 * the requirement of drawing each pixel just once (which, to my
 * understading, would come only from transparent drawing with alpha
-* blending, or using blur or stroking the outer boundary or... well,
+* blending, or using blur, or stroking the outer boundary or... well,
 * ok, there are quite a few intriguing use cases to try in a later
 * entry in a later production).
 */
@@ -689,9 +689,9 @@ var idea_trees1 = (t,w,h,C) => {
 // Approximate variants. Visually imperfect but smaller and faster to draw.
 // In fact, for the current tree geometries, a full capsule is not needed.
 //	strokeBetween(C,
-//	fillBetween(C,
+	fillBetween(C,
 //	fillCapsuleSilhouette(C,
-	fillCapsuleSilhouette2b(C,
+//	fillCapsuleSilhouette2b(C,
 			      w/2 + persp / p1[2] * p1[0] ,
 			      h/2 - persp / p1[2] * p1[1] ,
 			      persp / p1[2] * s1 ,
