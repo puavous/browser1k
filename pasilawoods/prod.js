@@ -480,6 +480,13 @@ var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 }
 
 /**
+* And.. Compulsively still updating this; now packs to 1043, i.e., +20 bytes
+* compared to the approximate version used in Assembly Summer 2023 compo. This
+* is becoming a very tempting alternative to use in some later entry that could
+* make actual use of the clean path. And, well, yep, ... this is smaller
+* than my pre-compo version with complete silhouette and more elegant at
+* the same time. Dumbest Math Person Award well deserved, it seems :-) ...
+*
 * Yet one more version, after compo with no deadline pressure...  Some
 * bytes might come off by approximating 3.14 and 6.28 for PI and
 * 2*PI..  That way I could actually stuff my Pasila Woods within 1047
@@ -509,25 +516,22 @@ var fillCapsuleSilhouette2b = (C, cx1, cy1, r1, cx2, cy2, r2,
     if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
 
     // Handle the sticky special cases of overlaps:
+    // Make the smaller circle NaN-sized. By spec, it won't affect the path.
+    if (alpha !== alpha){
+	alpha=beta=0;
+	if (r1>r2) r2 = NaN; else r1 = NaN;
+    }
+
     C.beginPath();
-    if (alpha == alpha){
 	C.arc(cx1, cy1, r1,
 	      alpha + beta,
 	      2*Math.PI - alpha + beta);
 	C.arc(cx2, cy2, r2,
 	      2*Math.PI - alpha + beta,
 	      alpha  + beta);
-    } else {
-	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
-	if (r1>r2){
-	    C.arc(cx1, cy1, r1, 0, 7);
-	} else {
-	    C.arc(cx2, cy2, r2, 0, 7);
-	}
-    }
     C.fill();
 
-    //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
+    // C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
 }
 
 
@@ -728,7 +732,7 @@ var idea_blobs4 = (t,w,h,C) => {
     let [x1,y1,r1,x2,y2,r2] = [w/2, h/2, h/4,
 			       w/2 + Math.sin(t/6)*h/4,
 			       h/2 + Math.cos(t/6)*h/8, h/3 + Math.sin(t)*h/3];
-    fillCapsuleSilhouette2(C, x1, y1, r1, x2, y2, r2);
+    fillCapsuleSilhouette2b(C, x1, y1, r1, x2, y2, r2);
 }
 
 
