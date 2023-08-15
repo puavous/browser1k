@@ -1,13 +1,36 @@
-// For the sake of reference and documentation.
+// Alternative versions, for the sake of reference and documentation.
+//
 // I suck at "killing my darlings", but I cope with archiving them thus..
-// Early versions of my capsule draw routine that was finally size-optimized
-// beyond clarity.. Contains notes about use of NaN and Inf values.
+//
+// In this file:
+//
+// - Early versions of my capsule draw routine that was finally
+//   size-optimized beyond clarity.. Contains notes about use of NaN
+//   and Inf values.
+//
+// - The one that I eventually did not use in the Assembly Summer 2023
+//   entry because a shorter approximation was sufficient (no visual
+//   difference with the geometry that was used)
+//
+// - A later version that I did after the compo as a further
+//   exercise. (When something is left as 'a later exercise', it tends
+//   to come back haunting until it is done). Possibly could be used
+//   in a later production, so I'll copy-paste it from here to a new
+//   one if it so happens. Meanwhile, You can do the same, if you want
+//   to...
+//
+// - Some other attempts / archived darlings from my own summer of
+//   code 2023.
 
 /**
-  Draw a silhouette of a 'capsule'. As a 2d projection that is
-  two circles for the round ends and the area between their outer tangents.
-  These three Components overlap; I'll leave it as a later exercise to figure
-  out correct angles for the arcs so that each pixel would get painted only once.
+  Draw a silhouette of a 'capsule'. Not exactly a capsule, but close
+  enough to call it just that here.
+
+  Technically, I draw a 2d projection that is two circles for the
+  round ends and the area between their outer tangents.  These three
+  Components overlap; I'll leave it as a later exercise to figure out
+  correct angles for the arcs so that each pixel would get painted
+  only once [now done, below; original comment continues...].
 
   Compute first; draw then. Algorithm is eventually made from "first
   principles", solving simplest kinds of equations. This time the
@@ -17,16 +40,17 @@
   starters about what goes on with the tangents here:
   https://en.wikipedia.org/wiki/Tangent_lines_to_circles
     
-  Notes on my latest Javascript learnings: NaNs are valid inputs for Canvas path
-  operations. Such NaN-op doesn't alter the path. So, 0/0 is a good intermediate
-  computation for intentional no-outputs. Infinities fine too.
+  Notes on my latest Javascript learnings: NaNs are valid inputs for
+  Canvas path operations. Such NaN-op doesn't alter the path. So, 0/0
+  is a good intermediate computation for intentional
+  no-outputs. Infinities fine too.
 
-  Specifically: Infinity is a fine value for parallel lines.
-  NaN is a fine value for |r1-r2| > cdist (circle encloses other).
+  Specifically: Infinity is a fine value for parallel lines. NaN is a
+  fine value for |r1-r2| > cdist (circle encloses other).
 
-  These observations provide quite straightforward code, but then it probably
-  has to be made dirty and obscure again by micro-optimizations for the 1k intro
-  madness, eventually..
+  These observations provide quite straightforward code, but then it
+  probably has to be made dirty and obscure again by
+  micro-optimizations for the 1k intro madness, eventually..
 */
 var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     // Actual Distance between circles in screen coordinates.
@@ -39,7 +63,7 @@ var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     // Unit vector orthogonal to (ux,uy)
     var [vx,vy,] = cross3([ux, uy, 0], [0, 0, 1]);
     
-    // Distance used in computing: r1-r2 becomes 1.0 to keep equation simple.
+    // Distance used in computing: from r1-r2 to 1.0 to keep equation simple.
     // Assuming circles are on x-axis; I'll project them to u,v afterwards.
     // Then I could solve it with pen, paper and my rusty math brain:
     var d = cdist / (r1 - r2);
@@ -52,6 +76,7 @@ var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     var p2x = tx*r2;
     var p2y = ty*r2;
 
+    // Paint all three components on top of each other.
     C.beginPath();
     C.arc(cx1, cy1, r1, 0, 7);
     C.arc(cx2, cy2, r2, 0, 7);
@@ -67,13 +92,14 @@ var fillCapsuleSilhouette_orig = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 }
 
 
-/** It is almost impossible (at least for me) to decrypt this version; see
-above original version to see what's going on.
+/** 
+ It is already quite hard (at least for me) to decrypt this first
+ micro-optimized version; see above original version to see what's
+ going on.
 */
 var fillCapsuleSilhouette_level_2_obfuscation = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     // Actual Distance between circles in screen coordinates.
     var d = Math.hypot(cx2 - cx1, cy2 - cy1);
-    //var cdist = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
 
     // Unit vector (ux,uy) pointing towards circle 2 from circle 1 center
     var ux = (cx2 - cx1) / d;
@@ -111,12 +137,14 @@ var fillCapsuleSilhouette_level_2_obfuscation = (C, cx1, cy1, r1, cx2, cy2, r2) 
 }
 
 
-/** Level 3 obscurity... */
+/**
+ * Level 3 obscurity... applying manipulations mechanically to shorten
+ * and shorten.
+ */
 var fillCapsuleSilhouette_lev3 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     
     // Actual Distance between circles in screen coordinates.
     var d = Math.hypot(cx2 - cx1, cy2 - cy1);
-    //var d = Math.sqrt((cx2-cx1)**2 + (cy2-cy1)**2);
 
     // Difference of radii divided by distance:
     var I = (r1 - r2) / d;
@@ -157,7 +185,13 @@ var fillCapsuleSilhouette_lev3 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 }
 
 
-/** Then, bye bye readability. See above to get any idea of how this emerged. */
+/** Then, bye bye readability. See above to get any idea of how this
+ * emerged. This version was left as a commented-out alternative also
+ * in the debug version that went into the Assembly Summer 2023 compo
+ * entry zip. Eventually this wasn't used in the show because a
+ * cheaper approximation could be used for the tree geometry without
+ * visual difference.
+ */
 var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
     // Actual Distance between circles in screen coordinates.
 			     d = Math.hypot(cx2 - cx1, cy2 - cy1),
@@ -196,7 +230,16 @@ var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
 }
 
 
-/** Yet one more version, after compo with no deadline pressure... */
+/**
+ * Yet one more version, after compo with no deadline pressure... Here
+ * the first version without yet micro-optimizing anything.
+ *
+ * Game plan: Solve angle 'alpha' from the right triangle connecting
+ * the line between the circles and one outer tangent. Solve angle
+ * 'beta' between the connecting line and x-axis of the drawing
+ * canvas. Then use symmetries to create the path around the 'capsule'
+ * silhouette.
+ */
 var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 
 /*
@@ -246,12 +289,11 @@ var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
     //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
 }
 
+
 /**
-* Yet one more version, after compo with no deadline pressure...  Some
-* bytes might come off by approximating 3.14 and 6.28 for PI and
-* 2*PI..  That way I could actually stuff my Pasila Woods within 1047
-* bytes, so losing only 24 bytes to original (using Brotli, of
-* course). This version with exact Math.PI became 1051 bytes.
+* And.. Compulsively still updating this; now packs to 1043, i.e., +20
+* bytes compared to the approximate version used in Assembly Summer
+* 2023 compo.
 *
 * This is the shortest micro-optimization I could reach a couple of
 * days after Assembly Summer 2023. I just had to do the thing that I
@@ -261,40 +303,42 @@ var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
 * Wikipedia article about outer tangents, and I'm almost giving myself
 * the "Dumbest Math Person Award of 2023" for my abandoned attempts at
 * this before... But, it changes nothing afterwards - this version
-* would not have been useful in my 2023 entry because it didn't have
+* would not have been useful in my 2023 entry because this is still
+* a few bytes larger than the one used, and the entry didn't have
 * the requirement of drawing each pixel just once (which, to my
 * understading, would come only from transparent drawing with alpha
 * blending, or using blur, or stroking the outer boundary or... well,
 * ok, there are quite a few intriguing use cases to try in a later
 * entry in a later production).
+*
+* This is now a very tempting alternative to use in a production that
+* could make some actual use of the clean path. And, well, yep,
+* ... this is smaller than my pre-compo version with complete
+* silhouette and more elegant at the same time. Dumbest Math Person
+* Award well deserved, it seems :-) ...
+*
+* Tried also approximating Math.PI by literal 3.14; mixed results,
+* depending on the interplay of packing and other content. Likely not
+* worth the trouble.
+*
 */
 var fillCapsuleSilhouette2b = (C, cx1, cy1, r1, cx2, cy2, r2,
+    // Computations that give either usable alpha&beta or NaN if circle encloses another
 			       alpha = Math.acos((r1-r2)/Math.hypot(cx2-cx1,cy2-cy1)),
 			       beta = Math.atan((cy2-cy1)/(cx2-cx1))
 ) => {
-    // Computations that give either usable alpha&beta or NaN if circle encloses another
-    if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
+    if (cx2 < cx1) alpha += Math.PI;
 
-    // Handle the sticky special cases of overlaps:
-    C.beginPath();
-    if (alpha == alpha){
-	C.arc(cx1, cy1, r1,
-	      alpha + beta,
-	      2*Math.PI - alpha + beta);
-	C.arc(cx2, cy2, r2,
-	      2*Math.PI - alpha + beta,
-	      alpha  + beta);
-    } else {
-	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
-	if (r1>r2){
-	    C.arc(cx1, cy1, r1, 0, 7);
-	} else {
-	    C.arc(cx2, cy2, r2, 0, 7);
-	}
+    // If overlap, make the smaller circle NaN-sized. By spec, it won't affect the path.
+    if (alpha !== alpha){
+	alpha = beta = 0;
+	if (r1 > r2) r2 = NaN; else r1 = NaN;
     }
-    C.fill();
 
-    //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
+    C.beginPath();
+    C.arc(cx1, cy1, r1, alpha + beta,               2*Math.PI - alpha + beta);
+    C.arc(cx2, cy2, r2, 2*Math.PI - alpha + beta,   alpha + beta);
+    C.fill();
 }
 
 

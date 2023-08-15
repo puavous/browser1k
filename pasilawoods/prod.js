@@ -389,155 +389,40 @@ var idea_sky0 = (t,w,h,C) => {
 }
 
 
-
-
-/** Then, bye bye readability. See above to get any idea of how this emerged. */
-var fillCapsuleSilhouette = (C, cx1, cy1, r1, cx2, cy2, r2,
-    // Actual Distance between circles in screen coordinates.
-			     d = Math.hypot(cx2 - cx1, cy2 - cy1),
-    // Unit direction vector from circle 1 towards circle 2.
-			     ux = (cx2-cx1)/d,
-			     uy = (cy2-cy1)/d,
-    // Difference of radii divided by distance:
-			     I = (r1 - r2) / d,
-    // Piece of equation called "a":
-			     a = Math.sqrt(1 - I*I)
-			    ) => {
-
-/*
-    C.beginPath();
-    C.arc(cx1, cy1, r1, 0, 7);
-    C.arc(cx2, cy2, r2, 0, 7);
-    C.fill();
-*/
-
-// Depending on geometry, could leave out one or both cap arcs without
-// very noticeable artefacts.. but then it really defeats the whole purpose
-// of the exercise with finding outer tangents :). Oh, well, it was a nice
-// learning experience, so let's not ask if it was useful otherwise..
-    C.beginPath();
-    C.arc(cx1, cy1, r1, 0, 7); // Depending on geometry, arcs could be here
-    C.arc(cx2, cy2, r2, 0, 7); // Separate the paths if artefacts appear
-    C.moveTo( cx1  +  I*r1 * ux              +  a*r1 * uy            ,
-	      cy1  +  I*r1 * uy              -  a*r1 * ux            );
-    C.lineTo( cx2  +  I*r2 * ux              +  a*r2 * uy            ,
-	      cy2  +  I*r2 * uy              -  a*r2 * ux            );
-    C.lineTo( cx2  +  I*r2 * ux              -  a*r2 * uy            ,
-	      cy2  +  I*r2 * uy              +  a*r2 * ux            );
-    C.lineTo( cx1  +  I*r1 * ux              -  a*r1 * uy            ,
-	      cy1  +  I*r1 * uy              +  a*r1 * ux            );
-    C.fill();
-}
-
-/** Yet one more version, after compo with no deadline pressure... */
-var fillCapsuleSilhouette2 = (C, cx1, cy1, r1, cx2, cy2, r2) => {
-
-/*
-    // Debug/devel helper: stroke circles with white
-    C.strokeStyle = "#eee";
-    C.beginPath();
-    C.arc(cx1, cy1, r1, 0, 7);
-    C.stroke();
-    C.beginPath();
-    C.arc(cx2, cy2, r2, 0, 7);
-    C.stroke();
-*/
-
-    // Computations that give either usable alpha&beta or NaN if circle encloses another
-    var d = (Math.hypot(cx2-cx1,cy2-cy1));
-    var thecos = (r1-r2)/d;
-    var alpha = Math.acos(thecos);
-    if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
-    var beta = Math.atan((cy2-cy1)/(cx2-cx1));
-
-/*
-    // Stroke it when circles don't completely overlap:
-    C.strokeStyle = "#f00";
-    C.beginPath();
-    C.arc(cx1, cy1, r1, alpha + beta, 2*Math.PI-alpha  + beta);
-    C.arc(cx2, cy2, r2, 2*Math.PI-alpha  + beta, alpha  + beta);
-    C.closePath();
-    C.stroke();
-*/
-
-    // Handle the sticky special cases of overlaps:
-    C.beginPath();
-    if (alpha == alpha){
-	C.arc(cx1, cy1, r1, alpha + beta, 2*Math.PI-alpha  + beta);
-	C.arc(cx2, cy2, r2, 2*Math.PI-alpha  + beta, alpha  + beta);
-    } else {
-	// alpha !== alpha then it is NaN and we select the larger of overlapping arcs:
-	if (r1>r2){
-	    C.arc(cx1, cy1, r1, 0, 7);
-	} else {
-	    C.arc(cx2, cy2, r2, 0, 7);
-	}
-    }
-    C.closePath();
-    C.fill();
-
-    //C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
-}
-
 /**
-* And.. Compulsively still updating this; now packs to 1043, i.e., +20 bytes
-* compared to the approximate version used in Assembly Summer 2023 compo. This
-* is becoming a very tempting alternative to use in some later entry that could
-* make actual use of the clean path. And, well, yep, ... this is smaller
-* than my pre-compo version with complete silhouette and more elegant at
-* the same time. Dumbest Math Person Award well deserved, it seems :-) ...
+* A silhouette drawing version that was created after the Assembly 
+* Summer 2023 event and compo. See alternative_versions.js for notes
+* about this. A shorter approximate drawing routine was sufficient for
+* this production.
 *
-* Yet one more version, after compo with no deadline pressure...
-* Tried also approximating Math.PI by literal 3.14; mixed results, depending
-* on context and packing interplay. Likely not worth it.
-*
-* This is the shortest micro-optimization I could reach a couple of
-* days after Assembly Summer 2023. I just had to do the thing that I
-* left as 'a later exercise' under deadline pressure the week before
-* Assembly Summer 2023. Without an approaching deadline, the exercise
-* was now the simplest ever. Enlightenment took place about the
-* Wikipedia article about outer tangents, and I'm almost giving myself
-* the "Dumbest Math Person Award of 2023" for my abandoned attempts at
-* this before... But, it changes nothing afterwards - this version
-* would not have been useful in my 2023 entry because it didn't have
-* the requirement of drawing each pixel just once (which, to my
-* understading, would come only from transparent drawing with alpha
-* blending, or using blur, or stroking the outer boundary or... well,
-* ok, there are quite a few intriguing use cases to try in a later
-* entry in a later production).
 */
 var fillCapsuleSilhouette2b = (C, cx1, cy1, r1, cx2, cy2, r2,
+    // Computations that give either usable alpha&beta or NaN if circle encloses another
 			       alpha = Math.acos((r1-r2)/Math.hypot(cx2-cx1,cy2-cy1)),
 			       beta = Math.atan((cy2-cy1)/(cx2-cx1))
 ) => {
-    // Computations that give either usable alpha&beta or NaN if circle encloses another
-    if (cx2<cx1) alpha += Math.PI;  // Isn't this doable by *=-1 somewhere? check..
+    if (cx2 < cx1) alpha += Math.PI;
 
-    // Handle the sticky special cases of overlaps:
-    // Make the smaller circle NaN-sized. By spec, it won't affect the path.
+    // If overlap, make the smaller circle NaN-sized. By spec, it won't affect the path.
     if (alpha !== alpha){
-	alpha=beta=0;
-	if (r1>r2) r2 = NaN; else r1 = NaN;
+	alpha = beta = 0;
+	if (r1 > r2) r2 = NaN; else r1 = NaN;
     }
 
     C.beginPath();
-	C.arc(cx1, cy1, r1,
-	      alpha + beta,
-	      2*Math.PI - alpha + beta);
-	C.arc(cx2, cy2, r2,
-	      2*Math.PI - alpha + beta,
-	      alpha  + beta);
+    C.arc(cx1, cy1, r1, alpha + beta,               2*Math.PI - alpha + beta);
+    C.arc(cx2, cy2, r2, 2*Math.PI - alpha + beta,   alpha + beta);
     C.fill();
-
-    // C.strokeStyle = "#f00";C.stroke(); //Stroke for debug
 }
 
 
-
-
-/** Fill a polygon with varying width. Using this for sharper turns is
+/** 
+ * Fill a polygon with varying width. Using this for sharper turns is
  * suboptimal; you can see the stiches, so to speak.. But for smaller curves
  * the artefacts are very small and maybe could go mostly unnoticed?.
+ *
+ * And, for the Pasila Woods entry of Assembly Summer 2023, let's paint one
+ * arc at the 2nd end. That will fill all gaps in the tree geometries. No problem.
  */
 var fillBetween = (C, cx1, cy1, r1, cx2, cy2, r2,
     // Actual Distance between circles in screen coordinates.
@@ -546,14 +431,8 @@ var fillBetween = (C, cx1, cy1, r1, cx2, cy2, r2,
 		   nx = (cy2-cy1)/d,
 		   ny = -(cx2-cx1)/d ) => {
 
-// Well, could still paint arcs to fill some of the gaps..
-//    C.beginPath();
-//    C.arc(cx2, cy2, r2, 0, 7);
-//    C.fill();
-
     C.beginPath();
-    // Well, could still paint arcs to fill some of the gaps at joints..
-    //C.arc(cx1, cy1, r1, 0, 7);
+    // Paint the arc at the ending point of the twig section:
     C.arc(cx2, cy2, r2, 0, 7);
     C.moveTo( cx1 + r1 * nx, cy1 + r1 * ny );
     C.lineTo( cx2 + r2 * nx, cy2 + r2 * ny );
@@ -688,12 +567,11 @@ var idea_trees1 = (t,w,h,C) => {
 	if ((p1[2] < 1) || (p2[2] < 1)) continue;
 
 
+//	fillCapsuleSilhouette2b(C,
 // Approximate variants. Visually imperfect but smaller and faster to draw.
 // In fact, for the current tree geometries, a full capsule is not needed.
 //	strokeBetween(C,
 	fillBetween(C,
-//	fillCapsuleSilhouette(C,
-//	fillCapsuleSilhouette2b(C,
 			      w/2 + persp / p1[2] * p1[0] ,
 			      h/2 - persp / p1[2] * p1[1] ,
 			      persp / p1[2] * s1 ,
@@ -705,7 +583,7 @@ var idea_trees1 = (t,w,h,C) => {
 
 /*
   // And, well, inlining the whole stroke thing gets 100 bytes away and
-  // looks reeeally ok from far away.. but brakes down in close perspective shots..
+  // looks reeeally ok from far away.. but breaks down in close perspective shots..
 
 	C.lineWidth = persp / p1[2] * s1 + persp / p2[2] * s2;
 	C.lineCap = "round";  // Round caps for +10 bytes. Clip z must be >0
